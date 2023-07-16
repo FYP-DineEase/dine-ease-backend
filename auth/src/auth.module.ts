@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
-import { DatabaseModule, LoggerModule } from '@mujtaba-fyp/common';
+import { DatabaseModule, LoggerModule } from '@mujtaba-web/common';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';

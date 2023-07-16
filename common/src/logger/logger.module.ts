@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { utilities, WinstonModule } from 'nest-winston';
 import { format, transports } from 'winston';
-const { combine, simple, timestamp, ms } = format;
+const { combine, simple, timestamp, ms, prettyPrint } = format;
 
 const formatting = combine(
   simple(),
@@ -23,10 +23,6 @@ const formatting = combine(
         new transports.File({
           filename: './logs/errorlog.log',
           level: 'error',
-        }),
-        new transports.File({
-          filename: './logs/warnlog.log',
-          level: 'warn',
         }),
       ],
       exceptionHandlers: [
