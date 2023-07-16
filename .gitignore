@@ -1,10 +1,10 @@
 # dependencies
 **node_modules
 
-# compiled output
-/dist
+# build
+**dist
 
-# Logs
+# logs
 **logs
 *.log
 npm-debug.log*
