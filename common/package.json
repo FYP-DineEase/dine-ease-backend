@@ -1,0 +1,24 @@
+{
+  "name": "@mujtaba-fyp/common",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf --glob ./dist/*",
+    "build": "npm run clean && tsc",
+    "pub": "git add . && git commit -m \"Updates\" && npm version patch && npm run build && npm publish"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nestjs/common": "^10.0.5",
+    "@nestjs/mongoose": "^10.0.0",
+    "mongoose": "^7.3.4",
+    "nest-winston": "^1.9.3",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.1"
+  }
+}
