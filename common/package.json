@@ -1,9 +1,12 @@
 {
   "name": "@mujtaba-web/common",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "clean": "rimraf --glob ./dist/*",
     "build": "npm run clean && tsc",
