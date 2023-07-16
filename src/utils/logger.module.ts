@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { utilities, WinstonModule } from 'nest-winston';
 import { format, transports } from 'winston';
-const { combine, simple, timestamp, ms } = format;
+const { combine, simple, timestamp, ms, prettyPrint } = format;
 
 const formatting = combine(
   simple(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   ms(),
   utilities.format.nestLike('MyApp', {
-    colors: true,
     prettyPrint: true,
   }),
 );
