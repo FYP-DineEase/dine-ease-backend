@@ -3,6 +3,9 @@ import { MailModule } from './mail.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(MailModule);
-  await app.listen(3000);
+
+  // server start
+  const PORT = 3000;
+  await app.listen(PORT);
 }
 bootstrap();

@@ -6,6 +6,11 @@ import { User } from './schemas/user.schema';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('hello')
+  hello(): string {
+    return 'hello';
+  }
+
   @Post('login')
   login(@Body() credentials: any): Promise<string> {
     return this.authService.login(credentials);

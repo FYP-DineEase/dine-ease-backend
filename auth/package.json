@@ -1,5 +1,5 @@
 {
-  "name": "auth2",
+  "name": "auth",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -30,6 +30,7 @@
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
     "mongoose": "^7.3.4",
+    "node-nats-streaming": "^0.3.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },
