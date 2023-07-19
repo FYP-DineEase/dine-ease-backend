@@ -27,7 +27,7 @@ export class MailService {
     });
   }
 
-  async accountCreation(username: string, name: string): Promise<void> {
+  async accountCreation(name: string, username: string): Promise<void> {
     await this.mailerService.sendMail({
       to: username,
       subject: 'Account Creation on LocalHost',
