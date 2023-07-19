@@ -8,12 +8,14 @@ import { DatabaseModule, LoggerModule } from '@mujtaba-web/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User, UserSchema } from './schemas/user.schema';
+import { NatsModule } from './nats/nats.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: [`.env.stage.${process.env.STAGE}`],
     }),
+    NatsModule,
     JwtAuthModule,
     LoggerModule,
     DatabaseModule.forRoot('mongodb://localhost/nest-auth'),

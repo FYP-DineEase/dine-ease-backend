@@ -20,14 +20,15 @@ import { User } from './schemas/user.schema';
 import { comparePasswords } from './utils/password.utils';
 
 // event
+import { NatsWrapper } from './nats/nats.wrapper';
 import { AccountCreatedPublisher } from './events/publishers/account-created-publisher';
-import { natsWrapper } from './nats.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly jwtService: JwtService,
+    private readonly natsWrapper: NatsWrapper,
   ) {}
 
   // login user
@@ -60,7 +61,7 @@ export class AuthService {
     const createdUser = new this.userModel(user);
     const savedUser = await createdUser.save();
 
-    new AccountCreatedPublisher(natsWrapper.client).publish({
+    new AccountCreatedPublisher(this.natsWrapper.client).publish({
       name: savedUser.name,
       email: savedUser.email,
     });

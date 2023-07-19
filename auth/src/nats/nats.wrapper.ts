@@ -1,11 +1,16 @@
+import { Injectable } from '@nestjs/common/decorators';
 import { connect, Stan } from 'node-nats-streaming';
+import { BadRequestException } from '@nestjs/common';
 
-class NatsWrapper {
+@Injectable()
+export class NatsWrapper {
   private _client?: Stan;
 
   get client() {
     if (!this._client) {
-      throw new Error('Cannot access Nats client before connecting');
+      throw new BadRequestException(
+        'Cannot access Nats client before connecting',
+      );
     }
     return this._client;
   }
@@ -19,10 +24,9 @@ class NatsWrapper {
         resolve();
       });
       this.client.on('error', (err) => {
+        console.log('NATS Connection Error');
         reject(err);
       });
     });
   }
 }
-
-export const natsWrapper = new NatsWrapper();
