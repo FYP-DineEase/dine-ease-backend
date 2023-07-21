@@ -20,19 +20,18 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@mujtaba-web/common": "^1.0.0",
+    "@mujtaba-web/common": "^1.0.20",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.1.0",
-    "@nestjs/mongoose": "^10.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
-    "mongoose": "^7.3.4",
     "node-nats-streaming": "^0.3.2",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "winston": "^3.10.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

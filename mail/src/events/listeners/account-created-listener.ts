@@ -1,11 +1,15 @@
-import { Subjects, Listener, AccountCreatedEvent } from '@mujtaba-web/common';
+import {
+  Listener,
+  AccountCreatedEvent,
+  Subjects,
+  QueueGroups,
+} from '@mujtaba-web/common';
 import { Message, Stan } from 'node-nats-streaming';
-import { queueGroupName } from './queue-group-name';
 import { MailService } from '../../mail.service';
 
 export class AccountCreatedListener extends Listener<AccountCreatedEvent> {
   subject: Subjects.AccountCreated = Subjects.AccountCreated;
-  queueGroupName = queueGroupName;
+  queueGroupName: QueueGroups.MailService = QueueGroups.MailService;
 
   constructor(client: Stan, private readonly mailService: MailService) {
     super(client);

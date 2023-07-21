@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common/decorators';
+import { Injectable, Inject } from '@nestjs/common';
 import { connect, Stan } from 'node-nats-streaming';
 import { BadRequestException } from '@nestjs/common';
+// import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 @Injectable()
 export class NatsWrapper {
   private _client?: Stan;
+
+  constructor(@Inject('App') private readonly appLogger: Logger) {}
 
   get client() {
     if (!this._client) {
