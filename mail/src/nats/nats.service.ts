@@ -2,10 +2,12 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { NatsWrapper } from './nats.wrapper';
 import { AccountCreatedListener } from 'src/events/listeners/account-created-listener';
 import { MailService } from '../mail.service';
+import { NatsLoggerService } from '@mujtaba-web/common';
 
 @Injectable()
 export class NatsService implements OnModuleInit, OnModuleDestroy {
   constructor(
+    private readonly natsLogger: NatsLoggerService,
     private readonly natsWrapper: NatsWrapper,
     private readonly mailService: MailService,
   ) {}
@@ -18,7 +20,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     );
 
     this.natsWrapper.client.on('close', () => {
-      console.log('NATS connection closed!', 'Nats');
+      this.natsLogger.log('NATS connection closed!');
       process.exit();
     });
 

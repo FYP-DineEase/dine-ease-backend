@@ -1,14 +1,13 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { connect, Stan } from 'node-nats-streaming';
 import { BadRequestException } from '@nestjs/common';
-// import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { Logger } from 'winston';
+import { NatsLoggerService } from '@mujtaba-web/common';
 
 @Injectable()
 export class NatsWrapper {
   private _client?: Stan;
 
-  constructor(@Inject('App') private readonly appLogger: Logger) {}
+  constructor(private readonly natsLogger: NatsLoggerService) {}
 
   get client() {
     if (!this._client) {
@@ -24,11 +23,11 @@ export class NatsWrapper {
 
     return new Promise<void>((resolve, reject) => {
       this.client.on('connect', () => {
-        console.log('Connected to NATS');
+        this.natsLogger.log('Connected to NATS');
         resolve();
       });
       this.client.on('error', (err) => {
-        console.log('NATS Connection Error');
+        this.natsLogger.error('NATS Connection Error');
         reject(err);
       });
     });
