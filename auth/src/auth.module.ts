@@ -3,8 +3,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
-import { LoggerModule, DatabaseModule } from '@mujtaba-web/common';
 import { NatsModule } from './nats/nats.module';
+import { LoggerModule, DatabaseModule } from '@mujtaba-web/common';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
