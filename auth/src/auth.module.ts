@@ -9,11 +9,13 @@ import { LoggerModule, DatabaseModule } from '@mujtaba-web/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User, UserSchema } from './schemas/user.schema';
+import { configValidationSchema } from './config-schema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: [`.env.stage.${process.env.STAGE}`],
+      validationSchema: configValidationSchema,
     }),
     LoggerModule,
     JwtAuthModule,

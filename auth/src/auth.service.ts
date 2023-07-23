@@ -5,16 +5,18 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-// Mongoose
+// Database
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { User } from './schemas/user.schema';
 
 // JWT
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-auth/jwt-payload.interface';
 
-// schemas
-import { User } from './schemas/user.schema';
+// DTO
+import { UserCredentialsDto } from './dto/user-credentials.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 // utils
 import { comparePasswords } from './utils/password.utils';
@@ -32,11 +34,9 @@ export class AuthService {
   ) {}
 
   // login user
-  async login(user: any): Promise<string> {
+  async login(user: UserCredentialsDto): Promise<string> {
     const foundUser = await this.userModel
-      .findOne({
-        email: user.email,
-      })
+      .findOne({ email: user.email })
       .select('+password');
 
     if (!foundUser) throw new NotFoundException('User not found');
@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   // register user
-  async register(user: any): Promise<User> {
+  async register(user: RegisterUserDto): Promise<User> {
     const existingUser = await this.userModel.findOne({ email: user.email });
     if (existingUser) throw new BadRequestException('Account already taken');
 

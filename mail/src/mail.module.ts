@@ -5,11 +5,13 @@ import { EmailModule } from './mailer/mailer.module';
 import { LoggerModule } from '@mujtaba-web/common';
 
 import { MailService } from './mail.service';
+import { configValidationSchema } from './config-schema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: [`.env.stage.${process.env.STAGE}`],
+      validationSchema: configValidationSchema,
     }),
     LoggerModule,
     EmailModule,
