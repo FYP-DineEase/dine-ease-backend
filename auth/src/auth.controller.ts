@@ -3,8 +3,7 @@ import { AuthService } from './auth.service';
 import { User } from './schemas/user.schema';
 
 // Misc
-import { AuthGuard } from './guards/auth.guard';
-import { UserPayload, GetUser } from '@mujtaba-web/common';
+import { UserPayload, GetUser, AuthGuard } from '@mujtaba-web/common';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
