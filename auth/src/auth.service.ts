@@ -8,11 +8,8 @@ import {
 // Database
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
-
-// JWT
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './jwt-auth/jwt-payload.interface';
+import { User } from './schemas/user.schema';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
@@ -20,6 +17,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 
 // utils
 import { comparePasswords } from './utils/password.utils';
+import { UserPayload } from '@mujtaba-web/common';
 
 // event
 import { NatsWrapper } from './nats/nats.wrapper';
@@ -47,7 +45,7 @@ export class AuthService {
     );
     if (!passMatches) throw new UnauthorizedException('Invalid credentials');
 
-    const payload: JwtPayload = { id: foundUser.id, name: foundUser.name };
+    const payload: UserPayload = { id: foundUser.id, name: foundUser.name };
     const token = this.jwtService.sign(payload);
 
     return token;

@@ -1,6 +1,11 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User } from './schemas/user.schema';
+
+// Misc
+import { AuthGuard } from './guards/auth.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import { UserPayload } from '@mujtaba-web/common';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
@@ -10,9 +15,10 @@ import { RegisterUserDto } from './dto/register-user.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('current-user')
-  userDetails(): string {
-    return 'me';
+  @Get('current-user')
+  @UseGuards(AuthGuard)
+  userDetails(@GetUser() user: UserPayload): UserPayload {
+    return user;
   }
 
   @Post('login')

@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
-    "@mujtaba-web/common": "^1.0.20",
-    "@nestjs/common": "^9.0.0",
+    "@mujtaba-web/common": "^1.1.4",
+    "@nestjs/common": "^9.4.3",
     "@nestjs/config": "^3.0.0",
-    "@nestjs/core": "^9.0.0",
+    "@nestjs/core": "^9.4.3",
     "@nestjs/jwt": "^10.1.0",
     "@nestjs/platform-express": "^9.0.0",
     "bcryptjs": "^2.4.3",
