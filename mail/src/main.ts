@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-
 import { MailModule } from './mail.module';
-import { AppLoggerService } from '@mujtaba-web/common';
+import { AppLoggerService, GlobalExceptionFilter } from '@mujtaba-web/common';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(MailModule);
 
   const appLogger = app.get(AppLoggerService);
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new GlobalExceptionFilter(appLogger));
 
   // server start
   const PORT = 3001;

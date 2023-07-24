@@ -1,40 +1,62 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendUserConfirmation(username: string): Promise<void> {
+  async sendUserConfirmation(user: UserDto): Promise<void> {
     await this.mailerService.sendMail({
-      to: username,
+      to: user.email,
       subject: 'Verify your Email on LocalHost',
       template: './verification',
       context: {
-        name: username,
+        name: user.email,
       },
     });
   }
 
-  async updatePassword(username: string): Promise<void> {
+  async updatePassword(user: UserDto): Promise<void> {
     await this.mailerService.sendMail({
-      to: username,
+      to: user.email,
       subject: 'Update Password on LocalHost',
       template: './password-reset',
       context: {
-        name: username,
+        name: user.email,
       },
     });
   }
 
-  async accountCreation(name: string, username: string): Promise<void> {
+  async accountCreation(user: UserDto): Promise<void> {
     await this.mailerService.sendMail({
-      to: username,
+      to: user.email,
       subject: 'Account Creation on LocalHost',
       template: './account-creation',
       context: {
-        name,
+        name: user.name,
       },
     });
+  }
+
+  async notifyUsers(users: UserDto[]): Promise<void> {
+    const batchSize = 50;
+
+    // Send emails in batches
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batch = users.slice(i, i + batchSize);
+      const emailPromises = batch.map(async (user) => {
+        await this.mailerService.sendMail({
+          to: user.email,
+          subject: 'Updated Content on LocalHost',
+          template: './notification',
+          context: {
+            name: user.name,
+          },
+        });
+      });
+
+      await Promise.all(emailPromises);
+    }
   }
 }

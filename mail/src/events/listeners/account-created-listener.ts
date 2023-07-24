@@ -16,12 +16,7 @@ export class AccountCreatedListener extends Listener<AccountCreatedEvent> {
   }
 
   async onMessage(data: AccountCreatedEvent['data'], msg: Message) {
-    const { name, email } = data;
-
-    // Send an email using the MailService
-    await this.mailService.accountCreation(name, email);
-
-    // Acknowledge the message
+    await this.mailService.accountCreation(data);
     msg.ack();
   }
 }

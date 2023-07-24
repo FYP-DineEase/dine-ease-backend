@@ -8,6 +8,11 @@ import {
 
 export class RegisterUserDto {
   @IsString()
+  @MinLength(3)
+  @MaxLength(15)
+  name: string;
+
+  @IsString()
   @IsEmail()
   email: string;
 

@@ -13,14 +13,14 @@ import { join } from 'path';
         transport: {
           host: configService.get('MAIL_HOST'),
           port: configService.get('MAIL_PORT'),
-          secure: configService.get('MAIL_SECURE') === 'true',
+          secure: configService.get('MAIL_SECURE'),
           auth: {
             user: configService.get('MAIL_USER'),
             pass: configService.get('MAIL_PASS'),
           },
         },
         template: {
-          dir: join(__dirname, '../templates'),
+          dir: join(__dirname, '../../public/templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
