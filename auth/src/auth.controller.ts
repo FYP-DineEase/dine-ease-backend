@@ -4,8 +4,7 @@ import { User } from './schemas/user.schema';
 
 // Misc
 import { AuthGuard } from './guards/auth.guard';
-import { GetUser } from './decorators/get-user.decorator';
-import { UserPayload } from '@mujtaba-web/common';
+import { UserPayload, GetUser } from '@mujtaba-web/common';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';

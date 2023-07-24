@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth.module';
-import { AppLoggerService } from '@mujtaba-web/common';
+import { AppLoggerService, GlobalExceptionFilter } from '@mujtaba-web/common';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
