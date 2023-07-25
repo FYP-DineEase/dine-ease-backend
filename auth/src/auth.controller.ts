@@ -1,6 +1,13 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Get,
+  Post,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User } from './schemas/user.schema';
 
 // Misc
 import { UserPayload, GetUser, AuthGuard } from '@mujtaba-web/common';
@@ -8,6 +15,7 @@ import { UserPayload, GetUser, AuthGuard } from '@mujtaba-web/common';
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { VerifyUserDto } from './dto/verify-user.dto';
 
 @Controller('users')
 export class AuthController {
@@ -25,7 +33,19 @@ export class AuthController {
   }
 
   @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto): Promise<User> {
-    return this.authService.register(registerUserDto);
+  registerUnverified(
+    @Body() registerUserDto: RegisterUserDto,
+  ): Promise<string> {
+    return this.authService.registerUnverified(registerUserDto);
+  }
+
+  @Post('confirm')
+  registerVerified(@Query() userToken: VerifyUserDto): Promise<string> {
+    return this.authService.registerVerified(userToken);
+  }
+
+  @Delete('remove-unverified')
+  deleteUnverified(@Query() userToken: VerifyUserDto): Promise<string> {
+    return this.authService.deleteUnverifiedUser(userToken);
   }
 }

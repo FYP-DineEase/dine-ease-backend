@@ -1,22 +1,28 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+
+// DTO
 import { UserDto } from './dto/user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendUserConfirmation(user: UserDto): Promise<void> {
+  async sendUserConfirmation(user: CreateUserDto): Promise<void> {
     await this.mailerService.sendMail({
       to: user.email,
       subject: 'Verify your Email on LocalHost',
       template: './verification',
       context: {
         name: user.email,
+        verificationLink: `http://localhost:3000/users/confirm?token=${user.token}`,
+        deleteAccountLink: `http://localhost:3000/users/remove-unverified?token=${user.token}`,
       },
     });
   }
 
+  // work required
   async updatePassword(user: UserDto): Promise<void> {
     await this.mailerService.sendMail({
       to: user.email,
@@ -28,19 +34,8 @@ export class MailService {
     });
   }
 
-  async accountCreation(user: UserDto): Promise<void> {
-    await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Account Creation on LocalHost',
-      template: './account-creation',
-      context: {
-        name: user.name,
-      },
-    });
-  }
-
   async notifyUsers(users: UserDto[]): Promise<void> {
-    const batchSize = 50;
+    const batchSize = 20;
 
     // Send emails in batches
     for (let i = 0; i < users.length; i += batchSize) {

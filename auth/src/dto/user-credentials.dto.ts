@@ -8,7 +8,7 @@ import {
 
 export class UserCredentialsDto {
   @IsString()
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email format' })
   email: string;
 
   @IsString()
@@ -16,7 +16,7 @@ export class UserCredentialsDto {
   @MaxLength(20)
   @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/, {
     message:
-      'Password must contain at least one letter, one number, and one special character',
+      'password must contain at least one letter, one number, and one special character',
   })
   password: string;
 }

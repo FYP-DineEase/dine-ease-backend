@@ -16,7 +16,7 @@ export class AccountCreatedListener extends Listener<AccountCreatedEvent> {
   }
 
   async onMessage(data: AccountCreatedEvent['data'], msg: Message) {
-    await this.mailService.accountCreation(data);
+    await this.mailService.sendUserConfirmation(data);
     msg.ack();
   }
 }

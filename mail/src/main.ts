@@ -1,13 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { MailModule } from './mail.module';
-import { AppLoggerService, GlobalExceptionFilter } from '@mujtaba-web/common';
 import { ValidationPipe } from '@nestjs/common';
+import {
+  AppLoggerService,
+  TransformInterceptor,
+  GlobalExceptionFilter,
+} from '@mujtaba-web/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(MailModule);
 
   const appLogger = app.get(AppLoggerService);
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new GlobalExceptionFilter(appLogger));
 
   // server start

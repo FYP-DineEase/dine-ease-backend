@@ -14,6 +14,7 @@ import { User } from './schemas/user.schema';
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { VerifyUserDto } from './dto/verify-user.dto';
 
 // utils
 import { comparePasswords } from './utils/password.utils';
@@ -39,31 +40,87 @@ export class AuthService {
 
     if (!foundUser) throw new NotFoundException('User not found');
 
+    if (!foundUser.isVerified)
+      throw new BadRequestException('Account not verified');
+
     const passMatches = await comparePasswords(
       user.password,
       foundUser.password,
     );
     if (!passMatches) throw new UnauthorizedException('Invalid credentials');
 
-    const payload: UserPayload = { id: foundUser.id, name: foundUser.name };
+    const payload: UserPayload = {
+      id: foundUser.id,
+      name: foundUser.name,
+      email: foundUser.email,
+      profilePicture: foundUser.profilePicture,
+    };
     const token = this.jwtService.sign(payload);
 
     return token;
   }
 
-  // register user
-  async register(user: RegisterUserDto): Promise<User> {
-    const existingUser = await this.userModel.findOne({ email: user.email });
+  // register unverified account
+  async registerUnverified(user: RegisterUserDto): Promise<string> {
+    const existingUser: User = await this.userModel.findOne({
+      email: user.email,
+    });
     if (existingUser) throw new BadRequestException('Account already taken');
 
     const createdUser = new this.userModel(user);
     const savedUser = await createdUser.save();
 
+    const payload = { id: savedUser.id };
+    const token = this.jwtService.sign(payload);
+
     new AccountCreatedPublisher(this.natsWrapper.client).publish({
       name: savedUser.name,
       email: savedUser.email,
+      token: token,
     });
 
-    return savedUser;
+    return `Confirmation email sent to ${savedUser.email}`;
+  }
+
+  // register verified account
+  async registerVerified(user: VerifyUserDto): Promise<string> {
+    const userDetails: UserPayload = await this.jwtService.verifyAsync(
+      user.token,
+    );
+
+    const foundUser = await this.userModel.findById(userDetails.id);
+    if (!foundUser) throw new BadRequestException('User not found');
+
+    if (foundUser.isVerified)
+      throw new NotFoundException('Account is already verified');
+
+    foundUser.set({ isVerified: true });
+    await foundUser.save();
+
+    const payload: UserPayload = {
+      id: foundUser.id,
+      name: foundUser.name,
+      email: foundUser.email,
+      profilePicture: foundUser.profilePicture,
+    };
+    const token = this.jwtService.sign(payload);
+    return token;
+  }
+
+  // register unverified account
+  async deleteUnverifiedUser(user: VerifyUserDto): Promise<string> {
+    const userDetails: UserPayload = await this.jwtService.verifyAsync(
+      user.token,
+    );
+
+    const deletedUser: User = await this.userModel.findOneAndDelete({
+      _id: userDetails.id,
+      isVerified: false,
+    });
+
+    if (!deletedUser)
+      throw new BadRequestException('Un-Verified User not found');
+
+    return `Account Deleted Successfully`;
   }
 }
