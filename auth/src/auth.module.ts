@@ -20,7 +20,7 @@ import { configValidationSchema } from './config-schema';
     LoggerModule,
     JwtAuthModule,
     NatsModule,
-    DatabaseModule.forRoot('mongodb://localhost/nest-auth'),
+    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-auth'),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   providers: [AuthService],
