@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { NatsLoggerService } from '@mujtaba-web/common';
-import { NatsWrapper } from './nats.wrapper';
+import { NatsWrapper, NatsLoggerService } from '@mujtaba-web/common';
 
 @Injectable()
 export class NatsService implements OnModuleInit, OnModuleDestroy {

@@ -21,7 +21,7 @@ import { comparePasswords } from './utils/password.utils';
 import { UserPayload } from '@mujtaba-web/common';
 
 // event
-import { NatsWrapper } from './nats/nats.wrapper';
+import { NatsWrapper } from '@mujtaba-web/common';
 import { AccountCreatedPublisher } from './events/publishers/account-created-publisher';
 
 @Injectable()
