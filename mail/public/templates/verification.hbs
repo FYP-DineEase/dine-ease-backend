@@ -1,64 +1,124 @@
 <html>
   <head>
     <title>Email Verification</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-      body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #f6f6f6; -webkit-font-smoothing: antialiased; font-size:
-      16px; line-height: 1.6; margin: 0; padding: 0; -ms-text-size-adjust: 100%;
-      -webkit-text-size-adjust: 100%; } .container { font-family: Arial,
-      sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;
-      background-color: #ffffff; border-radius: 5px; box-shadow: 0 2px 5px
-      rgba(0, 0, 0, 0.1); } .header { text-align: center; margin-bottom: 20px; }
-      .logo { border-radius: 50%; width: 80px; height: 80px; } .title {
-      font-size: 24px; margin-top: 10px; } .content { margin-bottom: 30px; }
-      .btn { display: inline-block; background-color: #007bff; color: #ffffff;
-      border-radius: 5px; padding: 15px 30px; text-decoration: none; font-size:
-      16px; transition: background-color 0.3s ease; } .btn:hover {
-      background-color: #0056b3; cursor: pointer; } .btn:active {
-      background-color: #004080; } .red-link { color: #ff0000; text-decoration:
-      underline; transition: color 0.3s ease; } .red-link:hover { color:
-      #cc0000; } .btn-container { text-align: center; margin-top: 30px;
-      margin-bottom: 30px; } .footer { text-align: center; margin-top: 30px;
-      color: #888888; } .footer a { color: #888888; text-decoration: none;
-      margin: 0 10px; } .footer a:hover { color: #333333; }
+      body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f6f6f6;
+        -webkit-font-smoothing: antialiased;
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+      }
+      .container {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo {
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+      }
+      .title {
+        font-size: 24px;
+        margin-top: 10px;
+      }
+      .content {
+        margin-bottom: 30px;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #007bff;
+        color: #ffffff;
+        border-radius: 5px;
+        padding: 15px 30px;
+        text-decoration: none;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+        background-color: #0056b3;
+        cursor: pointer;
+      }
+      .btn:active {
+        background-color: #004080;
+      }
+      .red-link {
+        color: #ff0000;
+        text-decoration: underline;
+        transition: color 0.3s ease;
+      }
+      .red-link:hover {
+        color: #cc0000;
+      }
+      .btn-container {
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        color: #888888;
+      }
+      .footer a {
+        color: #888888;
+        text-decoration: none;
+        margin: 0 10px;
+      }
+      .footer a:hover {
+        color: #333333;
+      }
     </style>
   </head>
 
   <body>
-    <div class='container'>
-      <div class='header'>
+    <div class="container">
+      <div class="header">
         <img
-          class='logo'
-          src='https://images.pexels.com/photos/3941855/pexels-photo-3941855.jpeg?auto=compress&cs=tinysrgb&w=1600'
-          alt='Logo'
+          class="logo"
+          src="https://images.pexels.com/photos/3941855/pexels-photo-3941855.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          alt="Logo"
         />
-        <h2 class='title'>Email Verification</h2>
+        <h2 class="title">Email Verification</h2>
       </div>
 
-      <div class='content'>
+      <div class="content">
         <p>
           Thank you for signing up with us. To complete the registration
           process, please click the button below to verify your email address.
         </p>
       </div>
 
-      <div class='btn-container'>
-        <a href='{{verificationLink}}' class='btn'>Verify Email Address</a>
+      <div class="btn-container">
+        <a href="{{verificationLink}}" class="btn">Verify Email Address</a>
       </div>
 
       <hr />
 
-      <div class='content'>
+      <div class="content">
         <p>
           If this account was not created by you, or if you no longer wish to
           proceed, you can delete it by clicking the following link:
-          <a href='{{deleteAccountLink}}' class='red-link'>Delete Account</a>
+          <a href="{{deleteAccountLink}}" class="red-link">Delete Account</a>
           . Please note that the token for deletion will expire in 24 hours.
         </p>
       </div>
 
-      <div class='footer'>
+      <div class="footer">
         <p>Thank you for using our service.</p>
       </div>
     </div>
