@@ -4,7 +4,6 @@ import {
   MaxLength,
   Matches,
   IsEmail,
-  IsOptional,
 } from 'class-validator';
 
 export class RegisterUserDto {
@@ -25,8 +24,4 @@ export class RegisterUserDto {
       'Password must contain at least one letter, one number, and one special character',
   })
   password: string;
-
-  @IsString()
-  @IsOptional()
-  profilePicture: string;
 }

@@ -6,18 +6,26 @@ import {
   Delete,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service';
 
 // Misc
-import { UserPayload, GetUser, AuthGuard } from '@mujtaba-web/common';
+import {
+  UserPayload,
+  GetUser,
+  AuthGuard,
+  JsonBodyInterceptor,
+} from '@mujtaba-web/common';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
-import { RegisterUserDto } from './dto/register-user.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 
-@Controller('users')
+@Controller('/api/users')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -33,8 +41,10 @@ export class AuthController {
   }
 
   @Post('register')
+  @UseInterceptors(FileInterceptor('file'), new JsonBodyInterceptor('user'))
   registerUnverified(
-    @Body() registerUserDto: RegisterUserDto,
+    @UploadedFile() profilePicture: FileUploadDto,
+    @Body('user') registerUserDto: RegisterUserDto,
   ): Promise<string> {
     return this.authService.registerUnverified(registerUserDto);
   }
