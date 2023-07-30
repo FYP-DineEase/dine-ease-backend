@@ -18,7 +18,7 @@ import { VerifyUserDto } from './dto/verify-user.dto';
 
 // utils
 import { comparePasswords } from './utils/password.utils';
-import { UserPayload } from '@mujtaba-web/common';
+import { UserDetails } from '@mujtaba-web/common';
 
 // event
 import { NatsWrapper } from '@mujtaba-web/common';
@@ -49,7 +49,7 @@ export class AuthService {
     );
     if (!passMatches) throw new UnauthorizedException('Invalid credentials');
 
-    const payload: UserPayload = {
+    const payload: UserDetails = {
       id: foundUser.id,
       name: foundUser.name,
       email: foundUser.email,
@@ -84,7 +84,7 @@ export class AuthService {
 
   // register verified account
   async registerVerified(user: VerifyUserDto): Promise<string> {
-    const userDetails: UserPayload = await this.jwtService.verifyAsync(
+    const userDetails: UserDetails = await this.jwtService.verifyAsync(
       user.token,
     );
 
@@ -97,7 +97,7 @@ export class AuthService {
     foundUser.set({ isVerified: true });
     await foundUser.save();
 
-    const payload: UserPayload = {
+    const payload: UserDetails = {
       id: foundUser.id,
       name: foundUser.name,
       email: foundUser.email,
@@ -109,7 +109,7 @@ export class AuthService {
 
   // register unverified account
   async deleteUnverifiedUser(user: VerifyUserDto): Promise<string> {
-    const userDetails: UserPayload = await this.jwtService.verifyAsync(
+    const userDetails: UserDetails = await this.jwtService.verifyAsync(
       user.token,
     );
 

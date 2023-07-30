@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 
 // Misc
-import { UserPayload, GetUser, AuthGuard } from '@mujtaba-web/common';
+import { UserDetails, GetUser, AuthGuard } from '@mujtaba-web/common';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
@@ -23,7 +23,7 @@ export class AuthController {
 
   @Get('current-user')
   @UseGuards(AuthGuard)
-  userDetails(@GetUser() user: UserPayload): UserPayload {
+  userDetails(@GetUser() user: UserDetails): UserDetails {
     return user;
   }
 
