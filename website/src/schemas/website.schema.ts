@@ -14,10 +14,10 @@ export class Website {
 
 export const WebsiteSchema = SchemaFactory.createForClass(Website);
 
-// Remove the password property from the returned user object
 WebsiteSchema.methods.toJSON = function () {
   const website = this.toObject();
   website.id = website._id.toString();
   delete website._id;
+  delete website.__v;
   return website;
 };

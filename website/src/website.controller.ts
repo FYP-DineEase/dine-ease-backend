@@ -30,7 +30,7 @@ export class WebsiteController {
   }
 
   @Get('check')
-  checkWebsiteName(@Query('name') name: string): Promise<boolean> {
+  checkWebsiteName(@Query() name: WebsiteNameDto): Promise<boolean> {
     return this.websiteService.checkWebsiteName(name);
   }
 
@@ -49,18 +49,18 @@ export class WebsiteController {
 
   @Patch('/:id/name')
   updateWebsite(
-    @Param('id') id: string,
+    @Param() websiteId: WebsiteIdDto,
     @GetUser() user: UserDetails,
     @Body() website: WebsiteNameDto,
   ): Promise<string> {
-    return this.websiteService.updateWebsite(id, user, website);
+    return this.websiteService.updateWebsite(websiteId, user, website);
   }
 
   @Delete('delete')
   deleteUnverified(
     @GetUser() user: UserDetails,
-    @Query() websiteId: WebsiteIdDto,
+    @Body() website: WebsiteIdDto,
   ): Promise<string> {
-    return this.websiteService.deleteWebsite(user, websiteId);
+    return this.websiteService.deleteWebsite(user, website);
   }
 }

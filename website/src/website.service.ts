@@ -23,8 +23,10 @@ export class WebsiteService {
   ) {}
 
   // check website name
-  async checkWebsiteName(websiteName: string): Promise<boolean> {
-    const foundWebsite = await this.websiteModel.findOne({ websiteName });
+  async checkWebsiteName(website: WebsiteNameDto): Promise<boolean> {
+    const foundWebsite: Website = await this.websiteModel.findOne({
+      websiteName: website.name,
+    });
     if (foundWebsite) return true;
     return false;
   }
@@ -40,7 +42,6 @@ export class WebsiteService {
     const foundWebsites: Website[] = await this.websiteModel.find({
       userId: user.id,
     });
-    console.log(foundWebsites);
     return foundWebsites;
   }
 
@@ -49,8 +50,8 @@ export class WebsiteService {
     user: UserDetails,
     website: WebsiteNameDto,
   ): Promise<Website> {
-    if (this.checkWebsiteName)
-      throw new BadRequestException('Website Already Taken');
+    const isExist: boolean = await this.checkWebsiteName(website);
+    if (isExist) throw new BadRequestException('Website Already Taken');
 
     const createdWebsite = new this.websiteModel({
       userId: user.id,
@@ -62,14 +63,14 @@ export class WebsiteService {
 
   // update website
   async updateWebsite(
-    websiteId: string,
+    WebsiteIdDto: WebsiteIdDto,
     user: UserDetails,
     website: WebsiteNameDto,
   ): Promise<string> {
-    const foundWebsite = await this.websiteModel.findById(websiteId);
-    if (!foundWebsite) throw new BadRequestException('User not found');
+    const foundWebsite = await this.websiteModel.findById(WebsiteIdDto.id);
+    if (!foundWebsite) throw new BadRequestException('Website not found');
 
-    if (foundWebsite.userId === user.id)
+    if (foundWebsite.userId !== user.id)
       throw new UnauthorizedException('Invalid User');
 
     foundWebsite.set({ websiteName: website.name });
@@ -81,10 +82,10 @@ export class WebsiteService {
   // delete website
   async deleteWebsite(
     user: UserDetails,
-    websiteId: WebsiteIdDto,
+    website: WebsiteIdDto,
   ): Promise<string> {
     const deletedUser: Website = await this.websiteModel.findOneAndDelete({
-      _id: websiteId,
+      _id: website.id,
       userId: user.id,
     });
     if (!deletedUser) throw new BadRequestException('Website not found');
