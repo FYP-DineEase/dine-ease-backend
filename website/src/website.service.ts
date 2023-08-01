@@ -1,6 +1,5 @@
 import {
   Injectable,
-  NotFoundException,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -11,7 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Website } from './schemas/website.schema';
 
 // DTO
-import { CreateWebsiteDto } from './dto/create-website.dto';
+import { WebsiteNameDto } from './dto/website-name.dto';
 import { WebsiteIdDto } from './dto/website-Id.dto';
 
 // utils
@@ -24,8 +23,8 @@ export class WebsiteService {
   ) {}
 
   // check website name
-  async checkWebsiteName(websiteId: WebsiteIdDto): Promise<boolean> {
-    const foundWebsite: Website = await this.websiteModel.findById(websiteId);
+  async checkWebsiteName(websiteName: string): Promise<boolean> {
+    const foundWebsite = await this.websiteModel.findOne({ websiteName });
     if (foundWebsite) return true;
     return false;
   }
@@ -41,14 +40,18 @@ export class WebsiteService {
     const foundWebsites: Website[] = await this.websiteModel.find({
       userId: user.id,
     });
+    console.log(foundWebsites);
     return foundWebsites;
   }
 
   // get user websites
   async createWebsite(
     user: UserDetails,
-    website: CreateWebsiteDto,
+    website: WebsiteNameDto,
   ): Promise<Website> {
+    if (this.checkWebsiteName)
+      throw new BadRequestException('Website Already Taken');
+
     const createdWebsite = new this.websiteModel({
       userId: user.id,
       websiteName: website.name,
@@ -61,7 +64,7 @@ export class WebsiteService {
   async updateWebsite(
     websiteId: string,
     user: UserDetails,
-    website: CreateWebsiteDto,
+    website: WebsiteNameDto,
   ): Promise<string> {
     const foundWebsite = await this.websiteModel.findById(websiteId);
     if (!foundWebsite) throw new BadRequestException('User not found');

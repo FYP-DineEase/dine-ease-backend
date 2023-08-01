@@ -2,13 +2,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { LoggerModule, DatabaseModule } from '@mujtaba-web/common';
+import {
+  LoggerModule,
+  DatabaseModule,
+  JwtAuthModule,
+} from '@mujtaba-web/common';
 
 import { WebsiteService } from './website.service';
 import { WebsiteController } from './website.controller';
 import { Website, WebsiteSchema } from './schemas/website.schema';
 import { configValidationSchema } from './config-schema';
-import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
 
 @Module({
   imports: [

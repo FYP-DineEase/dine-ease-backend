@@ -4,6 +4,7 @@ import {
   Query,
   Body,
   Get,
+  Post,
   Patch,
   Delete,
   UseGuards,
@@ -15,7 +16,7 @@ import { Website } from './schemas/website.schema';
 import { UserDetails, GetUser, AuthGuard } from '@mujtaba-web/common';
 
 // DTO
-import { CreateWebsiteDto } from './dto/create-website.dto';
+import { WebsiteNameDto } from './dto/website-name.dto';
 import { WebsiteIdDto } from './dto/website-Id.dto';
 
 @Controller('/api/website')
@@ -29,19 +30,19 @@ export class WebsiteController {
   }
 
   @Get('check')
-  checkWebsiteName(@Body() website: WebsiteIdDto): Promise<boolean> {
-    return this.websiteService.checkWebsiteName(website);
+  checkWebsiteName(@Query('name') name: string): Promise<boolean> {
+    return this.websiteService.checkWebsiteName(name);
   }
 
-  @Get('/:id')
+  @Get('/user-websites')
   getAllUserWebsites(@GetUser() user: UserDetails): Promise<Website[]> {
     return this.websiteService.getAllUserWebsites(user);
   }
 
-  @Get('create')
+  @Post('create')
   createWebsite(
     @GetUser() user: UserDetails,
-    @Body() website: CreateWebsiteDto,
+    @Body() website: WebsiteNameDto,
   ): Promise<Website> {
     return this.websiteService.createWebsite(user, website);
   }
@@ -50,7 +51,7 @@ export class WebsiteController {
   updateWebsite(
     @Param('id') id: string,
     @GetUser() user: UserDetails,
-    @Body() website: CreateWebsiteDto,
+    @Body() website: WebsiteNameDto,
   ): Promise<string> {
     return this.websiteService.updateWebsite(id, user, website);
   }

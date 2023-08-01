@@ -1,6 +1,6 @@
 import { IsString, Matches, Length } from 'class-validator';
 
-export class CreateWebsiteDto {
+export class WebsiteNameDto {
   @IsString()
   @Length(3, 20)
   @Matches(/^[a-zA-Z0-9_-]+$/, {
