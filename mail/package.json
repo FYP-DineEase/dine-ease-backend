@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
-    "@mujtaba-web/common": "^1.0.10",
+    "@mujtaba-web/common": "^1.1.26",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.0.0",

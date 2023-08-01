@@ -38,6 +38,8 @@ export class AuthService {
       .findOne({ email: user.email })
       .select('+password');
 
+    console.log(foundUser);
+
     if (!foundUser) throw new NotFoundException('User not found');
 
     if (!foundUser.isVerified)
@@ -89,10 +91,10 @@ export class AuthService {
     );
 
     const foundUser = await this.userModel.findById(userDetails.id);
-    if (!foundUser) throw new BadRequestException('User not found');
+    if (!foundUser) throw new NotFoundException('User not found');
 
     if (foundUser.isVerified)
-      throw new NotFoundException('Account is already verified');
+      throw new BadRequestException('Account is already verified');
 
     foundUser.set({ isVerified: true });
     await foundUser.save();
