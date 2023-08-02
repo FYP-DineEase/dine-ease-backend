@@ -9,6 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
+  // send confirmation email
   async sendUserConfirmation(user: CreateUserDto): Promise<void> {
     await this.mailerService.sendMail({
       to: user.email,

@@ -15,30 +15,48 @@ import { User } from './schemas/user.schema';
 import { UserCredentialsDto } from './dto/user-credentials.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
+import { UserEmailDto } from './dto/user-email.dto';
+import { UserPasswordDto } from './dto/user-password.dto';
 
 // utils
 import { comparePasswords } from './utils/password.utils';
 import { UserDetails } from '@mujtaba-web/common';
+import { EmailTokenTypes } from './utils/enums/email-token.enum';
 
 // event
 import { NatsWrapper } from '@mujtaba-web/common';
 import { AccountCreatedPublisher } from './events/publishers/account-created-publisher';
+import { JwtMailService } from './jwt/jwt-mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private readonly jwtService: JwtService,
+    private readonly jwtAuthService: JwtService,
+    private readonly jwtMailService: JwtMailService,
     private readonly natsWrapper: NatsWrapper,
   ) {}
+
+  // email confirmation
+  async emailConfirmation(user: UserEmailDto): Promise<string> {
+    const { email } = user;
+
+    const payload = { email };
+    const token = this.jwtAuthService.sign(payload);
+
+    new AccountCreatedPublisher(this.natsWrapper.client).publish({
+      email,
+      token,
+    });
+
+    return `Confirmation email sent to ${user.email}`;
+  }
 
   // login user
   async login(user: UserCredentialsDto): Promise<string> {
     const foundUser = await this.userModel
       .findOne({ email: user.email })
       .select('+password');
-
-    console.log(foundUser);
 
     if (!foundUser) throw new NotFoundException('User not found');
 
@@ -57,40 +75,36 @@ export class AuthService {
       email: foundUser.email,
       profilePicture: foundUser.profilePicture,
     };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtAuthService.sign(payload);
 
     return token;
   }
 
   // register unverified account
   async registerUnverified(user: RegisterUserDto): Promise<string> {
-    const existingUser: User = await this.userModel.findOne({
-      email: user.email,
-    });
+    const { name, email, password } = user;
+
+    const existingUser: User = await this.userModel.findOne({ email });
     if (existingUser) throw new BadRequestException('Account already taken');
 
-    const createdUser = new this.userModel(user);
-    const savedUser = await createdUser.save();
-
-    const payload = { id: savedUser.id };
-    const token = this.jwtService.sign(payload);
-
-    new AccountCreatedPublisher(this.natsWrapper.client).publish({
-      name: savedUser.name,
-      email: savedUser.email,
-      token: token,
+    const createdUser = new this.userModel({
+      name,
+      email,
+      password,
     });
-
-    return `Confirmation email sent to ${savedUser.email}`;
+    const savedUser = await createdUser.save();
+    return this.emailConfirmation(savedUser);
   }
 
   // register verified account
   async registerVerified(user: VerifyUserDto): Promise<string> {
-    const userDetails: UserDetails = await this.jwtService.verifyAsync(
+    const userDetails: UserDetails = await this.jwtAuthService.verifyAsync(
       user.token,
     );
 
-    const foundUser = await this.userModel.findById(userDetails.id);
+    const foundUser = await this.userModel.findOne({
+      email: userDetails.email,
+    });
     if (!foundUser) throw new NotFoundException('User not found');
 
     if (foundUser.isVerified)
@@ -105,13 +119,36 @@ export class AuthService {
       email: foundUser.email,
       profilePicture: foundUser.profilePicture,
     };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtAuthService.sign(payload);
     return token;
+  }
+
+  // forgot password
+  async forgotPassword(user: UserEmailDto): Promise<string> {
+    const { email } = user;
+    const token = this.jwtMailService.signToken(
+      email,
+      EmailTokenTypes.UPDATE_PASSWORD,
+      '1d',
+    );
+
+    new AccountCreatedPublisher(this.natsWrapper.client).publish({
+      email,
+      token,
+    });
+
+    return `Confirmation email sent to ${user.email}`;
+  }
+
+  // update password
+  async updatePassword(user: UserPasswordDto): Promise<string> {
+    // find user and update password after token valdation
+    return `Account Deleted Successfully`;
   }
 
   // register unverified account
   async deleteUnverifiedUser(user: VerifyUserDto): Promise<string> {
-    const userDetails: UserDetails = await this.jwtService.verifyAsync(
+    const userDetails: UserDetails = await this.jwtAuthService.verifyAsync(
       user.token,
     );
 

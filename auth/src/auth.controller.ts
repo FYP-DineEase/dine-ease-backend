@@ -16,6 +16,8 @@ import { UserDetails, GetUser, AuthGuard } from '@mujtaba-web/common';
 import { UserCredentialsDto } from './dto/user-credentials.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { UserEmailDto } from './dto/user-email.dto';
+import { UserPasswordDto } from './dto/user-password.dto';
 
 @Controller('/api/users')
 export class AuthController {
@@ -40,6 +42,21 @@ export class AuthController {
   @Post('confirm')
   registerVerified(@Query() userToken: VerifyUserDto): Promise<string> {
     return this.authService.registerVerified(userToken);
+  }
+
+  @Post('resend-confirmation')
+  resendConfirmation(@Body() user: UserEmailDto): Promise<string> {
+    return this.authService.emailConfirmation(user);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() user: UserEmailDto): Promise<string> {
+    return this.authService.forgotPassword(user);
+  }
+
+  @Post('update-password')
+  updatePassword(@Body() user: UserPasswordDto): Promise<string> {
+    return this.authService.updatePassword(user);
   }
 
   @Delete('remove-unverified')
