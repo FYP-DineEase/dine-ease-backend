@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 // DTO
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class MailService {
@@ -17,20 +18,21 @@ export class MailService {
       template: './verification',
       context: {
         name: user.email,
-        verificationLink: `http://localhost:3000/users/confirm?token=${user.token}`,
-        deleteAccountLink: `http://localhost:3000/users/remove-unverified?token=${user.token}`,
+        verificationLink: `http://localhost:3000/users/confirm?token=${user.verifyToken}`,
+        deleteAccountLink: `http://localhost:3000/users/remove-unverified?token=${user.deleteToken}`,
       },
     });
   }
 
-  // work required
-  async updatePassword(user: UserDto): Promise<void> {
+  // verification for password update
+  async updatePassword(user: UpdatePasswordDto): Promise<void> {
     await this.mailerService.sendMail({
       to: user.email,
       subject: 'Update Password on LocalHost',
       template: './password-reset',
       context: {
         name: user.email,
+        updateLink: `http://localhost:3000/users/update-password?token=${user.token}`,
       },
     });
   }
@@ -47,7 +49,7 @@ export class MailService {
           subject: 'Updated Content on LocalHost',
           template: './notification',
           context: {
-            name: user.name,
+            name: user.email,
           },
         });
       });

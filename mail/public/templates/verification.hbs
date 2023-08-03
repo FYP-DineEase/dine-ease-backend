@@ -15,6 +15,7 @@
         -webkit-text-size-adjust: 100%;
       }
       .container {
+        text-align: center;
         font-family: Arial, sans-serif;
         max-width: 600px;
         margin: 0 auto;
@@ -24,7 +25,6 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
       .header {
-        text-align: center;
         margin-bottom: 20px;
       }
       .logo {
@@ -37,6 +37,7 @@
         margin-top: 10px;
       }
       .content {
+        text-align: left;
         margin-bottom: 30px;
       }
       .btn {
@@ -53,9 +54,6 @@
         background-color: #0056b3;
         cursor: pointer;
       }
-      .btn:active {
-        background-color: #004080;
-      }
       .red-link {
         color: #ff0000;
         text-decoration: underline;
@@ -65,21 +63,11 @@
         color: #cc0000;
       }
       .btn-container {
-        text-align: center;
         margin-top: 30px;
         margin-bottom: 30px;
       }
       .footer {
-        text-align: center;
         margin-top: 30px;
-        color: #888888;
-      }
-      .footer a {
-        color: #888888;
-        text-decoration: none;
-        margin: 0 10px;
-      }
-      .footer a:hover {
         color: #333333;
       }
     </style>
@@ -114,7 +102,7 @@
           If this account was not created by you, or if you no longer wish to
           proceed, you can delete it by clicking the following link:
           <a href="{{deleteAccountLink}}" class="red-link">Delete Account</a>
-          . Please note that the token for deletion will expire in 24 hours.
+          . Please note that the token for deletion will expire in 7 days.
         </p>
       </div>
 

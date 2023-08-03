@@ -14,7 +14,7 @@ import { UserDetails, GetUser, AuthGuard } from '@mujtaba-web/common';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
-import { VerifyUserDto } from './dto/verify-user.dto';
+import { UserTokenDto } from './dto/user-token.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UserEmailDto } from './dto/user-email.dto';
 import { UserPasswordDto } from './dto/user-password.dto';
@@ -40,13 +40,18 @@ export class AuthController {
   }
 
   @Post('confirm')
-  registerVerified(@Query() userToken: VerifyUserDto): Promise<string> {
+  registerVerified(@Query() userToken: UserTokenDto): Promise<string> {
     return this.authService.registerVerified(userToken);
+  }
+
+  @Delete('remove-unverified')
+  deleteUnverified(@Query() userToken: UserTokenDto): Promise<string> {
+    return this.authService.deleteUnverifiedUser(userToken);
   }
 
   @Post('resend-confirmation')
   resendConfirmation(@Body() user: UserEmailDto): Promise<string> {
-    return this.authService.emailConfirmation(user);
+    return this.authService.resentVerification(user);
   }
 
   @Post('forgot-password')
@@ -55,12 +60,10 @@ export class AuthController {
   }
 
   @Post('update-password')
-  updatePassword(@Body() user: UserPasswordDto): Promise<string> {
-    return this.authService.updatePassword(user);
-  }
-
-  @Delete('remove-unverified')
-  deleteUnverified(@Query() userToken: VerifyUserDto): Promise<string> {
-    return this.authService.deleteUnverifiedUser(userToken);
+  updatePassword(
+    @Query() userToken: UserTokenDto,
+    @Body() user: UserPasswordDto,
+  ): Promise<string> {
+    return this.authService.updatePassword(userToken, user);
   }
 }

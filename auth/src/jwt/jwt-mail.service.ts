@@ -1,7 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+
 import { EmailTokenTypes } from 'src/utils/enums/email-token.enum';
+import { EmailTokenPayload } from './jwt-mail.interface';
 
 @Injectable()
 export class JwtMailService {
@@ -14,11 +16,8 @@ export class JwtMailService {
     this.emailJwtSecret = this.configService.get<string>('EMAIL_JWT_SECRET');
   }
 
-  signToken(
-    email: string,
-    tokenType: EmailTokenTypes,
-    expiresIn: string,
-  ): string {
+  signToken(data: EmailTokenPayload): string {
+    const { email, tokenType, expiresIn } = data;
     const payload = { email, tokenType };
     return this.jwtService.sign(payload, {
       expiresIn,
@@ -26,12 +25,13 @@ export class JwtMailService {
     });
   }
 
-  decodeToken(token: string): { userId: string; tokenType: EmailTokenTypes } {
+  async decodeToken(token: string, type: EmailTokenTypes): Promise<string> {
     try {
-      const decoded = this.jwtService.verify(token, {
+      const decoded = await this.jwtService.verifyAsync(token, {
         secret: this.emailJwtSecret,
       });
-      return { userId: decoded.userId, tokenType: decoded.tokenType };
+      if (type === decoded.tokenType) return decoded.email;
+      throw new BadRequestException('Invalid Token Type');
     } catch (error) {
       throw new BadRequestException(error.message);
     }

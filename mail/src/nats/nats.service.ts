@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { NatsWrapper, NatsLoggerService } from '@mujtaba-web/common';
 import { AccountCreatedListener } from 'src/events/listeners/account-created-listener';
 import { MailService } from '../mail.service';
+import { ForgotPasswordListener } from 'src/events/listeners/forgot-password-listener';
 
 @Injectable()
 export class NatsService implements OnModuleInit, OnModuleDestroy {
@@ -34,7 +35,12 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
       this.natsWrapper.client,
       this.mailService,
     );
+    const forgotPasswordListener = new ForgotPasswordListener(
+      this.natsWrapper.client,
+      this.mailService,
+    );
     accountCreatedListener.listen();
+    forgotPasswordListener.listen();
   }
 
   onModuleDestroy() {
