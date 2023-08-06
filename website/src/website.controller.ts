@@ -6,7 +6,6 @@ import {
   Get,
   Post,
   Patch,
-  Delete,
   UseGuards,
 } from '@nestjs/common';
 import { WebsiteService } from './website.service';
@@ -18,6 +17,7 @@ import { UserDetails, GetUser, AuthGuard } from '@mujtaba-web/common';
 // DTO
 import { WebsiteNameDto } from './dto/website-name.dto';
 import { WebsiteIdDto } from './dto/website-Id.dto';
+import { WebsiteStatusDto } from './dto/website-status.dto';
 
 @Controller('/api/website')
 @UseGuards(AuthGuard)
@@ -30,8 +30,11 @@ export class WebsiteController {
   }
 
   @Get('check')
-  checkWebsiteName(@Query() name: WebsiteNameDto): Promise<boolean> {
-    return this.websiteService.checkWebsiteName(name);
+  async checkWebsiteName(
+    @Query() name: WebsiteNameDto,
+  ): Promise<{ isExist: boolean }> {
+    const isExist = await this.websiteService.checkWebsiteName(name);
+    return { isExist };
   }
 
   @Get('/user-websites')
@@ -48,19 +51,24 @@ export class WebsiteController {
   }
 
   @Patch('/:id/name')
-  updateWebsite(
+  updateWebsiteName(
     @Param() websiteId: WebsiteIdDto,
     @GetUser() user: UserDetails,
     @Body() website: WebsiteNameDto,
   ): Promise<string> {
-    return this.websiteService.updateWebsite(websiteId, user, website);
+    return this.websiteService.updateWebsiteName(websiteId, user, website);
   }
 
-  @Delete('delete')
-  deleteUnverified(
+  @Patch('/:id/status')
+  updateWebsiteStatus(
     @GetUser() user: UserDetails,
-    @Body() website: WebsiteIdDto,
+    @Param() websiteId: WebsiteIdDto,
+    @Body() websiteStatus: WebsiteStatusDto,
   ): Promise<string> {
-    return this.websiteService.deleteWebsite(user, website);
+    return this.websiteService.updateWebsiteStatus(
+      websiteId,
+      user,
+      websiteStatus,
+    );
   }
 }

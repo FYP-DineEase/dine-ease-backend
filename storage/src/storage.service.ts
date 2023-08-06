@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 // Database
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Storage } from './schemas/storage.schema';
+import { Storage, StorageDocument } from './schemas/storage.schema';
 
 // utils
 import { UserDetails } from '@mujtaba-web/common';
@@ -11,7 +11,7 @@ import { UserDetails } from '@mujtaba-web/common';
 @Injectable()
 export class StorageService {
   constructor(
-    @InjectModel(Storage.name) private storageModel: Model<Storage>,
+    @InjectModel(Storage.name) private storageModel: Model<StorageDocument>,
   ) {}
 
   // upload user image

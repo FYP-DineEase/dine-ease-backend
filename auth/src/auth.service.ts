@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 
 // Database
@@ -83,7 +84,7 @@ export class AuthService {
   async registerUnverified(user: RegisterUserDto): Promise<string> {
     const { firstName, lastName, password, email, role, profilePicture } = user;
 
-    const existingUser: User = await this.userModel.findOne({ email });
+    const existingUser: UserDocument = await this.userModel.findOne({ email });
     if (existingUser) throw new BadRequestException('Account already taken');
 
     const createdUser = new this.userModel({
@@ -213,7 +214,7 @@ export class AuthService {
     );
 
     if (passMatches)
-      throw new BadRequestException('Cannot use previous password');
+      throw new ConflictException('Cannot use previous password');
 
     foundUser.set({ password });
     await foundUser.save();

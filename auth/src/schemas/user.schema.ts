@@ -1,5 +1,6 @@
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 import { hashPassword } from '../utils/password.utils';
 import { UserRoles } from 'src/utils/enums/user-roles.enum';
@@ -14,6 +15,7 @@ export interface UserDocument extends HydratedDocument<User> {
   profilePicture: string;
   isVerified: boolean;
   fullName: string;
+  version: number;
 }
 
 @Schema({
@@ -51,7 +53,11 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// virtual methods
+// Version
+UserSchema.set('versionKey', 'version');
+UserSchema.plugin(updateIfCurrentPlugin);
+
+// Virtual methods
 UserSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
@@ -63,3 +69,5 @@ UserSchema.pre('save', async function (next) {
   }
   next();
 });
+
+// export default UserSchema;
