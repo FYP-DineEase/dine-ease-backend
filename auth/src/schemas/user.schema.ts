@@ -5,6 +5,7 @@ import { hashPassword } from '../utils/password.utils';
 import { UserRoles } from 'src/utils/enums/user-roles.enum';
 
 export interface UserDocument extends HydratedDocument<User> {
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
