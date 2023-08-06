@@ -9,7 +9,7 @@ import {
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
 
 // DTO
 import { UserCredentialsDto } from './dto/user-credentials.dto';
@@ -22,7 +22,7 @@ import { UserPasswordDto } from './dto/user-password.dto';
 import { JwtMailService } from './jwt/jwt-mail.service';
 import { UserDetails } from '@mujtaba-web/common';
 import { EmailTokenPayload } from './jwt/jwt-mail.interface';
-import { comparePasswords, hashPassword } from './utils/password.utils';
+import { comparePasswords } from './utils/password.utils';
 import { EmailTokenTypes } from './utils/enums/email-token.enum';
 
 // event
@@ -33,7 +33,7 @@ import { ForgotPasswordPublisher } from './events/publishers/forgot-password-pub
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly jwtAuthService: JwtService,
     private readonly jwtMailService: JwtMailService,
     private readonly natsWrapper: NatsWrapper,
@@ -58,7 +58,7 @@ export class AuthService {
 
   // login user
   async login(user: UserCredentialsDto): Promise<string> {
-    const foundUser = await this.userModel
+    const foundUser: UserDocument = await this.userModel
       .findOne({ email: user.email })
       .select('+password');
 
@@ -67,31 +67,34 @@ export class AuthService {
     if (!foundUser.isVerified)
       throw new BadRequestException('Account not verified');
 
-    const passMatches = await comparePasswords(
+    const passMatches: boolean = await comparePasswords(
       user.password.toString(),
       foundUser.password,
     );
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
 
-    const { id, name, email, profilePicture } = foundUser;
-    const payload: UserDetails = { id, name, email, profilePicture };
-    const token = this.jwtAuthService.sign(payload);
+    const { id, fullName, email, profilePicture } = foundUser;
+    const payload: UserDetails = { id, fullName, email, profilePicture };
+    const token: string = this.jwtAuthService.sign(payload);
     return token;
   }
 
   // register unverified account
   async registerUnverified(user: RegisterUserDto): Promise<string> {
-    const { name, email, password } = user;
+    const { firstName, lastName, password, email, role, profilePicture } = user;
 
     const existingUser: User = await this.userModel.findOne({ email });
     if (existingUser) throw new BadRequestException('Account already taken');
 
     const createdUser = new this.userModel({
-      name,
-      email,
+      firstName,
+      lastName,
       password,
+      email,
+      role,
+      profilePicture,
     });
-    const savedUser = await createdUser.save();
+    const savedUser: UserDocument = await createdUser.save();
 
     const payload = { email: savedUser.email, expiresIn: '7d' };
     const verifyPayload: EmailTokenPayload = {
@@ -113,7 +116,9 @@ export class AuthService {
       EmailTokenTypes.ACCOUNT_VERIFY,
     );
 
-    const foundUser = await this.userModel.findOne({ email: tokenEmail });
+    const foundUser: UserDocument = await this.userModel.findOne({
+      email: tokenEmail,
+    });
     if (!foundUser) throw new NotFoundException('User not found');
 
     if (foundUser.isVerified)
@@ -122,8 +127,8 @@ export class AuthService {
     foundUser.set({ isVerified: true });
     await foundUser.save();
 
-    const { id, name, email, profilePicture } = foundUser;
-    const payload: UserDetails = { id, name, email, profilePicture };
+    const { id, fullName, email, profilePicture } = foundUser;
+    const payload: UserDetails = { id, fullName, email, profilePicture };
     const token = this.jwtAuthService.sign(payload);
     return token;
   }
@@ -135,7 +140,7 @@ export class AuthService {
       EmailTokenTypes.DELETE_VERIFY,
     );
 
-    const deletedUser: User = await this.userModel.findOneAndDelete({
+    const deletedUser: UserDocument = await this.userModel.findOneAndDelete({
       email: tokenEmail,
       isVerified: false,
     });
@@ -149,7 +154,7 @@ export class AuthService {
   // resend verification
   async resentVerification(user: UserEmailDto): Promise<string> {
     const { email } = user;
-    const foundUser = await this.userModel.findOne({ email });
+    const foundUser: UserDocument = await this.userModel.findOne({ email });
 
     if (!foundUser || foundUser.isVerified) {
       throw new BadRequestException('Invalid User');
@@ -202,7 +207,11 @@ export class AuthService {
       .findOne({ email })
       .select('+password');
 
-    const passMatches = await comparePasswords(password, foundUser.password);
+    const passMatches: boolean = await comparePasswords(
+      password,
+      foundUser.password,
+    );
+
     if (passMatches)
       throw new BadRequestException('Cannot use previous password');
 

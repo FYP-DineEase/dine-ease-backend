@@ -1,18 +1,30 @@
 import {
+  IsEnum,
+  IsEmail,
+  Matches,
   IsString,
   MinLength,
   MaxLength,
-  Matches,
-  IsEmail,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
+import { UserRoles } from 'src/utils/enums/user-roles.enum';
 
 export class RegisterUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(15)
-  name: string;
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(15)
+  lastName: string;
+
+  @IsEnum(UserRoles)
+  role: UserRoles;
 
   @IsNotEmpty()
   @IsString()
@@ -28,4 +40,8 @@ export class RegisterUserDto {
       'Password must contain at least one letter, one number, and one special character',
   })
   password: string;
+
+  @IsString()
+  @IsOptional()
+  profilePicture: string;
 }
