@@ -146,8 +146,9 @@ export class AuthService {
       isVerified: false,
     });
 
-    if (!deletedUser)
-      throw new BadRequestException('Un-Verified User not found');
+    if (!deletedUser) {
+      throw new NotFoundException('Un-Verified User not found');
+    }
 
     return `Account Deleted Successfully`;
   }

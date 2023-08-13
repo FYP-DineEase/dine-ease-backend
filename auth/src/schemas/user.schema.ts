@@ -69,5 +69,3 @@ UserSchema.pre('save', async function (next) {
   }
   next();
 });
-
-// export default UserSchema;

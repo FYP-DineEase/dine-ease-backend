@@ -6,6 +6,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   UseGuards,
 } from '@nestjs/common';
 import { WebsiteService } from './website.service';
@@ -70,5 +71,13 @@ export class WebsiteController {
       user,
       websiteStatus,
     );
+  }
+
+  @Delete('/:id')
+  deleteWebsite(
+    @GetUser() user: UserDetails,
+    @Param() websiteId: WebsiteIdDto,
+  ): Promise<string> {
+    return this.websiteService.deleteWebsite(websiteId, user);
   }
 }

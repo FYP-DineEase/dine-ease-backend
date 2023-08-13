@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { NatsModule } from './nats/nats.module';
 import {
   LoggerModule,
   DatabaseModule,
@@ -21,6 +22,7 @@ import { configValidationSchema } from './config-schema';
     }),
     JwtAuthModule,
     LoggerModule,
+    NatsModule,
     DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-website'),
     MongooseModule.forFeature([{ name: Website.name, schema: WebsiteSchema }]),
   ],

@@ -3,6 +3,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 
 // Database
@@ -16,13 +17,24 @@ import { WebsiteIdDto } from './dto/website-Id.dto';
 import { WebsiteStatusDto } from './dto/website-status.dto';
 
 // utils
-import { UserDetails } from '@mujtaba-web/common';
-import WebsiteStatus from './utils/enums/website-status.enum';
+import {
+  WebsiteRemovalStatus,
+  WebsiteStatus,
+  UserDetails,
+} from '@mujtaba-web/common';
+
+// event
+import { NatsWrapper } from '@mujtaba-web/common';
+import { WebsiteCreatedPublisher } from './events/publishers/website-created-publisher';
+import { WebsiteDeletedPublisher } from './events/publishers/website-deleted-publisher';
+import { WebsiteNameUpdatedPublisher } from './events/publishers/website-name-updated-publisher';
+import { WebsiteStatusUpdatedPublisher } from './events/publishers/website-status-updated-publisher';
 
 @Injectable()
 export class WebsiteService {
   constructor(
     @InjectModel(Website.name) private websiteModel: Model<WebsiteDocument>,
+    private readonly natsWrapper: NatsWrapper,
   ) {}
 
   // check website id and user
@@ -31,7 +43,12 @@ export class WebsiteService {
     webId: string,
   ): Promise<WebsiteDocument> {
     const website: WebsiteDocument = await this.websiteModel.findById(webId);
-    if (!website) throw new BadRequestException('Website not found');
+
+    if (!website) throw new NotFoundException('Website not found');
+
+    if (website.status === WebsiteRemovalStatus.OFFLINE)
+      throw new BadRequestException('Website is currently InActive');
+
     if (website.userId !== userId)
       throw new UnauthorizedException('Invalid User');
     return website;
@@ -74,6 +91,15 @@ export class WebsiteService {
       status: WebsiteStatus.ONLINE,
     });
     const savedWebsite = await createdWebsite.save();
+
+    new WebsiteCreatedPublisher(this.natsWrapper.client).publish({
+      id: savedWebsite.id,
+      userId: savedWebsite.userId,
+      websiteName: savedWebsite.websiteName,
+      status: savedWebsite.status,
+      version: savedWebsite.version,
+    });
+
     return savedWebsite;
   }
 
@@ -94,6 +120,13 @@ export class WebsiteService {
 
     foundWebsite.set({ websiteName: websiteNameDto.name });
     await foundWebsite.save();
+
+    new WebsiteNameUpdatedPublisher(this.natsWrapper.client).publish({
+      id: foundWebsite.id,
+      name: foundWebsite.websiteName,
+      version: foundWebsite.version,
+    });
+
     return `Website Name Updated Successfully`;
   }
 
@@ -115,8 +148,33 @@ export class WebsiteService {
     foundWebsite.set({ status: websiteStatusDto.status });
     await foundWebsite.save();
 
-    // publish event here
+    new WebsiteStatusUpdatedPublisher(this.natsWrapper.client).publish({
+      id: foundWebsite.id,
+      status: foundWebsite.status,
+      version: foundWebsite.version,
+    });
 
     return `Website Status Updated Successfully`;
+  }
+
+  // delete website
+  async deleteWebsite(
+    websiteIdDto: WebsiteIdDto,
+    user: UserDetails,
+  ): Promise<string> {
+    const foundWebsite: WebsiteDocument = await this.checkWebsiteAndUser(
+      user.id,
+      websiteIdDto.id,
+    );
+
+    foundWebsite.set({ status: WebsiteRemovalStatus.OFFLINE });
+    await foundWebsite.save();
+
+    new WebsiteDeletedPublisher(this.natsWrapper.client).publish({
+      id: foundWebsite.id,
+      version: foundWebsite.version,
+    });
+
+    return `Website Deleted Successfully`;
   }
 }

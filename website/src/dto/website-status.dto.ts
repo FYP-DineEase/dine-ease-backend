@@ -1,5 +1,5 @@
 import { IsString, IsEnum } from 'class-validator';
-import WebsiteStatus from 'src/utils/enums/website-status.enum';
+import { WebsiteStatus } from '@mujtaba-web/common';
 
 export class WebsiteStatusDto {
   @IsString()

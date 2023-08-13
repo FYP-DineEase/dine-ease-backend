@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { AllWebsiteStatus, AllWebsiteStatusEnum } from '@mujtaba-web/common';
 
 export interface WebsiteDocument extends HydratedDocument<Website> {
-  id: string;
+  id: Types.ObjectId;
   websiteName: string;
-  userId: string;
+  userId: Types.ObjectId;
   status: AllWebsiteStatusEnum;
   version: number;
 }
@@ -25,12 +25,11 @@ export class Website {
   websiteName: string;
 
   @Prop({ required: true })
-  userId: string;
+  userId: Types.ObjectId;
 
   @Prop({
     required: true,
     enum: AllWebsiteStatus,
-    default: AllWebsiteStatus.DOWN,
   })
   status: AllWebsiteStatusEnum;
 }
