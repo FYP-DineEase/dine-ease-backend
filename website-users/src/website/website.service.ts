@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 // Database
 import { Model } from 'mongoose';
@@ -20,9 +24,44 @@ export class WebsiteService {
     private websiteModel: Model<WebsiteDocument>,
   ) {}
 
+  // find website
+  async findWebsite(webId: string): Promise<WebsiteDocument> {
+    const website: WebsiteDocument = await this.websiteModel.findOne({
+      websiteId: webId,
+    });
+    if (!website) throw new NotFoundException('Website not found');
+    return website;
+  }
+
+  // find by version
+  async findWebsitebyVersion(
+    id: string,
+    version: number,
+  ): Promise<WebsiteDocument> {
+    const website: WebsiteDocument = await this.websiteModel.findOne({
+      websiteId: id,
+      version: version - 1,
+    });
+    if (!website) throw new NotFoundException('Website not found');
+    return website;
+  }
+
+  // validate creator of website
+  async validateWebsiteCreator(
+    webId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const website = await this.findWebsite(webId);
+    if (website.userId.toString() === userId) {
+      return true;
+    }
+    throw new UnauthorizedException('Invalid Website User');
+  }
+
   // create website
   async createWebsite(data: WebsiteCreatedEvent['data']): Promise<string> {
     const createdWebsite = new this.websiteModel({
+      websiteId: data.id,
       websiteName: data.websiteName,
       userId: data.userId,
       status: data.status,
@@ -36,11 +75,8 @@ export class WebsiteService {
   async updateWebsiteName(
     data: WebsiteNameUpdatedEvent['data'],
   ): Promise<string> {
-    const website: WebsiteDocument = await this.websiteModel.findById(data.id);
-
-    if (!website) throw new NotFoundException('Website not found');
-
-    website.set({ websiteName: data.name, version: data.version });
+    const website = await this.findWebsitebyVersion(data.id, data.version);
+    website.set({ websiteName: data.name });
     await website.save();
     return `Website Name Updated Successfully`;
   }
@@ -49,27 +85,20 @@ export class WebsiteService {
   async updateWebsiteStatus(
     data: WebsiteStatusUpdatedEvent['data'],
   ): Promise<string> {
-    const website: WebsiteDocument = await this.websiteModel.findById(data.id);
-
-    if (!website) throw new NotFoundException('Website not found');
-
-    website.set({ status: data.status, version: data.version });
+    const website = await this.findWebsitebyVersion(data.id, data.version);
+    website.set({ status: data.status });
     await website.save();
     return `Website Status Updated Successfully`;
   }
 
   // delete website
   async deleteWebsite(data: WebsiteDeletedEvent['data']): Promise<string> {
-    const website: WebsiteDocument = await this.websiteModel.findById(data.id);
-
+    const website = await this.findWebsitebyVersion(data.id, data.version);
     if (!website) throw new NotFoundException('Website not found');
-
     website.set({
       status: WebsiteRemovalStatus.OFFLINE,
-      version: data.version,
     });
     await website.save();
-
     return `Website Deleted Successfully`;
   }
 }

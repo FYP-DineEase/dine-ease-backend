@@ -18,7 +18,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.natsWrapper.connect(
       'web-craft',
-      'abc4',
+      'abc5',
       'http://localhost:4222',
     );
 
@@ -34,27 +34,25 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private registerListeners() {
-    const websiteCreatedListener = new WebsiteCreatedListener(
+    new WebsiteCreatedListener(
       this.natsWrapper.client,
       this.websiteService,
-    );
-    const websiteNameUpdatedListener = new WebsiteNameUpdatedListener(
-      this.natsWrapper.client,
-      this.websiteService,
-    );
-    const websiteStatusUpdatedListener = new WebsiteStatusUpdatedListener(
-      this.natsWrapper.client,
-      this.websiteService,
-    );
-    const websiteDeletedListener = new WebsiteDeletedListener(
-      this.natsWrapper.client,
-      this.websiteService,
-    );
+    ).listen();
 
-    websiteCreatedListener.listen();
-    websiteNameUpdatedListener.listen();
-    websiteStatusUpdatedListener.listen();
-    websiteDeletedListener.listen();
+    new WebsiteNameUpdatedListener(
+      this.natsWrapper.client,
+      this.websiteService,
+    ).listen();
+
+    new WebsiteDeletedListener(
+      this.natsWrapper.client,
+      this.websiteService,
+    ).listen();
+
+    new WebsiteStatusUpdatedListener(
+      this.natsWrapper.client,
+      this.websiteService,
+    ).listen();
   }
 
   onModuleDestroy() {

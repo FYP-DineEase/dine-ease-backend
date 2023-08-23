@@ -5,6 +5,7 @@ import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 export interface WebsiteUserDocument extends HydratedDocument<WebsiteUser> {
   id: Types.ObjectId;
   userId: Types.ObjectId;
+  websiteId: Types.ObjectId;
   email: string;
   newsletter: boolean;
   version: number;
@@ -20,11 +21,14 @@ export interface WebsiteUserDocument extends HydratedDocument<WebsiteUser> {
   },
 })
 export class WebsiteUser {
-  @Prop({ required: true })
+  @Prop({ required: true, index: true })
   userId: Types.ObjectId;
 
   @Prop({ required: true, unique: true })
   email: string;
+
+  @Prop({ required: true, unique: true, index: true })
+  websiteId: Types.ObjectId;
 
   @Prop({ default: false })
   newsletter: boolean;

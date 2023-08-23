@@ -9,8 +9,8 @@ import { WebsiteService } from 'src/website/website.service';
 
 export class WebsiteStatusUpdatedListener extends Listener<WebsiteStatusUpdatedEvent> {
   subject: Subjects.WebsiteStatusUpdated = Subjects.WebsiteStatusUpdated;
-  queueGroupName: QueueGroups.WebsiteUserService =
-    QueueGroups.WebsiteUserService;
+  queueGroupName: QueueGroups.WebsiteUsersService =
+    QueueGroups.WebsiteUsersService;
 
   constructor(client: Stan, private readonly websiteService: WebsiteService) {
     super(client);

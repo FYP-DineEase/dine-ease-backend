@@ -74,8 +74,8 @@ export class AuthService {
     );
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
 
-    const { id, fullName, email, profilePicture } = foundUser;
-    const payload: UserDetails = { id, fullName, email, profilePicture };
+    const { id, fullName, email, role, profilePicture } = foundUser;
+    const payload: UserDetails = { id, fullName, email, role, profilePicture };
     const token: string = this.jwtAuthService.sign(payload);
     return token;
   }
@@ -128,8 +128,8 @@ export class AuthService {
     foundUser.set({ isVerified: true });
     await foundUser.save();
 
-    const { id, fullName, email, profilePicture } = foundUser;
-    const payload: UserDetails = { id, fullName, email, profilePicture };
+    const { id, fullName, email, role, profilePicture } = foundUser;
+    const payload: UserDetails = { id, fullName, email, role, profilePicture };
     const token = this.jwtAuthService.sign(payload);
     return token;
   }

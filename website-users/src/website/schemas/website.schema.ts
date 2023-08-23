@@ -5,8 +5,9 @@ import { AllWebsiteStatus, AllWebsiteStatusEnum } from '@mujtaba-web/common';
 
 export interface WebsiteDocument extends HydratedDocument<Website> {
   id: Types.ObjectId;
-  websiteName: string;
   userId: Types.ObjectId;
+  websiteId: Types.ObjectId;
+  websiteName: string;
   status: AllWebsiteStatusEnum;
   version: number;
 }
@@ -21,6 +22,9 @@ export interface WebsiteDocument extends HydratedDocument<Website> {
   },
 })
 export class Website {
+  @Prop({ required: true, unique: true, index: true })
+  websiteId: Types.ObjectId;
+
   @Prop({ required: true, unique: true })
   websiteName: string;
 

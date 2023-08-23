@@ -1,3 +1,4 @@
+import { UserRoles } from '@mujtaba-web/common';
 import {
   IsEnum,
   IsEmail,
@@ -8,7 +9,6 @@ import {
   IsNotEmpty,
   IsOptional,
 } from 'class-validator';
-import { UserRoles } from 'src/utils/enums/user-roles.enum';
 
 export class RegisterUserDto {
   @IsString()

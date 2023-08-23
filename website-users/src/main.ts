@@ -11,7 +11,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter(appLogger));
 
   // server start
-  const PORT = 3003;
+  const PORT = 3004;
   await app.listen(PORT, () => {
     appLogger.log(`Listening to PORT: ${PORT}`);
   });

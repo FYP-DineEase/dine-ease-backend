@@ -11,7 +11,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.natsWrapper.connect(
       'web-craft',
-      'abc1',
+      'abc3',
       'http://localhost:4222',
     );
 

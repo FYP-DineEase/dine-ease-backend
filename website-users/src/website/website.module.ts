@@ -10,5 +10,6 @@ import { Website, WebsiteSchema } from './schemas/website.schema';
     MongooseModule.forFeature([{ name: Website.name, schema: WebsiteSchema }]),
   ],
   providers: [WebsiteService],
+  exports: [WebsiteService],
 })
 export class WebsiteModule {}

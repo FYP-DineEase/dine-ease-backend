@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 import { hashPassword } from '../utils/password.utils';
-import { UserRoles } from 'src/utils/enums/user-roles.enum';
+import { UserRoles } from '@mujtaba-web/common';
 
 export interface UserDocument extends HydratedDocument<User> {
   id: string;
