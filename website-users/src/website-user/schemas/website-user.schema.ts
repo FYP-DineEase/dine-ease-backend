@@ -31,7 +31,7 @@ export class WebsiteUser {
   websiteId: Types.ObjectId;
 
   @Prop({ default: false })
-  newsletter: boolean;
+  newsLetter: boolean;
 }
 
 export const WebsiteUserSchema = SchemaFactory.createForClass(WebsiteUser);

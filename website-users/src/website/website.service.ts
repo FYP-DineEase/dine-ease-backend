@@ -51,7 +51,7 @@ export class WebsiteService {
     webId: string,
     userId: string,
   ): Promise<boolean> {
-    const website = await this.findWebsite(webId);
+    const website: WebsiteDocument = await this.findWebsite(webId);
     if (website.userId.toString() === userId) {
       return true;
     }
@@ -75,7 +75,10 @@ export class WebsiteService {
   async updateWebsiteName(
     data: WebsiteNameUpdatedEvent['data'],
   ): Promise<string> {
-    const website = await this.findWebsitebyVersion(data.id, data.version);
+    const website: WebsiteDocument = await this.findWebsitebyVersion(
+      data.id,
+      data.version,
+    );
     website.set({ websiteName: data.name });
     await website.save();
     return `Website Name Updated Successfully`;
@@ -85,7 +88,10 @@ export class WebsiteService {
   async updateWebsiteStatus(
     data: WebsiteStatusUpdatedEvent['data'],
   ): Promise<string> {
-    const website = await this.findWebsitebyVersion(data.id, data.version);
+    const website: WebsiteDocument = await this.findWebsitebyVersion(
+      data.id,
+      data.version,
+    );
     website.set({ status: data.status });
     await website.save();
     return `Website Status Updated Successfully`;
@@ -93,7 +99,10 @@ export class WebsiteService {
 
   // delete website
   async deleteWebsite(data: WebsiteDeletedEvent['data']): Promise<string> {
-    const website = await this.findWebsitebyVersion(data.id, data.version);
+    const website: WebsiteDocument = await this.findWebsitebyVersion(
+      data.id,
+      data.version,
+    );
     if (!website) throw new NotFoundException('Website not found');
     website.set({
       status: WebsiteRemovalStatus.OFFLINE,

@@ -17,6 +17,9 @@ import {
   WebsiteUserDocument,
 } from './schemas/website-user.schema';
 
+// DTO
+import { NewsletterDto } from './dto/user-newsletter.dto';
+
 @Injectable()
 export class WebsiteUserService {
   constructor(
@@ -25,35 +28,64 @@ export class WebsiteUserService {
     private websiteUser: Model<WebsiteUserDocument>,
   ) {}
 
+  // find user
+  async findUser(
+    websiteId: string,
+    userId: string,
+  ): Promise<WebsiteUserDocument> {
+    const foundUser: WebsiteUserDocument = await this.websiteUser.findOne({
+      websiteId,
+      userId,
+    });
+    return foundUser;
+  }
+
   // current user
-  currentUser(websiteUser: WebsiteUserDetails, websiteId: string) {
+  currentUser(
+    websiteUser: WebsiteUserDetails,
+    websiteId: string,
+  ): WebsiteUserDetails {
     if (websiteUser.websiteId === websiteId) {
       return websiteUser;
     }
     throw new UnauthorizedException('Invalid Website User');
   }
 
-  // find user account
-  async findUser(
+  // get user account details
+  async fetchUserDetails(
     websiteUser: WebsiteUserDetails,
     websiteId: string,
   ): Promise<WebsiteUserDocument> {
-    const foundUser: WebsiteUserDocument = await this.websiteUser.findOne({
-      userId: websiteUser.id,
+    const foundUser: WebsiteUserDocument = await this.findUser(
       websiteId,
-    });
+      websiteUser.id,
+    );
     if (!foundUser) throw new NotFoundException('User not found');
+    return foundUser;
+  }
+
+  // update user newsletter
+  async updateNewsletter(
+    websiteUser: WebsiteUserDetails,
+    websiteId: string,
+    data: NewsletterDto,
+  ): Promise<WebsiteUserDocument> {
+    const foundUser: WebsiteUserDocument = await this.findUser(
+      websiteId,
+      websiteUser.id,
+    );
+    if (!foundUser) throw new NotFoundException('User not found');
+    foundUser.set({ newsLetter: data.newsLetter });
     return foundUser;
   }
 
   // website user account
   async auth(user: UserDetails, website: WebsiteDocument): Promise<string> {
     const { id, email, fullName, profilePicture } = user;
-    const foundUser: WebsiteUserDocument = await this.websiteUser.findOne({
-      userId: id,
-      websiteId: website.websiteId,
-    });
-
+    const foundUser: WebsiteUserDocument = await this.findUser(
+      website.websiteId.toString(),
+      id,
+    );
     if (!foundUser) {
       const createdUser = new this.websiteUser({
         userId: id,
