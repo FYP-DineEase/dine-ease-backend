@@ -1,8 +1,4 @@
 import { Get, Param, Controller, UseGuards, Patch, Body } from '@nestjs/common';
-
-import { WebsiteUserService } from './website-user.service';
-
-// Misc
 import {
   AuthGuard,
   GetUser,
@@ -11,6 +7,7 @@ import {
   WebsiteAuthGuard,
   WebsiteUserDetails,
 } from '@mujtaba-web/common';
+import { WebsiteUserService } from './website-user.service';
 import { WebsiteService } from 'src/website/website.service';
 import { WebsiteUserDocument } from './schemas/website-user.schema';
 import { NewsletterDto } from './dto/user-newsletter.dto';
@@ -26,9 +23,8 @@ export class WebsiteUserController {
   @Get('current')
   userDetails(
     @GetWebsiteUser() websiteUser: WebsiteUserDetails,
-    @Param('websiteId') websiteId: string,
   ): WebsiteUserDetails {
-    return this.websiteUserService.currentUser(websiteUser, websiteId);
+    return websiteUser;
   }
 
   @UseGuards(AuthGuard)
@@ -45,22 +41,16 @@ export class WebsiteUserController {
   @Get('user-details')
   async user(
     @GetWebsiteUser() websiteUser: WebsiteUserDetails,
-    @Param('websiteId') websiteId: string,
   ): Promise<WebsiteUserDocument> {
-    return this.websiteUserService.fetchUserDetails(websiteUser, websiteId);
+    return this.websiteUserService.fetchUserDetails(websiteUser);
   }
 
   @UseGuards(WebsiteAuthGuard)
   @Patch('newsletter')
   async updateNewsletter(
     @GetWebsiteUser() websiteUser: WebsiteUserDetails,
-    @Param('websiteId') websiteId: string,
     @Body() data: NewsletterDto,
   ): Promise<WebsiteUserDocument> {
-    return this.websiteUserService.updateNewsletter(
-      websiteUser,
-      websiteId,
-      data,
-    );
+    return this.websiteUserService.updateNewsletter(websiteUser, data);
   }
 }

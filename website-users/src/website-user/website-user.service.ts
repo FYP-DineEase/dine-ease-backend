@@ -40,24 +40,12 @@ export class WebsiteUserService {
     return foundUser;
   }
 
-  // current user
-  currentUser(
-    websiteUser: WebsiteUserDetails,
-    websiteId: string,
-  ): WebsiteUserDetails {
-    if (websiteUser.websiteId === websiteId) {
-      return websiteUser;
-    }
-    throw new UnauthorizedException('Invalid Website User');
-  }
-
   // get user account details
   async fetchUserDetails(
     websiteUser: WebsiteUserDetails,
-    websiteId: string,
   ): Promise<WebsiteUserDocument> {
     const foundUser: WebsiteUserDocument = await this.findUser(
-      websiteId,
+      websiteUser.websiteId,
       websiteUser.id,
     );
     if (!foundUser) throw new NotFoundException('User not found');
@@ -67,11 +55,10 @@ export class WebsiteUserService {
   // update user newsletter
   async updateNewsletter(
     websiteUser: WebsiteUserDetails,
-    websiteId: string,
     data: NewsletterDto,
   ): Promise<WebsiteUserDocument> {
     const foundUser: WebsiteUserDocument = await this.findUser(
-      websiteId,
+      websiteUser.websiteId,
       websiteUser.id,
     );
     if (!foundUser) throw new NotFoundException('User not found');
