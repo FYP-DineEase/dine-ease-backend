@@ -46,18 +46,6 @@ export class WebsiteService {
     return website;
   }
 
-  // validate creator of website
-  async validateWebsiteCreator(
-    webId: string,
-    userId: string,
-  ): Promise<boolean> {
-    const website: WebsiteDocument = await this.findWebsite(webId);
-    if (website.userId.toString() === userId) {
-      return true;
-    }
-    throw new UnauthorizedException('Invalid Website User');
-  }
-
   // create website
   async createWebsite(data: WebsiteCreatedEvent['data']): Promise<string> {
     const createdWebsite = new this.websiteModel({

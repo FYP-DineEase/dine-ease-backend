@@ -21,13 +21,13 @@ export interface WebsiteUserDocument extends HydratedDocument<WebsiteUser> {
   },
 })
 export class WebsiteUser {
-  @Prop({ required: true, index: true })
+  @Prop({ required: true })
   userId: Types.ObjectId;
 
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ required: true })
   websiteId: Types.ObjectId;
 
   @Prop({ default: false })
