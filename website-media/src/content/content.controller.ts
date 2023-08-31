@@ -11,9 +11,9 @@ import {
 import {
   GetWebsiteUser,
   WebsiteAuthGuard,
+  CreatorRoleGuard,
   WebsiteUserDetails,
 } from '@mujtaba-web/common';
-import { CreatorRoleGuard } from 'src/guards/creator-role.guard';
 
 // Database
 import { Types } from 'mongoose';

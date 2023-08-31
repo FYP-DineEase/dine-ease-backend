@@ -11,14 +11,13 @@ import {
 import {
   GetWebsiteUser,
   WebsiteAuthGuard,
+  CreatorRoleGuard,
   WebsiteUserDetails,
 } from '@mujtaba-web/common';
-import { CreatorRoleGuard } from 'src/guards/creator-role.guard';
 
 // Database
 import { Types } from 'mongoose';
 import { SectionService } from './section.service';
-import { SectionDocument } from './schemas/section.schema';
 
 // Dto
 import { SectionDto } from './dto/Section.dto';
@@ -27,14 +26,6 @@ import { SectionDto } from './dto/Section.dto';
 @Controller('/api/section/:websiteId')
 export class SectionController {
   constructor(private readonly sectionService: SectionService) {}
-
-  // REMOVE
-  @Get('/:playlistId/all')
-  async allWebisteSection(
-    @Param('playlistId') playlistId: Types.ObjectId,
-  ): Promise<SectionDocument[]> {
-    return this.sectionService.findAllSection(playlistId);
-  }
 
   @Post('/:playlistId/create')
   async createSection(
