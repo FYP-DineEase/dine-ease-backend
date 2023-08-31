@@ -2,9 +2,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthModule } from '@mujtaba-web/common';
+import { PlaylistController } from './playlist.controller';
 import { PlaylistService } from './playlist.service';
 import { Playlist, PlaylistSchema } from './schemas/playlist.schema';
-import { PlaylistController } from './playlist.controller';
 
 @Module({
   imports: [
@@ -15,5 +15,6 @@ import { PlaylistController } from './playlist.controller';
   ],
   providers: [PlaylistService],
   controllers: [PlaylistController],
+  exports: [PlaylistService],
 })
 export class PlaylistModule {}

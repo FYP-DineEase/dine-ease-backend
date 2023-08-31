@@ -36,6 +36,9 @@ export class Playlist {
   @Prop({ required: true })
   price: number;
 
+  @Prop()
+  picture: string;
+
   @Prop({
     required: true,
     enum: PlaylistStatus,

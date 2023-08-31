@@ -18,45 +18,73 @@ export class PlaylistService {
     private playlistModel: Model<PlaylistDocument>,
   ) {}
 
-  // add section
-  // async updateSection(webId: WebsiteIdDto): Promise<PlaylistDocument[]> {
-  //   const website: PlaylistDocument[] = await this.playlistModel.find({
-  //     websiteId: webId,
-  //     isDeleted: false,
-  //   });
-  //   return website;
-  // }
+  // verify playlist by id
+  async findPlaylistById(id: Types.ObjectId): Promise<PlaylistDocument> {
+    const playlist: PlaylistDocument = await this.playlistModel.findById(id);
+    if (!playlist) throw new NotFoundException('Playlist not found');
+    return playlist;
+  }
 
-  // find all playlist
+  // find playlist by id and poluate it
+  async populatedPlaylistById(id: Types.ObjectId): Promise<PlaylistDocument> {
+    const playlist = await this.playlistModel
+      .findById(id)
+      .populate({
+        path: 'sections',
+        model: 'Section',
+        populate: {
+          path: 'media',
+          model: 'Content',
+        },
+      })
+      .exec();
+    if (!playlist) throw new NotFoundException('Playlist not found');
+    return playlist;
+  }
+
+  // update playlist section
+  async updatePlaylistSection(
+    playlistId: Types.ObjectId,
+    sectionId: Types.ObjectId,
+  ): Promise<PlaylistDocument> {
+    const playlist: PlaylistDocument =
+      await this.playlistModel.findByIdAndUpdate(playlistId, {
+        $pull: { sections: sectionId },
+      });
+    if (!playlist) throw new NotFoundException('Playlist not found');
+    return playlist;
+  }
+
+  // find all playlist ( only showed on admin list )
   async findAllPlaylist(webId: Types.ObjectId): Promise<PlaylistDocument[]> {
-    const website: PlaylistDocument[] = await this.playlistModel.find({
+    const playlists: PlaylistDocument[] = await this.playlistModel.find({
       websiteId: webId,
       isDeleted: false,
     });
-    return website;
+    return playlists;
   }
 
-  // find active playlist
+  // find active playlist ( showed on website )
   async findActivePlaylist(webId: Types.ObjectId): Promise<PlaylistDocument[]> {
-    const website: PlaylistDocument[] = await this.playlistModel.find({
+    const playlists: PlaylistDocument[] = await this.playlistModel.find({
       websiteId: webId,
       status: PlaylistStatus.ACTIVE,
       isDeleted: false,
     });
-    return website;
+    return playlists;
   }
 
   // create playlist
-  async createWebsite(
+  async createPlaylist(
     user: WebsiteUserDetails,
     playlistDto: PlaylistDto,
   ): Promise<string> {
-    const createdWebsite = new this.playlistModel({
+    const playlist = new this.playlistModel({
       userId: user.id,
       websiteId: user.websiteId,
       ...playlistDto,
     });
-    await createdWebsite.save();
+    await playlist.save();
     return 'Playlist Created Successfully';
   }
 
@@ -87,8 +115,6 @@ export class PlaylistService {
     if (!playlist) {
       throw new NotFoundException('Playlist not found');
     }
-
-    await playlist.save();
     return `Playlist Updated Successfully`;
   }
 
@@ -101,7 +127,6 @@ export class PlaylistService {
     if (!playlist) {
       throw new NotFoundException('Playlist not found');
     }
-    await playlist.save();
     return `Playlist Deleted Successfully`;
   }
 }

@@ -28,13 +28,6 @@ import { PlaylistStatusDto } from './dto/playlist-status.dto';
 export class PlaylistController {
   constructor(private readonly playlistService: PlaylistService) {}
 
-  @Get('/all')
-  allWebistePlaylist(
-    @Param('websiteId') webId: Types.ObjectId,
-  ): Promise<PlaylistDocument[]> {
-    return this.playlistService.findAllPlaylist(webId);
-  }
-
   @Get('/active')
   activeWebistePlaylist(
     @Param('websiteId') webId: Types.ObjectId,
@@ -42,14 +35,29 @@ export class PlaylistController {
     return this.playlistService.findActivePlaylist(webId);
   }
 
-  // website creator guard ( userole === creator and website id match)
+  @UseGuards(WebsiteAuthGuard, CreatorRoleGuard)
+  @Get('/all')
+  allWebistePlaylist(
+    @Param('websiteId') webId: Types.ObjectId,
+  ): Promise<PlaylistDocument[]> {
+    return this.playlistService.findAllPlaylist(webId);
+  }
+
+  @UseGuards(WebsiteAuthGuard)
+  @Get('/details/:playlistId')
+  populatedWebistePlaylist(
+    @Param('playlistId') playlistId: Types.ObjectId,
+  ): Promise<PlaylistDocument> {
+    return this.playlistService.populatedPlaylistById(playlistId);
+  }
+
   @UseGuards(WebsiteAuthGuard, CreatorRoleGuard)
   @Post('/create')
   createPlaylist(
     @GetWebsiteUser() websiteUser: WebsiteUserDetails,
     @Body() playlistDto: PlaylistDto,
   ): Promise<string> {
-    return this.playlistService.createWebsite(websiteUser, playlistDto);
+    return this.playlistService.createPlaylist(websiteUser, playlistDto);
   }
 
   @UseGuards(WebsiteAuthGuard, CreatorRoleGuard)
@@ -73,6 +81,7 @@ export class PlaylistController {
     );
   }
 
+  @UseGuards(WebsiteAuthGuard, CreatorRoleGuard)
   @Delete('/:playlistId')
   deletePlaylist(
     @Param('playlistId') playlistId: Types.ObjectId,
