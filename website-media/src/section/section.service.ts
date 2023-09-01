@@ -31,7 +31,7 @@ export class SectionService {
   ): Promise<SectionDocument> {
     const section: SectionDocument = await this.sectionModel.findByIdAndUpdate(
       sectionId,
-      { $pull: { media: contentId } },
+      { $pull: { content: contentId } },
     );
     if (!section) throw new NotFoundException('Section not found');
     return section;

@@ -33,7 +33,7 @@ export class PlaylistService {
         path: 'sections',
         model: 'Section',
         populate: {
-          path: 'media',
+          path: 'content',
           model: 'Content',
         },
       })

@@ -4,7 +4,7 @@ import { HydratedDocument, Types } from 'mongoose';
 export interface SectionDocument extends HydratedDocument<Section> {
   playlistId: Types.ObjectId;
   title: string;
-  media: Types.ObjectId[];
+  content: Types.ObjectId[];
 }
 
 @Schema({
@@ -27,8 +27,8 @@ export class Section {
   @Prop({ required: true })
   title: string;
 
-  @Prop([{ type: Types.ObjectId, ref: 'Media' }])
-  media: Types.ObjectId[];
+  @Prop([{ type: Types.ObjectId, ref: 'Content' }])
+  content: Types.ObjectId[];
 }
 
 export const SectionSchema = SchemaFactory.createForClass(Section);

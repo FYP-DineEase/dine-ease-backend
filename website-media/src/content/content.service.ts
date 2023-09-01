@@ -34,7 +34,7 @@ export class ContentService {
     await content.save();
 
     // update section
-    section.media.push(content._id);
+    section.content.push(content._id);
     await section.save();
 
     return 'Content Created Successfully';
