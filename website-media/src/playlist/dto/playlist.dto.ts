@@ -16,6 +16,6 @@ export class PlaylistDto {
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(500)
+  @Min(1000)
   price: number;
 }

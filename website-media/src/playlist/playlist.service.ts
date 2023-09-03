@@ -11,9 +11,15 @@ import { Playlist, PlaylistDocument } from './schemas/playlist.schema';
 import { PlaylistDto } from './dto/playlist.dto';
 import { PlaylistStatusDto } from './dto/playlist-status.dto';
 
+// event
+import { NatsWrapper } from '@mujtaba-web/common';
+import { PlaylistCreatedPublisher } from '../events/publishers/playlist-created-publisher';
+import { PlaylistDetailsUpdatedPublisher } from '../events/publishers/playlist-details-updated-publisher';
+
 @Injectable()
 export class PlaylistService {
   constructor(
+    private readonly natsWrapper: NatsWrapper,
     @InjectModel(Playlist.name)
     private playlistModel: Model<PlaylistDocument>,
   ) {}
@@ -85,6 +91,15 @@ export class PlaylistService {
       ...playlistDto,
     });
     await playlist.save();
+
+    new PlaylistCreatedPublisher(this.natsWrapper.client).publish({
+      playlistId: playlist.id,
+      websiteId: user.websiteId,
+      title: playlist.title,
+      price: playlist.price,
+      version: playlist.version,
+    });
+
     return 'Playlist Created Successfully';
   }
 
@@ -93,14 +108,23 @@ export class PlaylistService {
     playlistId: Types.ObjectId,
     playlistDto: PlaylistDto,
   ): Promise<string> {
-    const playlist: PlaylistDocument =
-      await this.playlistModel.findByIdAndUpdate(playlistId, playlistDto);
+    const playlist = await this.playlistModel.findByIdAndUpdate(
+      playlistId,
+      playlistDto,
+      { new: true },
+    );
 
     if (!playlist) {
       throw new NotFoundException('Playlist not found');
     }
 
-    await playlist.save();
+    new PlaylistDetailsUpdatedPublisher(this.natsWrapper.client).publish({
+      playlistId: playlist.id,
+      title: playlist.title,
+      price: playlist.price,
+      version: playlist.version,
+    });
+
     return `Playlist Updated Successfully`;
   }
 
