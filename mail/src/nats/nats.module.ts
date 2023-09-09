@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { NatsService } from './nats.service';
-import { MailService } from 'src/mail.service';
 import { NatsWrapper } from '@mujtaba-web/common';
+import { EmailModule } from 'src/mailer/mailer.module';
 
 @Module({
-  providers: [NatsWrapper, NatsService, MailService],
+  imports: [EmailModule],
+  providers: [NatsWrapper, NatsService],
   exports: [NatsWrapper],
 })
 export class NatsModule {}

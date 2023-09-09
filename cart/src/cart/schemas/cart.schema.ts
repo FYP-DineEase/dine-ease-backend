@@ -17,6 +17,7 @@ export interface CartDocument extends HydratedDocument<Cart> {
       return ret;
     },
   },
+  timestamps: true,
 })
 export class Cart {
   @Prop({ required: true })

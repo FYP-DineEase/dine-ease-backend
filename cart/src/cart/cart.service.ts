@@ -6,7 +6,6 @@ import { PlaylistService } from 'src/playlist/playlist.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Cart, CartDocument } from './schemas/cart.schema';
-import { PlaylistDocument } from 'src/playlist/schemas/playlist.schema';
 
 @Injectable()
 export class CartService {
