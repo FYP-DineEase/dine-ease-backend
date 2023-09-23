@@ -3,7 +3,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 import { hashPassword } from '../utils/password.utils';
-import { UserRoles } from '@mujtaba-web/common';
 
 export interface UserDocument extends HydratedDocument<User> {
   id: string;
@@ -11,7 +10,6 @@ export interface UserDocument extends HydratedDocument<User> {
   lastName: string;
   email: string;
   password: string;
-  role: UserRoles;
   profilePicture: string;
   isVerified: boolean;
   fullName: string;
@@ -19,14 +17,7 @@ export interface UserDocument extends HydratedDocument<User> {
 }
 
 @Schema({
-  toJSON: {
-    transform(doc, ret) {
-      ret.id = ret._id;
-      delete ret._id;
-      return ret;
-    },
-    virtuals: true,
-  },
+  toJSON: { virtuals: true },
 })
 export class User {
   @Prop({ required: true })
@@ -36,13 +27,10 @@ export class User {
   lastName: string;
 
   @Prop({ required: true, unique: true })
-  email: string;
+  phone: string;
 
   @Prop({ required: true, select: false })
   password: string;
-
-  @Prop({ required: true, enum: UserRoles })
-  role: UserRoles;
 
   @Prop()
   profilePicture: string;

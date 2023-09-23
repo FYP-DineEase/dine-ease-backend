@@ -26,6 +26,6 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+
 # misc
-track.md
-/testing
+# track.md

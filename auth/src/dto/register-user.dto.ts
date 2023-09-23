@@ -1,14 +1,13 @@
-import { UserRoles } from '@mujtaba-web/common';
 import {
   IsEnum,
-  IsEmail,
-  Matches,
   IsString,
   MinLength,
   MaxLength,
   IsNotEmpty,
-  IsOptional,
+  IsMobilePhone,
+  IsStrongPassword,
 } from 'class-validator';
+import { UserRoles } from '@dine-ease/common';
 
 export class RegisterUserDto {
   @IsString()
@@ -23,25 +22,15 @@ export class RegisterUserDto {
   @MaxLength(15)
   lastName: string;
 
-  @IsEnum(UserRoles)
-  role: UserRoles;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsEmail()
-  email: string;
-
   @IsString()
   @IsNotEmpty()
-  @MinLength(8)
-  @MaxLength(20)
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/, {
-    message:
-      'Password must contain at least one letter, one number, and one special character',
-  })
+  @IsStrongPassword()
   password: string;
 
-  @IsString()
-  @IsOptional()
-  profilePicture: string;
+  @IsNotEmpty()
+  @IsMobilePhone()
+  phone: string;
+
+  @IsEnum(UserRoles)
+  role: UserRoles;
 }
