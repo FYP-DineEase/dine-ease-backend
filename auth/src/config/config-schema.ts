@@ -1,4 +1,4 @@
-import { Stages } from '@dine-ease/common';
+import { Stages } from '@mujtaba-shafiq/common';
 import * as Joi from '@hapi/joi';
 
 export const configValidationSchema = Joi.object({

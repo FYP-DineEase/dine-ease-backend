@@ -1,28 +1,34 @@
 import {
   IsEnum,
-  IsString,
+  IsAlpha,
   MinLength,
   MaxLength,
   IsNotEmpty,
   IsMobilePhone,
   IsStrongPassword,
+  IsAlphanumeric,
 } from 'class-validator';
-import { UserRoles } from '@dine-ease/common';
+import { UserRoles } from '@mujtaba-shafiq/common';
 
 export class RegisterUserDto {
-  @IsString()
   @IsNotEmpty()
+  @IsAlpha()
   @MinLength(3)
   @MaxLength(15)
   firstName: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsAlpha()
   @MinLength(3)
   @MaxLength(15)
   lastName: string;
 
-  @IsString()
+  @IsNotEmpty()
+  @IsAlphanumeric()
+  @MinLength(5)
+  @MaxLength(20)
+  username: string;
+
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;

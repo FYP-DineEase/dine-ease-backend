@@ -29,7 +29,7 @@ spec:
               '2',
               '-SD',
               '-cid',
-              'web-craft',
+              'dine-ease',
             ]
 ---
 apiVersion: v1

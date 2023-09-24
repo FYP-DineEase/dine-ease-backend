@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 // DTO
 import { RegisterUserDto } from './dto/register-user.dto';
 
-@Controller('/api/users')
+@Controller('/api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
