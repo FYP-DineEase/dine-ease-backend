@@ -1,7 +1,7 @@
 // Modules
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseModule, LoggerModule } from '@mujtaba-shafiq/common';
+import { DatabaseModule, LoggerModule } from '@dine_ease/common';
 import { ConfigModule } from '@nestjs/config';
 import { configValidationSchema } from './config/config-schema';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';

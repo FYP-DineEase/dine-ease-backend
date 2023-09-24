@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth.module';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalExceptionFilter } from '@mujtaba-shafiq/common';
+import { GlobalExceptionFilter } from '@dine_ease/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
@@ -15,7 +15,7 @@ async function bootstrap() {
   // server start
   const PORT = 3001;
   await app.listen(PORT, () => {
-    logger.log(`Listening to PORT: ${PORT}`);
+    logger.info(`Listening to PORT: ${PORT}`);
   });
 }
 bootstrap();

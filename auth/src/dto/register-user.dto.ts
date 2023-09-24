@@ -8,7 +8,7 @@ import {
   IsStrongPassword,
   IsAlphanumeric,
 } from 'class-validator';
-import { UserRoles } from '@mujtaba-shafiq/common';
+import { UserRoles } from '@dine_ease/common';
 
 export class RegisterUserDto {
   @IsNotEmpty()
