@@ -2,8 +2,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseModule, LoggerModule } from '@dine_ease/common';
-import { ConfigModule } from '@nestjs/config';
-import { configValidationSchema } from './config/config-schema';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 import { AuthService } from './auth.service';
@@ -12,10 +10,6 @@ import { Auth, AuthSchema } from './models/auth.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [`.env.stage.${process.env.STAGE}`],
-      validationSchema: configValidationSchema,
-    }),
     NatsStreamingTransport.register({
       clientId: 'abc1',
       clusterId: 'dine-ease',

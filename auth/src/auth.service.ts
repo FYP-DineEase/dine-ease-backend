@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
 
 // Database
 import { Model } from 'mongoose';
@@ -18,27 +19,29 @@ export class AuthService {
 
   // register unverified account
   async registerUnverified(user: RegisterUserDto): Promise<string> {
-    const { username, phone, password } = user;
+    const { firstName, lastName, role, username, phone, password } = user;
 
-    const existingUser: AuthDocument = await this.authModel.findOne({ phone });
+    const existingUser: AuthDocument | null = await this.authModel.findOne({
+      $or: [{ phone }, { username }],
+    });
     if (existingUser) throw new BadRequestException('Account already taken');
 
-    const newUser = new this.authModel({
-      username,
-      password,
-      phone,
-    });
+    const newUser = new this.authModel({ username, password, phone });
     await newUser.save();
 
-    // const event: AccountCreatedEvent = {
+    const event: AccountCreatedEvent = {
+      authId: newUser.id,
+      firstName,
+      lastName,
+      role,
+      username,
+      phone,
+    };
 
-    // }
-
-    // this.publisher
-    //   .emit<string, AccountCreatedEvent>(Subjects.WebsiteCreated, event)
-    //   .subscribe(() =>
-    //     console.log('Event published to subject: ', Subjects.AccountCreated),
-    //   );
+    this.publisher.emit<string, AccountCreatedEvent>(
+      Subjects.AccountCreated,
+      event,
+    );
 
     return 'Account Created Successfully';
   }

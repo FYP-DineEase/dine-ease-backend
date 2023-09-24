@@ -6,4 +6,7 @@ export const configValidationSchema = Joi.object({
     .valid(...Object.values(Stages))
     .required(),
   JWT_SECRET: Joi.string().required(),
+  TWILIO_PHONE_NO: Joi.string().required(),
+  TWILIO_ACCOUNT_SID: Joi.string().required(),
+  TWILIO_AUTH_TOKEN: Joi.string().required(),
 });
