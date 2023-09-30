@@ -4,9 +4,8 @@ import {
   MinLength,
   MaxLength,
   IsNotEmpty,
-  IsMobilePhone,
   IsStrongPassword,
-  IsAlphanumeric,
+  IsEmail,
 } from 'class-validator';
 import { UserRoles } from '@dine_ease/common';
 
@@ -24,18 +23,12 @@ export class RegisterUserDto {
   lastName: string;
 
   @IsNotEmpty()
-  @IsAlphanumeric()
-  @MinLength(5)
-  @MaxLength(20)
-  username: string;
+  @IsEmail()
+  email: string;
 
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;
-
-  @IsNotEmpty()
-  @IsMobilePhone()
-  phone: string;
 
   @IsEnum(UserRoles)
   role: UserRoles;

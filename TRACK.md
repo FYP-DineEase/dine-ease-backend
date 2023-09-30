@@ -3,6 +3,7 @@
 3000 -> client
 3001 -> auth
 3002 -> users
+3003 -> mail
 
 # Initializing New Service
 

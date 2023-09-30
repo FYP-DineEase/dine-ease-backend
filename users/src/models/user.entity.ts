@@ -6,15 +6,16 @@ import { UserRoles } from '@dine_ease/common';
 export interface UserDocument extends HydratedDocument<User> {
   id: Types.ObjectId;
   authId: Types.ObjectId;
-  username: string;
-  phone: string;
   firstName: string;
   lastName: string;
   fullName: string;
-  avatar: string;
+  email: string;
   role: UserRoles;
+  avatar: string;
   isVerified: boolean;
   version: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 @Schema({
@@ -39,10 +40,10 @@ export class User {
   lastName: string;
 
   @Prop({ required: true, unique: true, index: true })
-  username: string;
+  email: string;
 
-  @Prop({ required: true, unique: true, index: true })
-  phone: string;
+  @Prop({ required: true, enum: UserRoles })
+  role: UserRoles;
 
   @Prop()
   avatar: string;
