@@ -38,13 +38,13 @@ export class AuthService {
   // check email uniqueness
   async checkEmailExists(emailDto: EmailDto): Promise<boolean> {
     const { email } = emailDto;
-    const existingUser: Auth = await this.authModel.findOne({ email });
+    const existingUser: AuthDocument = await this.authModel.findOne({ email });
     return !!existingUser;
   }
 
   // login user
   async login(loginUserDto: LoginUserDto): Promise<boolean> {
-    const foundUser = await this.authModel
+    const foundUser: AuthDocument = await this.authModel
       .findOne({ email: loginUserDto.email })
       .select('+password');
     if (!foundUser) throw new NotFoundException('User not found');
@@ -62,10 +62,10 @@ export class AuthService {
   async registerUnverified(registerUserDto: RegisterUserDto): Promise<string> {
     const { firstName, lastName, role, email, password } = registerUserDto;
 
-    const existingUser: Auth = await this.authModel.findOne({ email });
+    const existingUser: AuthDocument = await this.authModel.findOne({ email });
     if (existingUser) throw new BadRequestException('Account already taken');
 
-    const newUser = new this.authModel({ email, password });
+    const newUser: AuthDocument = new this.authModel({ email, password });
     await newUser.save();
 
     const event: AccountCreatedEvent = {
@@ -96,7 +96,7 @@ export class AuthService {
       EmailTokenTypes.UPDATE_PASSWORD,
     );
 
-    const foundUser = await this.authModel.findOne({ email });
+    const foundUser: AuthDocument = await this.authModel.findOne({ email });
     if (!foundUser) throw new NotFoundException('User not found');
 
     foundUser.set({ password });

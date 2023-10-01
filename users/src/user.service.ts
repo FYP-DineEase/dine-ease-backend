@@ -21,6 +21,9 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './models/user.entity';
 
+// DTO
+import { AuthDto } from './dto/auth.dto';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -31,18 +34,27 @@ export class UserService {
 
   // find user
   async getUser(user: UserDetails): Promise<UserDocument> {
-    const existingUser: UserDocument = await this.userModel.findById(user.id);
-    if (!existingUser) throw new NotFoundException('Account not found');
-    if (!existingUser.isVerified)
+    const foundUser: UserDocument = await this.userModel.findById(user.id);
+    if (!foundUser) throw new NotFoundException('Account not found');
+    if (!foundUser.isVerified)
       throw new UnauthorizedException('Account not verified');
-    return existingUser;
+    return foundUser;
+  }
+
+  // find user
+  async findAuthUser(authDto: AuthDto): Promise<UserDetails> {
+    const { authId } = authDto;
+    const foundUser: UserDocument = await this.userModel.findOne({ authId });
+    if (!foundUser) throw new NotFoundException('Account not found');
+    if (!foundUser.isVerified)
+      throw new UnauthorizedException('Account not verified');
+    return { id: foundUser.id, email: foundUser.email };
   }
 
   // register unverified account
-  async registerUnverified(user: AccountCreatedEvent): Promise<string> {
+  async registerUnverified(user: AccountCreatedEvent): Promise<void> {
     const newUser: UserDocument = new this.userModel(user);
     await newUser.save();
-    return 'Account Created Successfully';
   }
 
   // verify account
@@ -63,9 +75,6 @@ export class UserService {
     foundUser.set({ isVerified: true });
     await foundUser.save();
 
-    const { id, email } = foundUser;
-    const payload: UserDetails = { id, email };
-    const token: string = this.jwtAuthService.sign(payload);
-    return token;
+    return 'Account Verified Successfully';
   }
 }

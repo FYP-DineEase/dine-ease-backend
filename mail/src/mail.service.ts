@@ -1,31 +1,84 @@
 import { Injectable } from '@nestjs/common';
-import { AccountCreatedEvent } from '@dine_ease/common';
-import { TwilioService } from './services/twilio.service';
-
-// Database
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './models/user.entity';
+import { MailerService } from '@nestjs-modules/mailer';
+import {
+  AccountCreatedEvent,
+  EmailTokenPayload,
+  EmailTokenTypes,
+  JwtMailService,
+} from '@dine_ease/common';
+import { EmailDto } from './dto/email.dto';
 
 @Injectable()
-export class UserService {
+export class MailService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private readonly twilioService: TwilioService,
+    private mailerService: MailerService,
+    private jwtMailService: JwtMailService,
   ) {}
 
-  // register unverified account
-  async registerUnverified(user: AccountCreatedEvent): Promise<string> {
-    const newUser = new this.userModel(user);
-    await newUser.save();
-    // await this.twilioService.sendOTP(user.phone);
+  // send confirmation
+  async sendConfirmation(
+    email: string,
+    name: string,
+    subject: string,
+  ): Promise<void> {
+    const verifyPayload: EmailTokenPayload = {
+      email,
+      tokenType: EmailTokenTypes.ACCOUNT_VERIFY,
+    };
+    const verifyToken: string = this.jwtMailService.signToken(verifyPayload);
+    console.log(verifyToken);
 
-    const OTP = await this.twilioService.generateOTP();
-    return 'Account Created Successfully';
+    await this.mailerService.sendMail({
+      to: email,
+      subject,
+      template: './verification',
+      context: {
+        name,
+        verificationLink: `http://localhost:3000/users/confirm?token=${verifyToken}`,
+      },
+    });
   }
 
-  // verify account
-  async registerVerified(): Promise<string> {
-    return 'Account Verified Successfully';
+  // register
+  async register(user: AccountCreatedEvent): Promise<string> {
+    const { email, firstName, lastName } = user;
+    const fullName = `${firstName} ${lastName}`;
+    await this.sendConfirmation(
+      email,
+      fullName,
+      'Verify your Email on LocalHost',
+    );
+    return 'Email verification sent';
+  }
+
+  // resend confirmation
+  async resendConfirmation(emailDto: EmailDto): Promise<string> {
+    const { email } = emailDto;
+    await this.sendConfirmation(email, email, 'Update Password on LocalHost');
+    return 'Email verification resent';
+  }
+
+  // resend email verification
+  async forgotPassword(emailDto: EmailDto): Promise<string> {
+    const { email } = emailDto;
+
+    const verifyPayload: EmailTokenPayload = {
+      email,
+      tokenType: EmailTokenTypes.UPDATE_PASSWORD,
+    };
+    const passwordToken: string = this.jwtMailService.signToken(verifyPayload);
+    console.log(passwordToken);
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Update Password on LocalHost',
+      template: './password-reset',
+      context: {
+        name: email,
+        updateLink: `http://localhost:3000/users/update-password?token=${passwordToken}`,
+      },
+    });
+
+    return 'Update password request sent';
   }
 }

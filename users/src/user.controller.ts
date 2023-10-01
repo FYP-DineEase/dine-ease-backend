@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
 
 // User
@@ -10,6 +10,9 @@ import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
 
+// DTO
+import { AuthDto } from './dto/auth.dto';
+
 @Controller('/api/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -20,18 +23,22 @@ export class UserController {
     return this.userService.getUser(user);
   }
 
+  @Get('login/:authId')
+  async login(@Param() authDto: AuthDto): Promise<UserDetails> {
+    return this.userService.findAuthUser(authDto);
+  }
+
   @Get('verify')
-  @UseGuards(AuthGuard)
-  verifyAccount(@Query() token: string): Promise<string> {
+  verifyAccount(@Query('token') token: string): Promise<string> {
     return this.userService.verifyAccount(token);
   }
 
   @EventPattern(Subjects.AccountCreated)
-  registerUnverified(
+  async registerUnverified(
     @Payload() data: AccountCreatedEvent,
     @Ctx() context: NatsStreamingContext,
-  ) {
-    this.userService.registerUnverified(data);
+  ): Promise<void> {
+    await this.userService.registerUnverified(data);
     context.message.ack();
   }
 }

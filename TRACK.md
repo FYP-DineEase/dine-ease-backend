@@ -39,3 +39,9 @@ npm i @nestjs/config @nestjs/jwt class-transformer mongoose nest-winston winston
 npm install --save-dev @types/node rimraf
 
 git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ }
+
+## Update 
+
+- Change hard coded jwt values to k8s env
+- Update the user details interface
+- update config module for k8s valiation

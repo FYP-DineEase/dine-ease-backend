@@ -1,20 +1,34 @@
-import { Controller } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Controller, Get, Param } from '@nestjs/common';
+import { MailService } from './mail.service';
 
+// NATS
+import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
 
-@Controller('/api/user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+// DTO
+import { EmailDto } from './dto/email.dto';
+
+@Controller('/api/mail')
+export class MailController {
+  constructor(private readonly mailService: MailService) {}
 
   @EventPattern(Subjects.AccountCreated)
-  registerUnverified(
+  async registerUnverified(
     @Payload() data: AccountCreatedEvent,
     @Ctx() context: NatsStreamingContext,
-  ) {
-    this.userService.registerUnverified(data);
+  ): Promise<void> {
+    await this.mailService.register(data);
     context.message.ack();
+  }
+
+  @Get('resend-confirmation/:email')
+  resendConfirmation(@Param() emailDto: EmailDto): Promise<string> {
+    return this.mailService.resendConfirmation(emailDto);
+  }
+
+  @Get('forgot-password/:email')
+  forgotPassword(@Param() emailDto: EmailDto): Promise<string> {
+    return this.mailService.forgotPassword(emailDto);
   }
 }

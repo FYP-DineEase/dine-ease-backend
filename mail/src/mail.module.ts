@@ -1,14 +1,12 @@
 // Modules
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseModule, LoggerModule } from '@dine_ease/common';
+import { JwtAuthModule, LoggerModule } from '@dine_ease/common';
 import { ConfigModule } from '@nestjs/config';
-import { configValidationSchema } from './config/config-schema';
+import { EmailModule } from './mailer/mailer.module';
 
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
-import { TwilioService } from './services/twilio.service';
-import { User, UserSchema } from './models/user.entity';
+import { MailController } from './mail.controller';
+import { MailService } from './mail.service';
+import { configValidationSchema } from './config/config-schema';
 
 @Module({
   imports: [
@@ -16,11 +14,11 @@ import { User, UserSchema } from './models/user.entity';
       envFilePath: [`.env.stage.${process.env.STAGE}`],
       validationSchema: configValidationSchema,
     }),
+    JwtAuthModule,
     LoggerModule,
-    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-users'),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    EmailModule,
   ],
-  providers: [UserService, TwilioService],
-  controllers: [UserController],
+  providers: [MailService],
+  controllers: [MailController],
 })
-export class UserModule {}
+export class MailModule {}

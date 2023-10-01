@@ -1,10 +1,27 @@
+import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { hashPassword } from '../utils/password.utils';
 
-export type AuthDocument = Auth & Document;
+export interface AuthDocument extends HydratedDocument<Auth> {
+  id: Types.ObjectId;
+  email: string;
+  password: string;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-@Schema({ timestamps: true })
+@Schema({
+  toJSON: {
+    transform(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      return ret;
+    },
+  },
+  timestamps: true,
+})
 export class Auth {
   @Prop({ required: true, unique: true, index: true })
   email: string;

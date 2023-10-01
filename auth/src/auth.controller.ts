@@ -32,7 +32,7 @@ export class AuthController {
 
   @Post('update-password')
   updatePassword(
-    @Query() token: string,
+    @Query('token') token: string,
     @Body() user: ForgotPasswordDto,
   ): Promise<string> {
     return this.authService.updatePassword(token, user);
