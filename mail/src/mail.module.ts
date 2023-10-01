@@ -1,6 +1,6 @@
 // Modules
 import { Module } from '@nestjs/common';
-import { JwtAuthModule, LoggerModule } from '@dine_ease/common';
+import { JwtAuthModule, LoggerModule, JwtMailService } from '@dine_ease/common';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from './mailer/mailer.module';
 
@@ -18,7 +18,7 @@ import { configValidationSchema } from './config/config-schema';
     LoggerModule,
     EmailModule,
   ],
-  providers: [MailService],
+  providers: [MailService, JwtMailService],
   controllers: [MailController],
 })
 export class MailModule {}
