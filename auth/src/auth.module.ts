@@ -1,7 +1,12 @@
 // Modules
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
+import {
+  JwtAuthModule,
+  DatabaseModule,
+  LoggerModule,
+  JwtMailService,
+} from '@dine_ease/common';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 import { AuthService } from './auth.service';
@@ -22,7 +27,7 @@ import { Auth, AuthSchema } from './models/auth.entity';
     DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-auth'),
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
   ],
-  providers: [AuthService],
+  providers: [AuthService, JwtMailService],
   controllers: [AuthController],
 })
 export class AuthModule {}

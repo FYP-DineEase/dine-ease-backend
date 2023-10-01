@@ -30,7 +30,6 @@ import { comparePasswords } from './utils/password.utils';
 export class AuthService {
   constructor(
     @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
-
     private readonly jwtMailService: JwtMailService,
     private publisher: Publisher,
   ) {}

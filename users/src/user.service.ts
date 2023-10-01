@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 
 // JWT
-import { JwtService } from '@nestjs/jwt';
 import {
   JwtMailService,
   EmailTokenTypes,
@@ -28,7 +27,6 @@ import { AuthDto } from './dto/auth.dto';
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private readonly jwtAuthService: JwtService,
     private readonly jwtMailService: JwtMailService,
   ) {}
 

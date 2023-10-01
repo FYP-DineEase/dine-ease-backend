@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mail
+  template:
+    metadata:
+      labels:
+        app: mail
+    spec:
+      containers:
+        - name: mail
+          image: dine-ease/mail
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: EMAIL_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: email-jwt-secret
+                  key: EMAIL_JWT_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mail-srv
+spec:
+  selector:
+    app: mail
+  ports:
+    - name: mail
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
