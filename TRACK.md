@@ -4,6 +4,7 @@
 3001 -> auth
 3002 -> users
 3003 -> mail
+3004 -> storage
 
 # Initializing New Service
 
@@ -37,6 +38,8 @@ npm i @nestjs/common@9.4.3
 npm i @nestjs/mongoose@10.0.1 --force
 npm i @nestjs/config @nestjs/jwt class-transformer mongoose nest-winston winston
 npm install --save-dev @types/node rimraf
+
+npm install --save-dev @types/multer
 
 git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ }
 
