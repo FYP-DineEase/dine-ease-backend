@@ -10,24 +10,31 @@ spec:
     - host: web.dev
       http:
         paths:
-          - path: /api/login/?(.*)
+          # - path: /api/login/?(.*)
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: login-gateway-srv
+          #       port:
+          #         number: 3000
+          # - path: /api/auth/?(.*)
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: auth-srv
+          #       port:
+          #         number: 3000
+          # - path: /api/users/?(.*)
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: users-srv
+          #       port:
+          #         number: 3000 
+          - path: /api/mail/?(.*)
             pathType: Prefix
             backend:
               service:
-                name: login-gateway-srv
+                name: mail-srv
                 port:
                   number: 3000
-          - path: /api/auth/?(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: auth-srv
-                port:
-                  number: 3000
-          - path: /api/users/?(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: users-srv
-                port:
-                  number: 3000               

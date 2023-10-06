@@ -14,8 +14,16 @@ spec:
     spec:
       containers:
         - name: mail
-          image: dine-ease/mail
+          image: mujtabashafiq/dine-ease:mail
           env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                   fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: dine-ease
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
