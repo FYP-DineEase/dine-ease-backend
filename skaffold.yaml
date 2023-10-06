@@ -1,33 +1,36 @@
-apiVersion: skaffold/v4beta3
+apiVersion: skaffold/v4beta6
 kind: Config
 manifests:
   rawYaml:
-    - ./infra/k8s/*
-build: 
-  local: 
-    push: false
+    # - ./infra/k8s/*
+    - infra/k8s/ingress-srv.yaml
+    - infra/k8s/nats-depl.yaml
+    - infra/k8s/mail-depl.yaml
+metadata:
+  name: dine-ease-backend
+build:
   artifacts:
-    - image: dine-ease/auth
+    - image: mujtabashafiq/auth
       context: auth
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
-          - src: 'src/**/*.ts'
+          - src: '**/*.ts'
             dest: .
-    - image: dine-ease/users
-      context: users
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: 'src/**/*.ts'
-            dest: .
-    - image: dine-ease/mail
+    - image: mujtabashafiq/mail
       context: mail
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
-          - src: 'src/**/*.ts'
+          - src: '**/*.ts'
+            dest: .
+    - image: mujtabashafiq/users
+      context: users
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.ts'
             dest: .

@@ -26,6 +26,10 @@ npm i @dine_ease/common
 npm update @dine_ease/common
 npm i --save-dev @types/node
 
+# Docker
+docker build -t mujtabashafiq/dine-ease:auth .
+docker push mujtabashafiq/dine-ease:auth
+
 # K8S
 kubectl apply -f nats-depl.yaml
 kubectl port-forward nats-depl-5fd545d7c4-2fpcd 4222:4222
