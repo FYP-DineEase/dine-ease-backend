@@ -15,7 +15,7 @@ import { UserDetails, GetUser, AuthGuard } from '@dine_ease/common';
 import { MaxImageFileSizeValidator } from './validators/max-image.validator';
 
 @Controller('/api/storage')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
@@ -29,8 +29,9 @@ export class StorageController {
       new MaxImageFileSizeValidator(),
     )
     file: Express.Multer.File,
-    @GetUser() user: UserDetails,
+    // @GetUser() user: UserDetails,
   ): Promise<string> {
-    return this.storageService.uploadUserImage(file, user);
+    // return this.storageService.uploadUserImage(file, user);
+    return this.storageService.uploadUserImage(file);
   }
 }

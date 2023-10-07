@@ -10,13 +10,13 @@ import { Storage, StorageSchema } from './models/storage.entity';
 
 @Module({
   imports: [
-    NatsStreamingTransport.register({
-      clientId: 'abc4',
-      clusterId: 'dine-ease',
-      connectOptions: {
-        url: 'http://localhost:4222',
-      },
-    }),
+    // NatsStreamingTransport.register({
+    //   clientId: 'abc4',
+    //   clusterId: 'dine-ease',
+    //   connectOptions: {
+    //     url: 'http://localhost:4222',
+    //   },
+    // }),
     JwtAuthModule,
     LoggerModule,
     DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-storage'),
