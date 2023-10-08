@@ -14,7 +14,7 @@ export class AuthController {
       loginUserDto,
     );
 
-    const authId = authResponse.data?.authId;
+    const { authId } = authResponse.data;
 
     if (!authId) {
       throw new NotFoundException('User not found');
