@@ -7,7 +7,7 @@ import { AuthController } from './auth.controller';
 
 @Module({
   imports: [JwtAuthModule, LoggerModule],
-  providers: [AuthService],
   controllers: [AuthController],
+  providers: [AuthService],
 })
 export class AuthModule {}

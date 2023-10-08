@@ -64,7 +64,7 @@ export class StorageService {
       // storing the document
       await this.storageModel.create({
         userId: user.id,
-        avatar: imageUrl,
+        image: imageUrl,
         type: StorageTypes.AVATAR,
       });
 

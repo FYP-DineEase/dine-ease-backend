@@ -1,7 +1,10 @@
-import { Controller, Body, Post, NotFoundException } from '@nestjs/common';
+import { Controller, Body, Post } from '@nestjs/common';
+
+// Service
 import { AuthService } from './auth.service';
+
+// DTO
 import { LoginUserDto } from './dto/login-user.dto';
-import axios from 'axios';
 
 @Controller('/api/login')
 export class AuthController {
@@ -9,32 +12,6 @@ export class AuthController {
 
   @Post()
   async login(@Body() loginUserDto: LoginUserDto): Promise<object> {
-    const authResponse = await axios.post(
-      `http://localhost:3001/api/auth/login`,
-      loginUserDto,
-    );
-
-    const { authId } = authResponse.data;
-
-    if (!authId) {
-      throw new NotFoundException('User not found');
-    }
-
-    const userResponse = await axios.get(
-      `http://localhost:3002/api/user/login/${authId}`,
-    );
-
-    const { id, email, role, fullName, avatar } = userResponse.data;
-    const token = this.authService.generateToken(id);
-    return {
-      details: {
-        id,
-        email,
-        role,
-        fullName,
-        avatar,
-      },
-      token,
-    };
+    return this.authService.login(loginUserDto);
   }
 }
