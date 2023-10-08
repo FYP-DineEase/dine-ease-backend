@@ -10,14 +10,22 @@ metadata:
   name: dine-ease-backend
 build:
   artifacts:
-    - image: mujtabashafiq/auth
-      context: auth
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: '**/*.ts'
-            dest: .
+    # - image: mujtabashafiq/login
+    #   context: login
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: '**/*.ts'
+    #         dest: .
+    # - image: mujtabashafiq/auth
+    #   context: auth
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: '**/*.ts'
+    #         dest: .
     - image: mujtabashafiq/mail
       context: mail
       docker:
@@ -26,11 +34,19 @@ build:
         manual:
           - src: '**/*.ts'
             dest: .
-    - image: mujtabashafiq/users
-      context: users
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: '**/*.ts'
-            dest: .
+    # - image: mujtabashafiq/users
+    #   context: users
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: '**/*.ts'
+    #         dest: .
+    # - image: mujtabashafiq/storage
+    #   context: storage
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: '**/*.ts'
+    #         dest: .

@@ -1,4 +1,12 @@
-import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  Query,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
 
 // User
@@ -16,6 +24,7 @@ import {
 
 // DTO
 import { AuthDto } from './dto/auth.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('/api/user')
 export class UserController {
@@ -35,6 +44,15 @@ export class UserController {
   @Get('verify')
   verifyAccount(@Query('token') token: string): Promise<string> {
     return this.userService.verifyAccount(token);
+  }
+
+  @Patch('update-profile')
+  @UseGuards(AuthGuard)
+  async update(
+    @GetUser() user: UserDetails,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserDocument> {
+    return this.userService.updateProfile(user, updateUserDto);
   }
 
   @EventPattern(Subjects.AccountCreated)

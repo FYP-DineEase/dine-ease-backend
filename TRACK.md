@@ -51,6 +51,5 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 ## Update 
 
 - Change hard coded jwt values to k8s env
-- Update the user details interface
 - update config module for k8s valiation
 - look into the dockerfile config and omit dev

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage
+  template:
+    metadata:
+      labels:
+        app: storage
+    spec:
+      containers:
+        - name: storage
+          image: mujtabashafiq/dine-ease:storage
+          env:
+            - name: MONGO_URI
+              value: "mongodb://storage-mongo-srv:27017/storage"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                   fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: dine-ease
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storage-srv
+spec:
+  selector:
+    app: storage
+  ports:
+    - name: storage
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

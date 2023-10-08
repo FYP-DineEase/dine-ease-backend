@@ -24,6 +24,7 @@ import { User, UserDocument } from './models/user.entity';
 
 // DTO
 import { AuthDto } from './dto/auth.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -84,5 +85,19 @@ export class UserService {
     });
     if (!foundUser) throw new NotFoundException('User not found');
     return 'Avatar Updated Successfully';
+  }
+
+  // update details of user
+  async updateProfile(
+    user: UserDetails,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserDocument> {
+    const foundUser = await this.userModel.findByIdAndUpdate(
+      user.id,
+      updateUserDto,
+      { new: true },
+    );
+    if (!foundUser) throw new NotFoundException('User not found');
+    return foundUser;
   }
 }
