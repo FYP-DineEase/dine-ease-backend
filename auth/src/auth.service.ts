@@ -13,7 +13,7 @@ import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
 import { JwtMailService, EmailTokenTypes } from '@dine_ease/common';
 
 // Database
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Auth, AuthDocument } from './models/auth.entity';
 
@@ -31,7 +31,7 @@ export class AuthService {
   constructor(
     @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
     private readonly jwtMailService: JwtMailService,
-    private publisher: Publisher,
+    private readonly publisher: Publisher,
   ) {}
 
   // check email uniqueness
@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   // login user
-  async login(loginUserDto: LoginUserDto): Promise<boolean> {
+  async login(loginUserDto: LoginUserDto): Promise<Types.ObjectId> {
     const foundUser: AuthDocument = await this.authModel
       .findOne({ email: loginUserDto.email })
       .select('+password');
@@ -54,7 +54,7 @@ export class AuthService {
     );
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
 
-    return true;
+    return foundUser.id;
   }
 
   // register unverified account
@@ -64,8 +64,10 @@ export class AuthService {
     const existingUser: AuthDocument = await this.authModel.findOne({ email });
     if (existingUser) throw new BadRequestException('Account already taken');
 
-    const newUser: AuthDocument = new this.authModel({ email, password });
-    await newUser.save();
+    const newUser: AuthDocument = await this.authModel.create({
+      email,
+      password,
+    });
 
     const event: AccountCreatedEvent = {
       authId: newUser.id,

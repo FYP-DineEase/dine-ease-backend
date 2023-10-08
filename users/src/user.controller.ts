@@ -8,7 +8,11 @@ import { UserDocument } from './models/user.entity';
 // Nats
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
+import {
+  AccountCreatedEvent,
+  AvatarUploadedEvent,
+  Subjects,
+} from '@dine_ease/common';
 
 // DTO
 import { AuthDto } from './dto/auth.dto';
@@ -20,11 +24,11 @@ export class UserController {
   @Get('details')
   @UseGuards(AuthGuard)
   userDetails(@GetUser() user: UserDetails): Promise<UserDocument> {
-    return this.userService.getUser(user);
+    return this.userService.getUser(user.id);
   }
 
   @Get('login/:authId')
-  async login(@Param() authDto: AuthDto): Promise<UserDetails> {
+  async login(@Param() authDto: AuthDto): Promise<UserDocument> {
     return this.userService.findAuthUser(authDto);
   }
 
@@ -39,6 +43,15 @@ export class UserController {
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {
     await this.userService.registerUnverified(data);
+    context.message.ack();
+  }
+
+  @EventPattern(Subjects.StorageAvatarUploaded)
+  async updateAvatar(
+    @Payload() data: AvatarUploadedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.userService.updateAvatar(data);
     context.message.ack();
   }
 }

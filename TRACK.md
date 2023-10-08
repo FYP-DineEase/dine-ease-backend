@@ -5,6 +5,7 @@
 3002 -> users
 3003 -> mail
 3004 -> storage
+3005 -> login-gateway
 
 # Initializing New Service
 
@@ -17,7 +18,7 @@ npm i @nestjs/mongoose@10.0.1
 
 npm i bcryptjs
 npm i cross-env @nestjs/mongoose mongoose class-validator mongoose-update-if-current nest-winston winston
-npm i @nestjs/config hapi/joi
+npm i @nestjs/config @hapi/joi
 pm i --save-dev @types/hapi__joi
 npm i @nestjs/microservices@9.4.3
 npm i @nestjs-plugins/nestjs-nats-streaming-transport
@@ -32,8 +33,8 @@ docker push mujtabashafiq/dine-ease:auth
 
 # K8S
 kubectl apply -f nats-depl.yaml
-kubectl port-forward nats-depl-5fd545d7c4-2fpcd 4222:4222
-kubectl port-forward nats-depl-5fd545d7c4-2fpcd 8222:8222
+kubectl port-forward nats-depl-5fd545d7c4-r8g4h 4222:4222
+kubectl port-forward nats-depl-5fd545d7c4-r8g4h 8222:8222
 
 # Common Package
 - remove the config module from common package cause it will use k8s env

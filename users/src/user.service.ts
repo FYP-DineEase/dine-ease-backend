@@ -4,12 +4,14 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 // JWT
 import {
   JwtMailService,
   EmailTokenTypes,
   UserDetails,
+  AvatarUploadedEvent,
 } from '@dine_ease/common';
 
 // NATS
@@ -31,8 +33,8 @@ export class UserService {
   ) {}
 
   // find user
-  async getUser(user: UserDetails): Promise<UserDocument> {
-    const foundUser: UserDocument = await this.userModel.findById(user.id);
+  async getUser(userId: Types.ObjectId): Promise<UserDocument> {
+    const foundUser: UserDocument = await this.userModel.findById(userId);
     if (!foundUser) throw new NotFoundException('Account not found');
     if (!foundUser.isVerified)
       throw new UnauthorizedException('Account not verified');
@@ -40,19 +42,18 @@ export class UserService {
   }
 
   // find user
-  async findAuthUser(authDto: AuthDto): Promise<UserDetails> {
+  async findAuthUser(authDto: AuthDto): Promise<UserDocument> {
     const { authId } = authDto;
     const foundUser: UserDocument = await this.userModel.findOne({ authId });
     if (!foundUser) throw new NotFoundException('Account not found');
     if (!foundUser.isVerified)
       throw new UnauthorizedException('Account not verified');
-    return { id: foundUser.id, email: foundUser.email };
+    return foundUser;
   }
 
   // register unverified account
   async registerUnverified(user: AccountCreatedEvent): Promise<void> {
-    const newUser: UserDocument = new this.userModel(user);
-    await newUser.save();
+    await this.userModel.create(user);
   }
 
   // verify account
@@ -74,5 +75,14 @@ export class UserService {
     await foundUser.save();
 
     return 'Account Verified Successfully';
+  }
+
+  // update avatar of user
+  async updateAvatar(data: AvatarUploadedEvent): Promise<string> {
+    const foundUser = await this.userModel.findByIdAndUpdate(data.userId, {
+      avatar: data.avatar,
+    });
+    if (!foundUser) throw new NotFoundException('User not found');
+    return 'Avatar Updated Successfully';
   }
 }

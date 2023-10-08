@@ -1,4 +1,5 @@
 import { Controller, Body, Get, Post, Query } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { AuthService } from './auth.service';
 
 // DTO
@@ -20,9 +21,9 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
-  ): Promise<{ isExist: boolean }> {
-    const isExist = await this.authService.login(loginUserDto);
-    return { isExist };
+  ): Promise<{ authId: Types.ObjectId }> {
+    const authId = await this.authService.login(loginUserDto);
+    return { authId };
   }
 
   @Post('register')
