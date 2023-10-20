@@ -25,7 +25,7 @@ export class AuthService {
 
   generateToken(user: UserDetails): string {
     try {
-      const token: string = this.jwtService.sign({ id: user });
+      const token: string = this.jwtService.sign(user);
       return token;
     } catch (e) {
       console.log(e);
@@ -50,7 +50,7 @@ export class AuthService {
       );
 
       const { id, email, role, fullName, avatar } = userResponse.data;
-      const token = this.generateToken(id);
+      const token = this.generateToken({ id, role });
       return {
         details: {
           id,

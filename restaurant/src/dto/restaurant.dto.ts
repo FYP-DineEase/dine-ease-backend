@@ -4,25 +4,31 @@ import {
   IsLatitude,
   IsLongitude,
   IsPhoneNumber,
+  IsArray,
+  ArrayMinSize,
 } from 'class-validator';
 
-export class CreateRestaurantDto {
+export class RestaurantDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsString()
-  @IsNotEmpty()
-  cuisine: string;
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  cuisine: string[];
 
   @IsString()
   @IsNotEmpty()
   address: string;
 
   @IsLatitude()
+  @IsNotEmpty()
   latitude: number;
 
   @IsLongitude()
+  @IsNotEmpty()
   longitude: number;
 
   @IsString()
@@ -30,5 +36,6 @@ export class CreateRestaurantDto {
   taxId: string;
 
   @IsPhoneNumber()
+  @IsNotEmpty()
   phoneNumber: string;
 }
