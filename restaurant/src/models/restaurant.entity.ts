@@ -1,7 +1,7 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
-import { Status, StatusTypes } from 'src/enums/restaurant-status.enum';
+import { Status, StatusTypes } from '@dine_ease/common';
 
 export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   id: Types.ObjectId;

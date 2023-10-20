@@ -1,5 +1,5 @@
+import { ApprovalStatus } from '@dine_ease/common';
 import { IsString, IsNotEmpty, IsEnum, ValidateIf } from 'class-validator';
-import { ApprovalStatus } from '../enums/restaurant-status.enum';
 
 export class RestaurantStatusDto {
   @IsEnum(ApprovalStatus)

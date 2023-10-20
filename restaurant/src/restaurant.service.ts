@@ -6,8 +6,7 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserDetails, UserRoles } from '@dine_ease/common';
-import { StatusTypes } from './enums/restaurant-status.enum';
+import { UserDetails, UserRoles, StatusTypes } from '@dine_ease/common';
 
 // Services
 import { TwilioService } from './services/twilio.service';

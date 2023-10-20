@@ -1,6 +1,6 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApprovalStatus } from 'src/enums/restaurant-status.enum';
+import { ApprovalStatus } from '@dine_ease/common';
 
 export interface ApprovalDocument extends HydratedDocument<RestaurantApproval> {
   id: Types.ObjectId;
