@@ -31,6 +31,11 @@ export class AuthController {
     return this.authService.registerUnverified(user);
   }
 
+  @Get('verify')
+  verifyAccount(@Query('token') token: string): Promise<string> {
+    return this.authService.verifyAccount(token);
+  }
+
   @Post('update-password')
   updatePassword(
     @Query('token') token: string,

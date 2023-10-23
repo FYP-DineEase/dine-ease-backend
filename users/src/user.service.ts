@@ -1,18 +1,8 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 // JWT
-import {
-  JwtMailService,
-  EmailTokenTypes,
-  UserDetails,
-  AvatarUploadedEvent,
-} from '@dine_ease/common';
+import { UserDetails, AvatarUploadedEvent } from '@dine_ease/common';
 
 // NATS
 import { AccountCreatedEvent } from '@dine_ease/common';
@@ -28,17 +18,12 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private readonly jwtMailService: JwtMailService,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   // find user
   async getUser(userId: Types.ObjectId): Promise<UserDocument> {
     const foundUser: UserDocument = await this.userModel.findById(userId);
     if (!foundUser) throw new NotFoundException('Account not found');
-    if (!foundUser.isVerified)
-      throw new UnauthorizedException('Account not verified');
     return foundUser;
   }
 
@@ -47,35 +32,12 @@ export class UserService {
     const { authId } = authDto;
     const foundUser: UserDocument = await this.userModel.findOne({ authId });
     if (!foundUser) throw new NotFoundException('Account not found');
-    if (!foundUser.isVerified)
-      throw new UnauthorizedException('Account not verified');
     return foundUser;
   }
 
   // register unverified account
   async registerUnverified(user: AccountCreatedEvent): Promise<void> {
     await this.userModel.create(user);
-  }
-
-  // verify account
-  async verifyAccount(emailToken: string): Promise<string> {
-    const tokenEmail: string = await this.jwtMailService.decodeToken(
-      emailToken,
-      EmailTokenTypes.ACCOUNT_VERIFY,
-    );
-
-    const foundUser: UserDocument = await this.userModel.findOne({
-      email: tokenEmail,
-    });
-
-    if (!foundUser) throw new NotFoundException('User not found');
-    if (foundUser.isVerified)
-      throw new BadRequestException('Account is verified');
-
-    foundUser.set({ isVerified: true });
-    await foundUser.save();
-
-    return 'Account Verified Successfully';
   }
 
   // update avatar of user

@@ -1,19 +1,11 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Body,
-  Query,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
 
 // User
 import { UserService } from './user.service';
 import { UserDocument } from './models/user.entity';
 
-// Nats
+// NATS
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 import {
@@ -39,11 +31,6 @@ export class UserController {
   @Get('login/:authId')
   async login(@Param() authDto: AuthDto): Promise<UserDocument> {
     return this.userService.findAuthUser(authDto);
-  }
-
-  @Get('verify')
-  verifyAccount(@Query('token') token: string): Promise<string> {
-    return this.userService.verifyAccount(token);
   }
 
   @Patch('update-profile')

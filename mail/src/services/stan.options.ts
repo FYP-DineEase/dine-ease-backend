@@ -6,7 +6,7 @@ export const StanOptions: CustomStrategy = {
   strategy: new Listener(
     'dine-ease',
     'abc3',
-    QueueGroups.UserService,
+    QueueGroups.MailService,
     {
       url: 'http://localhost:4222',
     },

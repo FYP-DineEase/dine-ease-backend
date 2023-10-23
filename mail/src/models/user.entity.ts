@@ -1,12 +1,11 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
-import { hashPassword } from '../utils/password.utils';
 
-export interface AuthDocument extends HydratedDocument<Auth> {
+export interface UserDocument extends HydratedDocument<User> {
   id: Types.ObjectId;
+  authId: Types.ObjectId;
   email: string;
-  password: string;
   isVerified: boolean;
   version: number;
   createdAt: Date;
@@ -23,27 +22,19 @@ export interface AuthDocument extends HydratedDocument<Auth> {
   },
   timestamps: true,
 })
-export class Auth {
+export class User {
+  @Prop({ type: Types.ObjectId, required: true })
+  authId: Types.ObjectId;
+
   @Prop({ required: true, unique: true, index: true })
   email: string;
-
-  @Prop({ required: true, select: false })
-  password: string;
 
   @Prop({ default: false })
   isVerified: boolean;
 }
 
-export const AuthSchema = SchemaFactory.createForClass(Auth);
+export const UserSchema = SchemaFactory.createForClass(User);
 
 // Version
-AuthSchema.set('versionKey', 'version');
-AuthSchema.plugin(updateIfCurrentPlugin);
-
-// Password Hashing
-AuthSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    this.password = await hashPassword(this.password);
-  }
-  next();
-});
+UserSchema.set('versionKey', 'version');
+UserSchema.plugin(updateIfCurrentPlugin);

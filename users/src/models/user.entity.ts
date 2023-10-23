@@ -12,7 +12,6 @@ export interface UserDocument extends HydratedDocument<User> {
   email: string;
   role: UserRoles;
   avatar: string;
-  isVerified: boolean;
   version: number;
   createdAt: Date;
   updatedAt: Date;
@@ -47,9 +46,6 @@ export class User {
 
   @Prop()
   avatar: string;
-
-  @Prop({ default: false })
-  isVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

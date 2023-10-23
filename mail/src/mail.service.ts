@@ -1,11 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
 import {
-  AccountCreatedEvent,
+  Injectable,
+  ConflictException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
+import {
   EmailTokenPayload,
   EmailTokenTypes,
   JwtMailService,
 } from '@dine_ease/common';
+
+// NATS
+import { AccountCreatedEvent, AccountVerifiedEvent } from '@dine_ease/common';
+
+// Database
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from './models/user.entity';
+
+// Services
+import { MailerService } from '@nestjs-modules/mailer';
+
+// DTO
 import { EmailDto } from './dto/email.dto';
 
 @Injectable()
@@ -13,6 +29,7 @@ export class MailService {
   constructor(
     private mailerService: MailerService,
     private jwtMailService: JwtMailService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   // send confirmation
@@ -26,7 +43,6 @@ export class MailService {
       tokenType: EmailTokenTypes.ACCOUNT_VERIFY,
     };
     const verifyToken: string = this.jwtMailService.signToken(verifyPayload);
-    console.log(verifyToken);
 
     await this.mailerService.sendMail({
       to: email,
@@ -41,8 +57,13 @@ export class MailService {
 
   // register
   async register(user: AccountCreatedEvent): Promise<string> {
-    const { email, firstName, lastName } = user;
+    const { authId, email, firstName, lastName } = user;
     const fullName = `${firstName} ${lastName}`;
+
+    const found: UserDocument = await this.userModel.findOne({ email });
+    if (found) throw new ConflictException('User already exist');
+    await this.userModel.create({ authId, email });
+
     await this.sendConfirmation(
       email,
       fullName,
@@ -51,10 +72,27 @@ export class MailService {
     return 'Email verification sent';
   }
 
+  // verify account
+  async verifyAccount(data: AccountVerifiedEvent): Promise<void> {
+    const found: UserDocument = await this.userModel.findOne({
+      authId: data.authId,
+    });
+    if (!found) throw new NotFoundException('Account not found');
+    found.set({ isVerified: true });
+    await found.save();
+  }
+
   // resend confirmation
   async resendConfirmation(emailDto: EmailDto): Promise<string> {
     const { email } = emailDto;
-    await this.sendConfirmation(email, email, 'Update Password on LocalHost');
+
+    const found: UserDocument = await this.userModel.findOne({ email });
+
+    if (!found) throw new NotFoundException('User not found');
+    if (found.isVerified)
+      throw new BadRequestException('Account is already verified');
+
+    await this.sendConfirmation(email, email, 'Verify your Email on LocalHost');
     return 'Email verification resent';
   }
 
@@ -62,12 +100,16 @@ export class MailService {
   async forgotPassword(emailDto: EmailDto): Promise<string> {
     const { email } = emailDto;
 
+    const found: UserDocument = await this.userModel.findOne({ email });
+    if (!found) throw new NotFoundException('User not found');
+    if (!found.isVerified)
+      throw new BadRequestException('Account is not verified');
+
     const verifyPayload: EmailTokenPayload = {
       email,
       tokenType: EmailTokenTypes.UPDATE_PASSWORD,
     };
     const passwordToken: string = this.jwtMailService.signToken(verifyPayload);
-    console.log(passwordToken);
 
     await this.mailerService.sendMail({
       to: email,

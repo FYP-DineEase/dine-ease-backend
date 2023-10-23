@@ -7,7 +7,11 @@ import {
 
 // NATS
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import { AccountCreatedEvent, Subjects } from '@dine_ease/common';
+import {
+  AccountCreatedEvent,
+  AccountVerifiedEvent,
+  Subjects,
+} from '@dine_ease/common';
 
 // JWT
 import { JwtMailService, EmailTokenTypes } from '@dine_ease/common';
@@ -29,9 +33,9 @@ import { comparePasswords } from './utils/password.utils';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
-    private readonly jwtMailService: JwtMailService,
     private readonly publisher: Publisher,
+    private readonly jwtMailService: JwtMailService,
+    @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
   ) {}
 
   // check email uniqueness
@@ -39,6 +43,37 @@ export class AuthService {
     const { email } = emailDto;
     const existingUser: AuthDocument = await this.authModel.findOne({ email });
     return !!existingUser;
+  }
+
+  // verify account
+  async verifyAccount(emailToken: string): Promise<string> {
+    const tokenEmail: string = await this.jwtMailService.decodeToken(
+      emailToken,
+      EmailTokenTypes.ACCOUNT_VERIFY,
+    );
+
+    const foundUser: AuthDocument = await this.authModel.findOne({
+      email: tokenEmail,
+    });
+
+    if (!foundUser) throw new NotFoundException('User not found');
+    if (foundUser.isVerified)
+      throw new BadRequestException('Account is already verified');
+
+    foundUser.set({ isVerified: true });
+    await foundUser.save();
+
+    const event: AccountVerifiedEvent = {
+      authId: foundUser.id,
+      email: foundUser.email,
+    };
+
+    this.publisher.emit<string, AccountVerifiedEvent>(
+      Subjects.AccountVerified,
+      event,
+    );
+
+    return 'Account Verified Successfully';
   }
 
   // login user
@@ -52,7 +87,10 @@ export class AuthService {
       loginUserDto.password,
       foundUser.password,
     );
+
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
+    if (!foundUser.isVerified)
+      throw new UnauthorizedException('User is not verified');
 
     return foundUser.id;
   }

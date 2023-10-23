@@ -60,17 +60,14 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - update config module for k8s valiation
 - look into the dockerfile config and omit dev
 - fix validations ( DTOs ) { min max etc } and their redundancy 
-
-
-- isVerified is required cause if phone is changed it will be unverified meanwhile if taxid changes it will be in pending
-  and when phone verified again , it will look in records and find previous approved and will make the record approved ( EDGE CASE )
+- remove return messages when event is emitted in that , for eg auth to users account creation
 
 
 USER:
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MTkyY2VmZWIyODAxYjEwODQ4ZWMxOCIsInJvbGUiOiJVc2VyIiwiaWF0IjoxNjk3NTcxNjU2LCJleHAiOjI2OTgxNzY0NTZ9.Yv4zSw8S97D6anOwgI5GRzhqwTbLeypOmjrFmtJMw40
 
 MANAGER:
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MmZlNDgyMmNjYzgwYTE4ZTFkNTBiMyIsInJvbGUiOiJNYW5hZ2VyIiwiaWF0IjoxNjk3NTcxNjU2LCJleHAiOjI2OTgxNzY0NTZ9.cqV4gCmVFZ9zYddqiXYYDuIQzcJZ2qFdFSPusChkZmE
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MzY5YjdkOGRiMWQ3YzI3OWI1MjU4NyIsInJvbGUiOiJNYW5hZ2VyIiwiaWF0IjoxNjk3NTcxNjU2LCJleHAiOjI2OTgxNzY0NTZ9.pS5cXlRbVFppqAFUYWs1XSnPCcjvRYSk7koifM62nk0
 
 ADMIN:
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MmZlNDU2MmNjYzgwYTE4ZTFkNTBhZSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTY5NzU3MTY1NiwiZXhwIjoyNjk4MTc2NDU2fQ.ZGmAVxSq79aB2QIU6BdQ7AuIoZ7qfsBfIBOg1fyqL6Q
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MzY5YjdmOGRiMWQ3YzI3OWI1MjU4OSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTY5NzU3MTY1NiwiZXhwIjoyNjk4MTc2NDU2fQ.RjQshhBZX31l-DlBNoOS2aRcUlQNyLa6REdvL1zUqTE
