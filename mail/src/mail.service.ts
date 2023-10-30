@@ -1,8 +1,8 @@
 import {
   Injectable,
   ConflictException,
-  BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   EmailTokenPayload,
@@ -40,6 +40,7 @@ export class MailService {
   ): Promise<void> {
     const verifyPayload: EmailTokenPayload = {
       email,
+      expiresIn: '7d',
       tokenType: EmailTokenTypes.ACCOUNT_VERIFY,
     };
     const verifyToken: string = this.jwtMailService.signToken(verifyPayload);
@@ -50,7 +51,7 @@ export class MailService {
       template: './verification',
       context: {
         name,
-        verificationLink: `http://localhost:3000/users/confirm?token=${verifyToken}`,
+        verificationLink: `http://localhost:3000/verification?token=${verifyToken}`,
       },
     });
   }
@@ -90,7 +91,7 @@ export class MailService {
 
     if (!found) throw new NotFoundException('User not found');
     if (found.isVerified)
-      throw new BadRequestException('Account is already verified');
+      throw new UnauthorizedException('User is already verified');
 
     await this.sendConfirmation(email, email, 'Verify your Email on LocalHost');
     return 'Email verification resent';
@@ -102,11 +103,10 @@ export class MailService {
 
     const found: UserDocument = await this.userModel.findOne({ email });
     if (!found) throw new NotFoundException('User not found');
-    if (!found.isVerified)
-      throw new BadRequestException('Account is not verified');
 
     const verifyPayload: EmailTokenPayload = {
       email,
+      expiresIn: '10m',
       tokenType: EmailTokenTypes.UPDATE_PASSWORD,
     };
     const passwordToken: string = this.jwtMailService.signToken(verifyPayload);
@@ -117,7 +117,7 @@ export class MailService {
       template: './password-reset',
       context: {
         name: email,
-        updateLink: `http://localhost:3000/users/update-password?token=${passwordToken}`,
+        updateLink: `http://localhost:3000/reset-password?token=${passwordToken}`,
       },
     });
 

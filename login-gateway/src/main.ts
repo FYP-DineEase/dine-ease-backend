@@ -12,6 +12,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
+  // enable cors
+  app.enableCors({
+    allowedHeaders: ['*'],
+    origin: 'http://localhost:3000',
+  });
+
   // server start
   const PORT = 3005;
   await app.listen(PORT, () => {

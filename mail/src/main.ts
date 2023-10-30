@@ -16,6 +16,12 @@ async function bootstrap() {
   const microService = app.connectMicroservice(StanOptions);
   microService.listen();
 
+  // enable cors
+  app.enableCors({
+    allowedHeaders: ['*'],
+    origin: 'http://localhost:3000',
+  });
+
   // server start
   const PORT = 3003;
   await app.listen(PORT, () => {

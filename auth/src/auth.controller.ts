@@ -1,4 +1,4 @@
-import { Controller, Body, Get, Post, Query } from '@nestjs/common';
+import { Controller, Body, Get, Post, Patch, Query } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { AuthService } from './auth.service';
 
@@ -36,7 +36,7 @@ export class AuthController {
     return this.authService.verifyAccount(token);
   }
 
-  @Post('update-password')
+  @Patch('update-password')
   updatePassword(
     @Query('token') token: string,
     @Body() user: ForgotPasswordDto,
