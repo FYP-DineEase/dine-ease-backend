@@ -1,12 +1,13 @@
 # PORTS
 
-3000 -> client
-3001 -> auth
-3002 -> users
-3003 -> mail
-3004 -> storage
+3000 -> client  
+3001 -> auth            -> abc1
+3002 -> users           -> acb2
+3003 -> mail            -> abc3
+3004 -> storage         -> abc4
 3005 -> login-gateway
-3006 -> restaurant
+3006 -> restaurant      -> abc5
+3007 -> reviews      -> abc6
 
 # Initializing New Service
 
@@ -54,14 +55,21 @@ npm install --save-dev @types/multer
 git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ }
 
 ## Update 
-
 - remove dynamic db cause after cluster is live it all will be stored in cluster localhost itself
 - Change hard coded jwt values to k8s env
 - update config module for k8s valiation
 - look into the dockerfile config and omit dev
-- fix validations ( DTOs ) { min max etc } and their redundancy 
-- remove return messages when event is emitted in that , for eg auth to users account creation
+- fix validations ( DTOs ) { min max etc } and their redundancy
 
+- fix error messages
+- remove return messages when event is emitted in that , for eg auth to users account creation
+- location must be in 2d spheres
+- two types of restaurant events ( one for tax etc update and other for such details which are duplicate )
+- review data should be fetched through gateway for users
+- short ids of user
+- context for restaurant dashboard
+
+# Tokens
 
 USER:
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MTkyY2VmZWIyODAxYjEwODQ4ZWMxOCIsInJvbGUiOiJVc2VyIiwiaWF0IjoxNjk3NTcxNjU2LCJleHAiOjI2OTgxNzY0NTZ9.Yv4zSw8S97D6anOwgI5GRzhqwTbLeypOmjrFmtJMw40

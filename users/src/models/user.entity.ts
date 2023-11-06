@@ -50,6 +50,8 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+UserSchema.index({ coordinates: '2dsphere' });
+
 // Version
 UserSchema.set('versionKey', 'version');
 UserSchema.plugin(updateIfCurrentPlugin);

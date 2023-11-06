@@ -2,7 +2,7 @@ import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApprovalStatus } from '@dine_ease/common';
 
-export interface ApprovalDocument extends HydratedDocument<RestaurantApproval> {
+export interface RecordDocument extends HydratedDocument<RestaurantRecords> {
   id: Types.ObjectId;
   adminId: Types.ObjectId;
   restaurantId: Types.ObjectId;
@@ -22,7 +22,7 @@ export interface ApprovalDocument extends HydratedDocument<RestaurantApproval> {
   },
   timestamps: true,
 })
-export class RestaurantApproval {
+export class RestaurantRecords {
   @Prop({ type: Types.ObjectId, required: true })
   adminId: Types.ObjectId;
 
@@ -36,5 +36,5 @@ export class RestaurantApproval {
   remarks: string;
 }
 
-export const RestaurantApprovalSchema =
-  SchemaFactory.createForClass(RestaurantApproval);
+export const RestaurantRecordsSchema =
+  SchemaFactory.createForClass(RestaurantRecords);

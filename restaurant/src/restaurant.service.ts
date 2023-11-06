@@ -21,9 +21,9 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Restaurant, RestaurantDocument } from './models/restaurant.entity';
 import {
-  RestaurantApproval,
-  ApprovalDocument,
-} from './models/restaurant-approval.entity';
+  RecordDocument,
+  RestaurantRecords,
+} from './models/restaurant-records.entity';
 
 // DTO
 import { RestaurantDto } from './dto/restaurant.dto';
@@ -40,8 +40,8 @@ export class RestaurantService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectModel(Restaurant.name)
     private restaurantModel: Model<RestaurantDocument>,
-    @InjectModel(RestaurantApproval.name)
-    private approvalModel: Model<ApprovalDocument>,
+    @InjectModel(RestaurantRecords.name)
+    private recordsModel: Model<RecordDocument>,
   ) {}
 
   // check restaurant name uniqueness
@@ -95,7 +95,7 @@ export class RestaurantService {
     found.set({ status });
     await found.save();
 
-    this.approvalModel.create({
+    this.recordsModel.create({
       adminId: user.id,
       restaurantId: found.id,
       status,
@@ -106,8 +106,8 @@ export class RestaurantService {
   }
 
   // all approval/rejection records
-  async getRecords(): Promise<ApprovalDocument[]> {
-    const records: ApprovalDocument[] = await this.approvalModel.find();
+  async getRecords(): Promise<RecordDocument[]> {
+    const records: RecordDocument[] = await this.recordsModel.find();
     return records;
   }
 

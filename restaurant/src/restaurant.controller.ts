@@ -21,7 +21,7 @@ import {
 // Restaurant
 import { RestaurantService } from './restaurant.service';
 import { RestaurantDocument } from './models/restaurant.entity';
-import { ApprovalDocument } from './models/restaurant-approval.entity';
+import { RecordDocument } from './models/restaurant-records.entity';
 
 // DTO
 import { RestaurantDto } from './dto/restaurant.dto';
@@ -64,7 +64,7 @@ export class RestaurantController {
   @Get('records')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)
-  getRecords(): Promise<ApprovalDocument[]> {
+  getRecords(): Promise<RecordDocument[]> {
     return this.restaurantService.getRecords();
   }
 
