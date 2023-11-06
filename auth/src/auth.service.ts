@@ -91,7 +91,7 @@ export class AuthService {
 
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
     if (!foundUser.isVerified)
-      throw new UnauthorizedException('User is not verified');
+      throw new ForbiddenException('User is not verified');
 
     return foundUser.id;
   }
