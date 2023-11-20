@@ -40,7 +40,7 @@ export class MailService {
   ): Promise<void> {
     const verifyPayload: EmailTokenPayload = {
       email,
-      expiresIn: '7d',
+      expiresIn: '10m',
       tokenType: EmailTokenTypes.ACCOUNT_VERIFY,
     };
     const verifyToken: string = this.jwtMailService.signToken(verifyPayload);

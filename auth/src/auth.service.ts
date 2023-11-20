@@ -4,6 +4,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 
 // NATS
@@ -59,7 +60,7 @@ export class AuthService {
 
     if (!foundUser) throw new NotFoundException('User not found');
     if (foundUser.isVerified)
-      throw new ForbiddenException('Account is already verified');
+      throw new BadRequestException('Account is already verified');
 
     foundUser.set({ isVerified: true });
     await foundUser.save();
@@ -101,7 +102,7 @@ export class AuthService {
     const { firstName, lastName, role, email, password } = registerUserDto;
 
     const existingUser: AuthDocument = await this.authModel.findOne({ email });
-    if (existingUser) throw new BadRequestException('Email is taken');
+    if (existingUser) throw new ConflictException('Email is taken');
 
     const newUser: AuthDocument = await this.authModel.create({
       email,

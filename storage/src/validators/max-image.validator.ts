@@ -1,7 +1,7 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
-export class MaxImageFileSizeValidator implements PipeTransform {
+export class MaxImageSizeValidator implements PipeTransform {
   transform(file: Express.Multer.File): Express.Multer.File {
     const oneKb = 1000;
     const oneMb = oneKb * oneKb;

@@ -1,88 +1,76 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { UserDetails } from '@dine_ease/common';
-import { StorageTypes } from './utils/enums/storage-type.enum';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Injectable } from '@nestjs/common';
+import { UserDetails, UserStorage } from '@dine_ease/common';
+
+// Services
+import { S3Service } from './services/aws-s3.service';
 
 // Database
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Storage, StorageDocument } from './models/storage.entity';
-
-// Logger
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Logger } from 'winston';
+import { User, UserDocument } from './models/user-storage.entity';
+import { Review, ReviewDocument } from './models/review-storage.entity';
+import {
+  Restaurant,
+  RestaurantDocument,
+} from './models/restaurant-storage.entity';
 
 // NATS
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import { AvatarUploadedEvent, Subjects } from '@dine_ease/common';
+import { UserStorageUploadedEvent, Subjects } from '@dine_ease/common';
+
+import { UploadData, DeleteOneData } from './interfaces/storage.interface';
+import { UserStorageDto } from './dto/storage.dto';
 
 @Injectable()
 export class StorageService {
-  private s3: S3Client;
-
   constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    @InjectModel(Storage.name) private storageModel: Model<StorageDocument>,
-    private readonly configService: ConfigService,
     private readonly publisher: Publisher,
-  ) {
-    this.s3 = new S3Client({
-      credentials: {
-        accessKeyId: this.configService.get<string>('AWS_S3_ACCESS_KEY_ID'),
-        secretAccessKey: this.configService.get<string>(
-          'AWS_S3_SECRET_ACCESS_KEY',
-        ),
-      },
-      region: this.configService.get<string>('AWS_S3_REGION'),
-    });
-  }
+    private readonly s3Service: S3Service,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+  ) {}
 
-  // upload user image
+  // user
   async uploadUserImage(
     file: Express.Multer.File,
+    userStorageDto: UserStorageDto,
     user: UserDetails,
   ): Promise<string> {
-    const bucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME');
-    const key = `${file.originalname}-${Date.now()}`;
-    const body = file.buffer;
+    const { id: userId } = user;
+    const { type } = userStorageDto;
+    const bucketName = `dine-ease-${type}`;
 
-    try {
-      // storing image in S3
-      await this.s3.send(
-        new PutObjectCommand({
-          Bucket: bucketName,
-          Key: key,
-          Body: body,
-          ContentType: file.mimetype,
-        }),
-      );
+    const found: UserDocument = await this.userModel.findOneAndUpdate(
+      { userId },
+      { $setOnInsert: { userId, type } },
+      { new: true, upsert: true },
+    );
 
-      // generating url
-      const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+    const foundImage = type === UserStorage.AVATAR ? found.avatar : found.cover;
 
-      // storing the document
-      await this.storageModel.create({
-        userId: user.id,
-        image: imageUrl,
-        type: StorageTypes.AVATAR,
-      });
-
-      const event: AvatarUploadedEvent = {
-        userId: user.id,
-        avatar: imageUrl,
-      };
-
-      // publishing event
-      this.publisher.emit<string, AvatarUploadedEvent>(
-        Subjects.StorageAvatarUploaded,
-        event,
-      );
-
-      return 'Avatar Uploaded Successfully';
-    } catch (error) {
-      this.logger.error('Error uploading image:', error);
-      throw error;
+    if (foundImage) {
+      const payload: DeleteOneData = { bucketName, key: foundImage };
+      await this.s3Service.deleteOne(payload);
     }
+
+    const uploadData: UploadData = { bucketName, file };
+    const result = await this.s3Service.upload(uploadData);
+
+    found.set({ [type === UserStorage.AVATAR ? 'avatar' : 'cover']: result });
+    await found.save();
+
+    const event: UserStorageUploadedEvent = {
+      userId,
+      type,
+      image: result,
+      version: found.version,
+    };
+
+    // publishing event
+    this.publisher.emit<string, UserStorageUploadedEvent>(
+      Subjects.StorageUserUploaded,
+      event,
+    );
+
+    return 'Image Uploaded Successfully';
   }
 }

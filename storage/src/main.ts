@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { ServiceModule } from './storage.module';
+import { StorageModule } from './storage.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from '@dine_ease/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ServiceModule);
+  const app = await NestFactory.create(StorageModule);
 
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
   app.useLogger(logger);

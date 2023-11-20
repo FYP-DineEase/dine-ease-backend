@@ -3,8 +3,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
-import { RedisModule } from './redis/redis.module';
 import { TwilioService } from './services/twilio.service';
+import { RedisModule } from './redis/redis.module';
+import { RedisService } from './redis/redis.service';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // Restaurant
@@ -15,7 +16,7 @@ import {
   RestaurantRecords,
   RestaurantRecordsSchema,
 } from './models/restaurant-records.entity';
-import { RedisService } from './redis/redis.service';
+
 
 @Module({
   imports: [
