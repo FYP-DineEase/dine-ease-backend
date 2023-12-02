@@ -72,6 +72,7 @@ export class UserService {
       updateUserDto,
       { new: true },
     );
+
     if (!foundUser) throw new NotFoundException('User not found');
     return foundUser;
   }
@@ -81,14 +82,12 @@ export class UserService {
     user: UserDetails,
     updateLocationDto: UpdateLocationDto,
   ): Promise<string> {
-    const { latitude, longitude } = updateLocationDto;
-    const coordinates = [longitude, latitude];
-
     const foundUser = await this.userModel.findByIdAndUpdate(
       user.id,
-      { location: { coordinates } },
+      updateLocationDto,
       { new: true },
     );
+
     if (!foundUser) throw new NotFoundException('User not found');
     return 'Location Updated Successfully';
   }

@@ -1,9 +1,8 @@
-import { IsLatitude, IsLongitude } from 'class-validator';
+import { IsCoordinates } from 'src/decorators/coordinates.decorator';
 
 export class UpdateLocationDto {
-  @IsLatitude()
-  latitude: string;
-
-  @IsLongitude()
-  longitude: string;
+  @IsCoordinates()
+  location: {
+    coordinates: [number, number];
+  };
 }

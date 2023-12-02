@@ -1,11 +1,13 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApprovalStatus } from '@dine_ease/common';
+import { RecordType } from 'src/enums/record.enum';
 
-export interface RecordDocument extends HydratedDocument<RestaurantRecords> {
+export interface RecordDocument extends HydratedDocument<Record> {
   id: Types.ObjectId;
   adminId: Types.ObjectId;
   restaurantId: Types.ObjectId;
+  type: RecordType;
   status: ApprovalStatus;
   version: number;
   createdAt: Date;
@@ -22,12 +24,15 @@ export interface RecordDocument extends HydratedDocument<RestaurantRecords> {
   },
   timestamps: true,
 })
-export class RestaurantRecords {
+export class Record {
   @Prop({ type: Types.ObjectId, required: true })
   adminId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, required: true })
   restaurantId: Types.ObjectId;
+
+  @Prop({ required: true, enum: RecordType })
+  type: RecordType;
 
   @Prop({ required: true, enum: ApprovalStatus })
   status: ApprovalStatus;
@@ -36,5 +41,4 @@ export class RestaurantRecords {
   remarks: string;
 }
 
-export const RestaurantRecordsSchema =
-  SchemaFactory.createForClass(RestaurantRecords);
+export const RecordSchema = SchemaFactory.createForClass(Record);

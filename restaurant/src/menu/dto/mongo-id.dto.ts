@@ -4,3 +4,8 @@ export class RestaurantIdDto {
   @IsMongoId()
   restaurantId: string;
 }
+
+export class MenuIdDto extends RestaurantIdDto {
+  @IsMongoId()
+  menuId: string;
+}
