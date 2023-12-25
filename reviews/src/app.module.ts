@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
 import { ReviewModule } from './review/review.module';
 import { VoteModule } from './vote/vote.module';
+import { RestuarantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { VoteModule } from './vote/vote.module';
     LoggerModule,
     ReviewModule,
     VoteModule,
+    RestuarantModule,
     DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-review'),
   ],
 })

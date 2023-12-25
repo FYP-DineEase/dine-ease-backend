@@ -6,6 +6,7 @@ import {
   ForbiddenException,
   ConflictException,
 } from '@nestjs/common';
+import { nanoid } from 'nanoid';
 
 // NATS
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
@@ -37,7 +38,7 @@ export class AuthService {
   constructor(
     private readonly publisher: Publisher,
     private readonly jwtMailService: JwtMailService,
-    @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
+    @InjectModel(Auth.name) private readonly authModel: Model<AuthDocument>,
   ) {}
 
   // check email uniqueness
@@ -59,6 +60,7 @@ export class AuthService {
     });
 
     if (!foundUser) throw new NotFoundException('User not found');
+
     if (foundUser.isVerified)
       throw new BadRequestException('Account is already verified');
 
@@ -66,11 +68,10 @@ export class AuthService {
     await foundUser.save();
 
     const event: AccountVerifiedEvent = {
-      authId: foundUser.id,
       email: foundUser.email,
     };
 
-    this.publisher.emit<string, AccountVerifiedEvent>(
+    this.publisher.emit<void, AccountVerifiedEvent>(
       Subjects.AccountVerified,
       event,
     );
@@ -83,6 +84,7 @@ export class AuthService {
     const foundUser: AuthDocument = await this.authModel
       .findOne({ email: loginUserDto.email })
       .select('+password');
+
     if (!foundUser) throw new NotFoundException('User not found');
 
     const passMatches: boolean = await comparePasswords(
@@ -91,6 +93,7 @@ export class AuthService {
     );
 
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
+
     if (!foundUser.isVerified)
       throw new ForbiddenException('User is not verified');
 
@@ -110,14 +113,15 @@ export class AuthService {
     });
 
     const event: AccountCreatedEvent = {
-      authId: newUser.id,
+      userId: newUser.id,
+      slug: nanoid(10),
       firstName,
       lastName,
       email,
       role,
     };
 
-    this.publisher.emit<string, AccountCreatedEvent>(
+    this.publisher.emit<void, AccountCreatedEvent>(
       Subjects.AccountCreated,
       event,
     );

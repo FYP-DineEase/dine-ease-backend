@@ -1,6 +1,5 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 export interface ReviewDocument extends HydratedDocument<Review> {
   id: Types.ObjectId;
@@ -32,6 +31,9 @@ export class Review {
   @Prop({ type: Types.ObjectId, required: true })
   restaurantId: Types.ObjectId;
 
+  @Prop({ required: true, unique: true, index: true })
+  slug: string;
+
   @Prop({ required: true })
   content: string;
 
@@ -43,10 +45,9 @@ export class Review {
 
   @Prop({ required: true, default: false })
   isDeleted: boolean;
+
+  @Prop([{ type: Types.ObjectId, ref: 'Vote' }])
+  votes: Types.ObjectId[];
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);
-
-// Version
-ReviewSchema.set('versionKey', 'version');
-ReviewSchema.plugin(updateIfCurrentPlugin);

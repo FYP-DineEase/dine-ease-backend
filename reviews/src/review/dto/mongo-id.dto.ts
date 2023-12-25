@@ -1,11 +1,12 @@
 import { IsMongoId } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class ReviewIdDto {
   @IsMongoId()
-  reviewId: string;
+  reviewId: Types.ObjectId;
 }
 
 export class RestaurantIdDto {
   @IsMongoId()
-  restaurantId: string;
+  restaurantId: Types.ObjectId;
 }

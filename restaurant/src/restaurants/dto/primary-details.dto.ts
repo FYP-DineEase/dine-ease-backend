@@ -1,4 +1,4 @@
-import { IsNumberString, Length } from 'class-validator';
+import { Length, IsNumberString } from 'class-validator';
 import { RestaurantNameDto } from './name.dto';
 
 export class PrimaryDetailsDto extends RestaurantNameDto {

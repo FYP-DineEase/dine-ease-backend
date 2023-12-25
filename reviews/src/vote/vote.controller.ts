@@ -6,6 +6,7 @@ import {
   Post,
   Delete,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
 
@@ -14,39 +15,45 @@ import { VoteService } from './vote.service';
 import { VoteDocument } from './models/vote.entity';
 
 // DTO
+import { ReviewIdDto, VoteIdDto } from './dto/mongo-id.dto';
 import { VoteDto } from './dto/vote.dto';
-import { VoteIdDto, ReviewIdDto } from './dto/mongo-id.dto';
 
 @Controller('/api/vote')
 export class VoteController {
   constructor(private readonly voteService: VoteService) {}
 
-  @Get('/review/:reviewId')
-  getReviewVotes(@Param() id: ReviewIdDto): Promise<VoteDocument[]> {
-    return this.voteService.getReviewVotes(id);
-  }
-
-  @Get('/:voteId')
-  getReviewById(@Param() id: VoteIdDto): Promise<VoteDocument> {
-    return this.voteService.getVoteById(id);
+  @Get('/user')
+  @UseGuards(AuthGuard)
+  async getUserVotes(@GetUser() user: UserDetails): Promise<VoteDocument[]> {
+    return this.voteService.getUserVotes(user);
   }
 
   @Post('/:reviewId')
   @UseGuards(AuthGuard)
-  addVote(
-    @Param() id: ReviewIdDto,
+  async addVote(
+    @Param() reviewIdDto: ReviewIdDto,
+    @Body() voteDto: VoteDto,
     @GetUser() user: UserDetails,
-    @Body() data: VoteDto,
   ): Promise<string> {
-    return this.voteService.addVote(id, user, data);
+    return this.voteService.addVote(reviewIdDto, user, voteDto);
+  }
+
+  @Patch('/:voteId')
+  @UseGuards(AuthGuard)
+  async updateVote(
+    @Param() voteIdDto: VoteIdDto,
+    @Body() voteDto: VoteDto,
+    @GetUser() user: UserDetails,
+  ): Promise<string> {
+    return this.voteService.updateVote(voteIdDto, voteDto, user);
   }
 
   @Delete('/:voteId')
   @UseGuards(AuthGuard)
-  deleteRestaurant(
-    @Param() id: VoteIdDto,
+  async deleteRestaurant(
+    @Param() voteIdDto: VoteIdDto,
     @GetUser() user: UserDetails,
   ): Promise<string> {
-    return this.voteService.deleteVote(id, user);
+    return this.voteService.deleteVote(voteIdDto, user);
   }
 }

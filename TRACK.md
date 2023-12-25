@@ -4,10 +4,12 @@
 3001 -> auth            -> abc1
 3002 -> users           -> acb2
 3003 -> mail            -> abc3
-3004 -> storage         -> abc4
-3005 -> users-aggregate
+3004 -> storage         -> abc4     # DELETED
+3004 -> users-aggregate
 3006 -> restaurant      -> abc5
-3007 -> reviews      -> abc6
+3007 -> reviews         -> abc6
+3007 -> user-map         -> abc7
+
 
 # Initializing New Service
 
@@ -45,8 +47,6 @@ kubectl port-forward nats-depl-5fd545d7c4-r8g4h 4222:4222
 kubectl port-forward nats-depl-5fd545d7c4-r8g4h 8222:8222
 
 # Common Package
-- remove the config module from common package cause it will use k8s env
-
 npm i @nestjs/common@9.4.3
 npm i @nestjs/mongoose@10.0.1 --force
 npm i @nestjs/config @nestjs/jwt class-transformer mongoose nest-winston winston
@@ -58,14 +58,24 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 
 ## Update 
 
-- make jwt , config schema + module , logger all as global modules.
+- nanoid issue in map service ( reference the review service ) [ on spam nanoid repeats ]
+- restaurant ratings ( multiple remaining ) return in key value pair
 
-- remove dynamic db cause after cluster is live it all will be stored in cluster localhost itself
-- make redis module and service in the common module
+- badge service
+- payment service
+- notifications
+- dining plans
+
+- add redis for restaurant
+- aggregate user data in user map get by slug
+
 - Change hard coded jwt values to k8s env
 - update jwt values to 7d later 
-- update config module for k8s valiation
+- update config module with schema for k8s valiation
+
 - look into the dockerfile config and omit dev
+
 - fix validations ( DTOs ) { min max etc } and their redundancy
 - fix error messages
-- two types of restaurant events ( one for tax etc update and other for such details which are duplicate )
+
+- remove dynamic db cause after cluster is live it all will be stored in cluster localhost itself

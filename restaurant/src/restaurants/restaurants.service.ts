@@ -11,8 +11,9 @@ import { RecordType } from 'src/enums/record.enum';
 
 // Services
 import { RedisService } from 'src/redis/redis.service';
-import { TwilioService } from 'src/services/twilio.service';
+import { S3Service } from 'src/services/aws-s3.service';
 import { ModifyService } from 'src/modify/modify.service';
+import { TwilioService } from 'src/services/twilio.service';
 import { RecordsService } from 'src/records/records.service';
 
 // Database
@@ -22,26 +23,34 @@ import { Restaurant, RestaurantDocument } from './models/restaurant.entity';
 
 // NATS
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+import {
+  Subjects,
+  RestaurantApprovedEvent,
+  RestaurantUpdatedEvent,
+  RestaurantDetailsUpdatedEvent,
+  RestaurantDeletedEvent,
+} from '@dine_ease/common';
 
 // DTO
+import { OtpDto } from './dto/otp.dto';
 import { RestaurantIdDto } from './dto/mongo-id.dto';
+import { RestaurantDto } from './dto/restaurant.dto';
 import { RestaurantNameDto } from './dto/name.dto';
 import { RestaurantStatusDto } from './dto/status.dto';
-import { CreateRestaurantDto } from './dto/create.dto';
-import { PrimaryDetailsDto } from './dto/primary-details.dto';
-import { UpdateRestaurantDto } from './dto/update.dto';
-import { OtpDto } from './dto/otp.dto';
+import { DeleteImagesDto } from './dto/delete-images.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class RestaurantsService {
   constructor(
     private readonly publisher: Publisher,
+    private readonly s3Service: S3Service,
     private readonly redisService: RedisService,
     private readonly twilioService: TwilioService,
     private readonly modifyService: ModifyService,
     private readonly recordsService: RecordsService,
     @InjectModel(Restaurant.name)
-    private restaurantModel: Model<RestaurantDocument>,
+    private readonly restaurantModel: Model<RestaurantDocument>,
   ) {}
 
   // check restaurant name uniqueness
@@ -65,7 +74,7 @@ export class RestaurantsService {
   }
 
   // find duplicate data
-  async findRestaurant(data: PrimaryDetailsDto, id?: string): Promise<void> {
+  async findRestaurant(data: RestaurantDto, id?: string): Promise<void> {
     const { name, taxId } = data;
     const restaurantId = new Types.ObjectId(id);
 
@@ -83,12 +92,30 @@ export class RestaurantsService {
   }
 
   // get approved restaurants
-  async getApproved(): Promise<RestaurantDocument[]> {
-    const restaurants: RestaurantDocument[] = await this.restaurantModel.find({
+  async getApproved(
+    paginationDto: PaginationDto,
+  ): Promise<{ count?: number; restaurants: RestaurantDocument[] }> {
+    let count: number;
+    const { offset, limit } = paginationDto;
+
+    if (offset == 0) {
+      count = await this.getApprovedCount();
+    }
+
+    const restaurants: RestaurantDocument[] = await this.restaurantModel
+      .find({ status: StatusTypes.APPROVED, isDeleted: false })
+      .skip(offset)
+      .limit(limit);
+
+    return { count, restaurants };
+  }
+
+  // get approved restaurants count
+  async getApprovedCount(): Promise<number> {
+    return this.restaurantModel.countDocuments({
       status: StatusTypes.APPROVED,
       isDeleted: false,
     });
-    return restaurants;
   }
 
   // get pending restaurants
@@ -117,6 +144,24 @@ export class RestaurantsService {
     if (status === StatusTypes.APPROVED) {
       found.set({ status });
       await found.save();
+
+      const { id, name, slug, taxId, cuisine, images, address, location } =
+        found;
+      const event: RestaurantApprovedEvent = {
+        id,
+        name,
+        slug,
+        taxId,
+        cuisine,
+        images,
+        address,
+        location,
+      };
+
+      this.publisher.emit<void, RestaurantApprovedEvent>(
+        Subjects.RestaurantApproved,
+        event,
+      );
     } else {
       await found.deleteOne();
     }
@@ -133,10 +178,60 @@ export class RestaurantsService {
     return `Restaurant status updated successfully`;
   }
 
+  // upload restaurant images
+  async uploadImages(
+    idDto: RestaurantIdDto,
+    files: Express.Multer.File[],
+    user: UserDetails,
+  ): Promise<string> {
+    const found: RestaurantDocument = await this.findRestaurantById(idDto);
+
+    if (found.userId !== user.id) {
+      throw new UnauthorizedException('User is not authorized');
+    }
+
+    if (found.status !== StatusTypes.APPROVED) {
+      throw new BadRequestException('Restaurant status should be approved');
+    }
+
+    if (found.images.length + files.length > 10) {
+      throw new BadRequestException('Only 10 images are allowed');
+    }
+
+    const path = `${idDto.restaurantId}/images`;
+    const results = await Promise.allSettled(
+      files.map((file) => this.s3Service.upload(path, file)),
+    );
+
+    const successfulUploads = [];
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        successfulUploads.push(result.value);
+      }
+    }
+
+    found.images.push(...successfulUploads);
+    await found.save();
+
+    const event: RestaurantDetailsUpdatedEvent = {
+      id: found.id,
+      images: found.images,
+      version: found.version,
+    };
+
+    this.publisher.emit<void, RestaurantDetailsUpdatedEvent>(
+      Subjects.RestaurantDetailsUpdated,
+      event,
+    );
+
+    return 'Restaurant Image(s) Updated Successfully';
+  }
+
   // create a restaurant listing
   async createRestaurant(
     user: UserDetails,
-    data: CreateRestaurantDto,
+    data: RestaurantDto,
   ): Promise<string> {
     await this.findRestaurant(data);
     await this.modifyService.findRestaurant(data);
@@ -162,14 +257,9 @@ export class RestaurantsService {
     }
 
     // twilioService.sendOTP later
-    await this.redisService.cacheWrapper(
-      user.id.toString(),
-      restaurantId.toString(),
-      120,
-      async () => {
-        return await this.twilioService.generateOTP();
-      },
-    );
+    await this.redisService.cacheWrapper(restaurantId, 120, async () => {
+      return await this.twilioService.generateOTP();
+    });
 
     return 'OTP generated succesfully';
   }
@@ -191,15 +281,12 @@ export class RestaurantsService {
       throw new UnauthorizedException('User is not authorized');
     }
 
-    const cachedOTP = await this.redisService.getValue(
-      user.id.toString(),
-      found.id.toString(),
-    );
+    const cachedOTP = await this.redisService.getValue(found.id.toString());
 
     if (otp === cachedOTP) {
       found.set({ isVerified: true });
       await found.save();
-      this.redisService.deleteValue(user.id.toString(), found.id.toString());
+      await this.redisService.deleteValue(found.id.toString());
       return 'OTP verified successfully';
     }
 
@@ -210,54 +297,51 @@ export class RestaurantsService {
   async updateRestaurant(
     idDto: RestaurantIdDto,
     user: UserDetails,
-    data: UpdateRestaurantDto,
+    data: RestaurantDto,
   ): Promise<string> {
+    const { name, taxId, address, cuisine, location, phoneNumber } = data;
     const found: RestaurantDocument = await this.findRestaurantById(idDto);
 
     if (found.userId !== user.id) {
       throw new UnauthorizedException('User is not authorized');
     }
 
-    found.set(data);
+    if (found.name !== name || found.taxId !== taxId) {
+      // check uniqueness
+      await this.modifyService.findRestaurant(data, idDto.restaurantId);
+      await this.findRestaurant(data, idDto.restaurantId);
+
+      if (found.status === StatusTypes.PENDING) {
+        found.set({ name, taxId });
+      } else {
+        const payload = {
+          userId: String(user.id),
+          restaurantId: String(found.id),
+          ...data,
+        };
+        await this.modifyService.createRequest(payload);
+      }
+    }
 
     if (found.phoneNumber !== data.phoneNumber) {
       found.set({ isVerified: false });
     }
 
+    found.set({ address, cuisine, location, phoneNumber });
     await found.save();
-    return 'Restaurant updated successfully';
-  }
 
-  // update a restaurant
-  async updatePrimaryDetails(
-    idDto: RestaurantIdDto,
-    user: UserDetails,
-    data: PrimaryDetailsDto,
-  ): Promise<string> {
-    const { restaurantId } = idDto;
+    const event: RestaurantDetailsUpdatedEvent = {
+      id: found.id,
+      cuisine: found.cuisine,
+      address: found.address,
+      location: found.location,
+      version: found.version,
+    };
 
-    // check uniqueness
-    await this.modifyService.findRestaurant(data, restaurantId);
-    await this.findRestaurant(data, restaurantId);
-
-    // find restaurant
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
-    }
-
-    if (found.status === StatusTypes.PENDING) {
-      found.set(data);
-      await found.save();
-    } else {
-      const payload = {
-        userId: String(user.id),
-        restaurantId: String(found.id),
-        ...data,
-      };
-      return await this.modifyService.createRequest(payload);
-    }
+    this.publisher.emit<void, RestaurantDetailsUpdatedEvent>(
+      Subjects.RestaurantDetailsUpdated,
+      event,
+    );
 
     return 'Restaurant updated successfully';
   }
@@ -277,6 +361,19 @@ export class RestaurantsService {
       const { taxId, name } = request;
       found.set({ taxId, name });
       await found.save();
+
+      const event: RestaurantUpdatedEvent = {
+        id: found.id,
+        name: found.name,
+        slug: found.slug,
+        taxId: found.taxId,
+        version: found.version,
+      };
+
+      this.publisher.emit<void, RestaurantUpdatedEvent>(
+        Subjects.RestaurantUpdated,
+        event,
+      );
     }
 
     const payload = {
@@ -304,6 +401,16 @@ export class RestaurantsService {
       if (found.status === StatusTypes.APPROVED) {
         found.set({ isDeleted: true });
         await found.save();
+
+        const event: RestaurantDeletedEvent = {
+          id: found.id,
+          version: found.version,
+        };
+
+        this.publisher.emit<void, RestaurantDeletedEvent>(
+          Subjects.RestaurantDeleted,
+          event,
+        );
       } else {
         found.deleteOne();
       }
@@ -311,5 +418,40 @@ export class RestaurantsService {
     }
 
     throw new UnauthorizedException('User is not authorized');
+  }
+
+  // delete restaurant images
+  async deleteImages(
+    idDto: RestaurantIdDto,
+    data: DeleteImagesDto,
+    user: UserDetails,
+  ): Promise<string> {
+    const { images } = data;
+
+    const found: RestaurantDocument = await this.findRestaurantById(idDto);
+
+    if (found.userId !== user.id) {
+      throw new UnauthorizedException('User is not authorized');
+    }
+
+    const path = `${idDto.restaurantId}/images`;
+    await this.s3Service.deleteMany(path, images);
+
+    const filteredImages = found.images.filter((v) => !images.includes(v));
+    found.set({ images: filteredImages });
+    await found.save();
+
+    const event: RestaurantDetailsUpdatedEvent = {
+      id: found.id,
+      images: found.images,
+      version: found.version,
+    };
+
+    this.publisher.emit<void, RestaurantDetailsUpdatedEvent>(
+      Subjects.RestaurantDetailsUpdated,
+      event,
+    );
+
+    return 'Restaurant Image(s) Deleted Successfully';
   }
 }

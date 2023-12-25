@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Param,
-  Body,
-  Get,
-  Post,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Param, Get, Delete, UseGuards } from '@nestjs/common';
 import {
   AuthGuard,
   Roles,
@@ -28,7 +20,7 @@ import { RequestIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
 export class ModifyController {
   constructor(private readonly recordService: ModifyService) {}
 
-  @Get()
+  @Get('/all')
   @Roles(AdminRoles.ADMIN)
   getRequests(): Promise<ModifyRequestDocument[]> {
     return this.recordService.getRequests();

@@ -14,6 +14,7 @@ import { TwilioService } from 'src/services/twilio.service';
 import { RestaurantsController } from './restaurants.controller';
 import { RestaurantsService } from './restaurants.service';
 import { Restaurant, RestaurantSchema } from './models/restaurant.entity';
+import { S3Service } from '../services/aws-s3.service';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { Restaurant, RestaurantSchema } from './models/restaurant.entity';
       { name: Restaurant.name, schema: RestaurantSchema },
     ]),
   ],
-  providers: [RestaurantsService, TwilioService, RedisService],
+  providers: [S3Service, TwilioService, RedisService, RestaurantsService],
   controllers: [RestaurantsController],
   exports: [RestaurantsService],
 })

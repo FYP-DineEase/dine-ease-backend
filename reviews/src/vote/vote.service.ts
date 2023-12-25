@@ -1,44 +1,40 @@
 import {
-  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserDetails } from '@dine_ease/common';
 
-// Logger
-import { Logger } from 'winston';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+// Services
+import { ReviewService } from 'src/review/review.service';
 
 // Database
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Vote, VoteDocument } from './models/vote.entity';
+import { ReviewDocument } from 'src/review/models/review.entity';
 
 // DTO
+import { ReviewIdDto, VoteIdDto } from './dto/mongo-id.dto';
 import { VoteDto } from './dto/vote.dto';
-import { VoteIdDto, ReviewIdDto } from './dto/mongo-id.dto';
 
 @Injectable()
 export class VoteService {
   constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectModel(Vote.name)
     private voteModel: Model<VoteDocument>,
+    private readonly reviewService: ReviewService,
   ) {}
 
-  // get all votes of a review
-  async getReviewVotes(reviewIdDto: ReviewIdDto): Promise<VoteDocument[]> {
-    const { reviewId } = reviewIdDto;
-    const votes: VoteDocument[] = await this.voteModel.find({ reviewId });
-    return votes;
-  }
+  // add vote nats event
+  // update vote nats event
 
-  // get vote by Id
-  async getVoteById(voteIdDto: VoteIdDto): Promise<VoteDocument> {
-    const { voteId } = voteIdDto;
-    const vote: VoteDocument = await this.voteModel.findById(voteId);
-    return vote;
+  // get user votes
+  async getUserVotes(user: UserDetails): Promise<VoteDocument[]> {
+    const votes: VoteDocument[] = await this.voteModel.find({
+      userId: user.id,
+    });
+    return votes;
   }
 
   // add a vote
@@ -50,18 +46,38 @@ export class VoteService {
     const { reviewId } = reviewIdDto;
     const { type } = voteDto;
 
-    // find review
-    // if not found throw error
+    const review: ReviewDocument = await this.reviewService.getReviewById(
+      reviewId,
+    );
 
-    const vote: VoteDocument = await this.voteModel.findById(reviewId);
+    const payload = { reviewId, userId: user.id, type };
+    const vote: VoteDocument = await this.voteModel.create(payload);
 
-    if (!vote) {
-      const payload = { reviewId, userId: user.id, type };
-      await this.voteModel.create(payload);
-      return 'Vote created successfully';
+    review.votes.push(vote.id);
+    await review.save();
+
+    return 'Vote created successfully';
+  }
+
+  // update a vote
+  async updateVote(
+    voteIdDto: VoteIdDto,
+    voteDto: VoteDto,
+    user: UserDetails,
+  ): Promise<string> {
+    const { type } = voteDto;
+    const { voteId } = voteIdDto;
+
+    const vote: VoteDocument = await this.voteModel.findById(voteId);
+    if (!vote) throw new NotFoundException('Vote not found');
+
+    if (vote.userId === user.id) {
+      vote.set({ type });
+      await vote.save();
+      return 'Vote updated successfully';
     }
-    vote.set({ type });
-    return 'Vote updated successfully';
+
+    throw new UnauthorizedException('User is not authorized');
   }
 
   // delete a vote
@@ -69,10 +85,26 @@ export class VoteService {
     const { voteId } = voteIdDto;
 
     const vote: VoteDocument = await this.voteModel.findById(voteId);
-    if (!vote) throw new NotFoundException('Review not found');
+    if (!vote) throw new NotFoundException('Vote not found');
 
     if (vote.userId === user.id) {
       await vote.deleteOne();
+
+      const review: ReviewDocument = await this.reviewService.getReviewById(
+        vote.reviewId,
+      );
+
+      const voteIndex = review.votes.findIndex(
+        (v) => v.toString() === vote.id.toString(),
+      );
+
+      if (voteIndex === -1) {
+        throw new NotFoundException('Vote not found in review');
+      }
+
+      review.votes.splice(voteIndex, 1);
+      await review.save();
+
       return 'Vote deleted successfully';
     }
 

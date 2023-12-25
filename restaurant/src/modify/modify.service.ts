@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 // Database
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModifyRequest, ModifyRequestDocument } from './models/request.entity';
 
@@ -14,13 +14,13 @@ import { ModifyRequest, ModifyRequestDocument } from './models/request.entity';
 import { RequestIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
 import { CreateReqeustDto } from './dto/create.dto';
 import { UserDetails } from '@dine_ease/common';
-import { PrimaryDetailsDto } from 'src/restaurants/dto/primary-details.dto';
+import { RestaurantDto } from 'src/restaurants/dto/restaurant.dto';
 
 @Injectable()
 export class ModifyService {
   constructor(
     @InjectModel(ModifyRequest.name)
-    private modifyModel: Model<ModifyRequestDocument>,
+    private readonly modifyModel: Model<ModifyRequestDocument>,
   ) {}
 
   // all requests
@@ -43,7 +43,7 @@ export class ModifyService {
   }
 
   // find duplicate data
-  async findRestaurant(data: PrimaryDetailsDto, id?: string): Promise<void> {
+  async findRestaurant(data: RestaurantDto, id?: string): Promise<void> {
     const { name, taxId } = data;
 
     const query: any = { $or: [{ name }, { taxId }] };
@@ -77,7 +77,7 @@ export class ModifyService {
       requestId,
     );
 
-    if (!record) throw new NotFoundException('Request not found');
+    if (!record) throw new NotFoundException('Modify Request not found');
 
     if (record.userId === user.id) {
       await record.deleteOne();

@@ -21,23 +21,23 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
-  ): Promise<{ authId: Types.ObjectId }> {
-    const authId = await this.authService.login(loginUserDto);
-    return { authId };
+  ): Promise<{ userId: Types.ObjectId }> {
+    const userId = await this.authService.login(loginUserDto);
+    return { userId };
   }
 
   @Post('register')
-  registerUnverified(@Body() user: RegisterUserDto): Promise<string> {
+  async registerUnverified(@Body() user: RegisterUserDto): Promise<string> {
     return this.authService.registerUnverified(user);
   }
 
   @Get('verify')
-  verifyAccount(@Query('token') token: string): Promise<string> {
+  async verifyAccount(@Query('token') token: string): Promise<string> {
     return this.authService.verifyAccount(token);
   }
 
   @Patch('update-password')
-  updatePassword(
+  async updatePassword(
     @Query('token') token: string,
     @Body() user: ForgotPasswordDto,
   ): Promise<string> {

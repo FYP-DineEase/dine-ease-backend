@@ -13,13 +13,13 @@ export class RegisterUserDto {
   @IsNotEmpty()
   @IsAlpha()
   @MinLength(3)
-  @MaxLength(15)
+  @MaxLength(20)
   firstName: string;
 
   @IsNotEmpty()
   @IsAlpha()
   @MinLength(3)
-  @MaxLength(15)
+  @MaxLength(20)
   lastName: string;
 
   @IsNotEmpty()

@@ -1,31 +1,23 @@
-import { HydratedDocument, Model, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { AllUserRoles, RoleTypes } from '@dine_ease/common';
-import { nanoid } from 'nanoid';
-import { EventData } from 'src/interfaces/version.interface';
 
 export interface UserDocument extends HydratedDocument<User> {
   id: Types.ObjectId;
   slug: string;
-  authId: Types.ObjectId;
   firstName: string;
   lastName: string;
   fullName: string;
   email: string;
   role: AllUserRoles;
   avatar: string;
+  cover: string;
   location: {
     type: { type: string };
     coordinates: [number, number];
   };
-  version: number;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface UserModel extends Model<UserDocument> {
-  findByEvent(event: EventData): Promise<UserDocument | null>;
 }
 
 @Schema({
@@ -40,10 +32,7 @@ export interface UserModel extends Model<UserDocument> {
   timestamps: true,
 })
 export class User {
-  @Prop({ type: Types.ObjectId, required: true })
-  authId: Types.ObjectId;
-
-  @Prop({ default: nanoid(10) })
+  @Prop({ required: true, unique: true, index: true })
   slug: string;
 
   @Prop({ required: true })
@@ -76,16 +65,7 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Version
-UserSchema.set('versionKey', 'version');
-UserSchema.plugin(updateIfCurrentPlugin);
-
 // Virtual methods
 UserSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
-
-UserSchema.statics.findByEvent = function (event: EventData) {
-  const { userId: _id, version } = event;
-  return this.findOne({ _id, version: version - 1 });
-};

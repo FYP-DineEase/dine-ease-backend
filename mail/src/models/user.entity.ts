@@ -1,10 +1,8 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 export interface UserDocument extends HydratedDocument<User> {
   id: Types.ObjectId;
-  authId: Types.ObjectId;
   email: string;
   isVerified: boolean;
   version: number;
@@ -23,9 +21,6 @@ export interface UserDocument extends HydratedDocument<User> {
   timestamps: true,
 })
 export class User {
-  @Prop({ type: Types.ObjectId, required: true })
-  authId: Types.ObjectId;
-
   @Prop({ required: true, unique: true, index: true })
   email: string;
 
@@ -34,7 +29,3 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-// Version
-UserSchema.set('versionKey', 'version');
-UserSchema.plugin(updateIfCurrentPlugin);

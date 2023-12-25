@@ -1,7 +1,6 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
-import { VoteTypes } from '../utils/enums/votes.enum';
+import { VoteTypes } from 'src/enums/votes.enum';
 
 export interface VoteDocument extends HydratedDocument<Vote> {
   id: Types.ObjectId;
@@ -34,7 +33,3 @@ export class Vote {
 }
 
 export const VoteSchema = SchemaFactory.createForClass(Vote);
-
-// Version
-VoteSchema.set('versionKey', 'version');
-VoteSchema.plugin(updateIfCurrentPlugin);

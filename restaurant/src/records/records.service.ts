@@ -12,7 +12,7 @@ import { CreateRecordDto } from './dto/create.dto';
 export class RecordsService {
   constructor(
     @InjectModel(Record.name)
-    private recordsModel: Model<RecordDocument>,
+    private readonly recordsModel: Model<RecordDocument>,
   ) {}
 
   // all records

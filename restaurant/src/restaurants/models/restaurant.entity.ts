@@ -1,17 +1,16 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { MenuDocument, MenuItemSchema } from 'src/menu/models/menu.entity';
-import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { Status, StatusTypes } from '@dine_ease/common';
 import slugify from 'slugify';
 
 export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   id: Types.ObjectId;
   userId: Types.ObjectId;
-  authId: Types.ObjectId;
   name: string;
   slug: string;
   cuisine: string[];
+  images: string[];
   address: string;
   location: {
     type: { type: string };
@@ -97,12 +96,30 @@ export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
 
 // Version
 RestaurantSchema.set('versionKey', 'version');
-RestaurantSchema.plugin(updateIfCurrentPlugin);
 
-// Slugify
-RestaurantSchema.pre('save', function (next) {
+// Execute before saving
+RestaurantSchema.pre('save', function (done) {
+  const update = [
+    'name',
+    'taxId',
+    'cuisine',
+    'address',
+    'images',
+    'location',
+    'isDeleted',
+  ];
+
+  // update version
+  if (
+    this.status === StatusTypes.APPROVED &&
+    update.some((value) => this.isModified(value))
+  ) {
+    this.increment();
+  }
+
+  // generates slug
   if (this.isModified('name')) {
     this.slug = slugify(this.name, { lower: true });
   }
-  next();
+  done();
 });

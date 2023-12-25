@@ -7,50 +7,90 @@ export class RedisService {
     @Inject('REDIS_CLIENT') private readonly redisClient: RedisClientType,
   ) {}
 
-  async setValue(
-    userId: string,
-    key: string,
-    value: any,
-    ttl: number,
-  ): Promise<void> {
-    const existingData: string = await this.redisClient.get(userId);
-    const userData = existingData ? JSON.parse(existingData) : {};
-    userData[key] = value;
-    await this.redisClient.set(userId, JSON.stringify(userData), { EX: ttl });
+  getClient(): RedisClientType {
+    return this.redisClient;
   }
 
-  async getValue(userId: string, key: string) {
-    const value: string = await this.redisClient.get(userId);
+  async setValue(key: string, value: any, ttl: number): Promise<void> {
+    await this.redisClient.set(key, JSON.stringify(value), { EX: ttl });
+  }
+
+  async getValue(key: string): Promise<any> {
+    const value = await this.redisClient.get(key);
     if (!value) return null;
-    const result = JSON.parse(value);
-    return result[key];
+    return JSON.parse(value);
   }
 
-  async deleteValue(userId: string, key: string) {
-    const existingData: string = await this.redisClient.get(userId);
-    if (!existingData) return;
+  async deleteValue(key: string): Promise<void> {
+    await this.redisClient.del(key);
+  }
 
-    const ttl = await this.redisClient.ttl(userId);
-    const userData = JSON.parse(existingData);
-    if (userData.hasOwnProperty(key)) {
-      delete userData[key];
-      await this.redisClient.set(userId, JSON.stringify(userData), { EX: ttl });
+  async updateValue(key: string, newValue: any): Promise<void> {
+    const multi = this.redisClient.multi();
+    multi.get(key);
+    multi.ttl(key);
+
+    const result = await multi.exec();
+    const value = result[0];
+    const ttl = Number(result[1]);
+
+    if (value) {
+      await this.setValue(key, newValue, ttl);
     }
   }
 
   // finds the value if not present then
   // gets the value and stores in cache
   async cacheWrapper(
-    userId: string,
     key: string,
     ttl: number,
     fetchValue: () => Promise<any>,
   ): Promise<any> {
-    let value = await this.getValue(userId, key);
+    let value = await this.getValue(key);
     if (!value) {
       value = await fetchValue();
-      await this.setValue(userId, key, value, ttl);
+      await this.setValue(key, value, ttl);
     }
     return value;
+  }
+
+  async setNestedValue(
+    key: string,
+    childKey: string,
+    value: any,
+  ): Promise<void> {
+    const multi = this.redisClient.multi();
+    multi.get(key);
+    multi.ttl(key);
+
+    const result = await multi.exec();
+    const resultValue = result[0];
+    const ttl = Number(result[1]);
+
+    if (!resultValue) {
+      const resultData = resultValue;
+      resultData[childKey] = value;
+
+      await this.setValue(key, resultData, ttl);
+    }
+  }
+
+  async getNestedValue(primary: string, secondary: string): Promise<any> {
+    const value: string = await this.redisClient.get(primary);
+    if (!value) return null;
+    const result = JSON.parse(value);
+    return result[secondary];
+  }
+
+  async deleteNestedValue(key: string, childKey: string): Promise<void> {
+    const existingData: string = await this.redisClient.get(key);
+    if (!existingData) return;
+
+    const ttl = await this.redisClient.ttl(key);
+    const data = JSON.parse(existingData);
+    if (data.hasOwnProperty(childKey)) {
+      delete data[childKey];
+      await this.setValue(key, JSON.stringify(data), ttl);
+    }
   }
 }

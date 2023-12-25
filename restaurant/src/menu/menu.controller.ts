@@ -1,21 +1,29 @@
 import {
   Controller,
-  Param,
-  Body,
   Get,
   Post,
-  Delete,
-  UseGuards,
   Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  FileTypeValidator,
+  ParseFilePipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+
 import {
-  AuthGuard,
-  GetUser,
   Roles,
   RolesGuard,
-  UserDetails,
   UserRoles,
+  AuthGuard,
+  GetUser,
+  UserDetails,
+  MaxImageSizeValidator,
 } from '@dine_ease/common';
+
+import { FileInterceptor } from '@nestjs/platform-express';
 
 // Services
 import { MenuService } from './menu.service';
@@ -46,6 +54,23 @@ export class MenuController {
     @Body() menuItemDto: MenuItemDto,
   ): Promise<string> {
     return this.menuService.createMenuItem(idDto, user, menuItemDto);
+  }
+
+  @Post('/upload/:menuId')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadItemImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+      }),
+      new MaxImageSizeValidator(),
+    )
+    file: Express.Multer.File,
+    @Param() idDto: MenuIdDto,
+    @GetUser() user: UserDetails,
+  ): Promise<string> {
+    return this.menuService.uploadItemImage(idDto, file, user);
   }
 
   @Patch('/:menuId')

@@ -27,9 +27,9 @@ import { EmailDto } from './dto/email.dto';
 @Injectable()
 export class MailService {
   constructor(
-    private mailerService: MailerService,
-    private jwtMailService: JwtMailService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly mailerService: MailerService,
+    private readonly jwtMailService: JwtMailService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
   // send confirmation
@@ -58,12 +58,12 @@ export class MailService {
 
   // register
   async register(user: AccountCreatedEvent): Promise<string> {
-    const { authId, email, firstName, lastName } = user;
+    const { email, firstName, lastName } = user;
     const fullName = `${firstName} ${lastName}`;
 
     const found: UserDocument = await this.userModel.findOne({ email });
     if (found) throw new ConflictException('User already exist');
-    await this.userModel.create({ authId, email });
+    await this.userModel.create({ email });
 
     await this.sendConfirmation(
       email,
@@ -75,10 +75,11 @@ export class MailService {
 
   // verify account
   async verifyAccount(data: AccountVerifiedEvent): Promise<void> {
-    const found: UserDocument = await this.userModel.findOne({
-      authId: data.authId,
-    });
+    const { email } = data;
+
+    const found: UserDocument = await this.userModel.findOne({ email });
     if (!found) throw new NotFoundException('Account not found');
+
     found.set({ isVerified: true });
     await found.save();
   }

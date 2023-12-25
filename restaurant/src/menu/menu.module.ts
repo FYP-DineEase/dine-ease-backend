@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MenuService } from './menu.service';
+import { S3Service } from 'src/services/aws-s3.service';
 import { MenuController } from './menu.controller';
 import { RestaurantsModule } from 'src/restaurants/restaurants.module';
 import { MenuItem, MenuItemSchema } from './models/menu.entity';
@@ -12,7 +13,7 @@ import { MenuItem, MenuItemSchema } from './models/menu.entity';
       { name: MenuItem.name, schema: MenuItemSchema },
     ]),
   ],
-  providers: [MenuService],
+  providers: [S3Service, MenuService],
   controllers: [MenuController],
   exports: [MenuService],
 })

@@ -1,13 +1,26 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Delete,
   Body,
   Param,
   UseGuards,
+  FileTypeValidator,
+  ParseFilePipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
+
+import {
+  AuthGuard,
+  GetUser,
+  UserDetails,
+  MaxImageSizeValidator,
+} from '@dine_ease/common';
+
+import { FileInterceptor } from '@nestjs/platform-express';
 
 // User
 import { UserService } from './user.service';
@@ -16,14 +29,12 @@ import { UserDocument } from './models/user.entity';
 // NATS
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import {
-  Subjects,
-  AccountCreatedEvent,
-  UserStorageUploadedEvent,
-} from '@dine_ease/common';
+import { Subjects, AccountCreatedEvent } from '@dine_ease/common';
 
 // DTO
-import { AuthDto } from './dto/auth.dto';
+import { UserSlugDto } from './dto/slug.dto';
+import { UserIdDto, UsersDto } from './dto/mongo-id.dto';
+import { UserStorageDto } from './dto/storage.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 
@@ -33,18 +44,50 @@ export class UserController {
 
   @Get('details')
   @UseGuards(AuthGuard)
-  userDetails(@GetUser() user: UserDetails): Promise<UserDocument> {
-    return this.userService.getUser(user.id);
+  async userDetails(@GetUser() user: UserDetails): Promise<UserDocument> {
+    return this.userService.getUserById(user.id);
   }
 
-  @Get('login/:authId')
-  async login(@Param() authDto: AuthDto): Promise<UserDocument> {
-    return this.userService.findAuthUser(authDto);
+  @Get('details/:userId')
+  async userDetailsById(@Param() userIdDto: UserIdDto): Promise<UserDocument> {
+    return this.userService.getUserById(userIdDto.userId);
+  }
+
+  @Get('slug/:slug')
+  async userDetailsBySlug(
+    @Param() userSlugDto: UserSlugDto,
+  ): Promise<UserDocument> {
+    return this.userService.getUserBySlug(userSlugDto);
   }
 
   @Get('all')
   async getAllUsers(): Promise<UserDocument[]> {
     return this.userService.getAllUsers();
+  }
+
+  // due to GET limitations
+  @Post('by-ids')
+  async getUserByIds(
+    @Body() usersDto: UsersDto,
+  ): Promise<Record<string, UserDocument>> {
+    return this.userService.getUserByIds(usersDto);
+  }
+
+  @Post('upload')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+      }),
+      new MaxImageSizeValidator(),
+    )
+    file: Express.Multer.File,
+    @Body() userStorageDto: UserStorageDto,
+    @GetUser() user: UserDetails,
+  ): Promise<string> {
+    return this.userService.uploadUserImage(file, userStorageDto, user);
   }
 
   @Patch('profile')
@@ -77,15 +120,6 @@ export class UserController {
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {
     await this.userService.registerUnverified(data);
-    context.message.ack();
-  }
-
-  @EventPattern(Subjects.StorageUserUploaded)
-  async updateUserImage(
-    @Payload() data: UserStorageUploadedEvent,
-    @Ctx() context: NatsStreamingContext,
-  ): Promise<void> {
-    await this.userService.updateUserImage(data);
     context.message.ack();
   }
 }

@@ -1,65 +1,107 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserDetails, UserStorage } from '@dine_ease/common';
-import { Types } from 'mongoose';
+import { UserDetails } from '@dine_ease/common';
+import { Model, Types } from 'mongoose';
+
+// Services
+import { S3Service } from './services/aws-s3.service';
 
 // NATS
-import {
-  AccountCreatedEvent,
-  UserStorageUploadedEvent,
-} from '@dine_ease/common';
+import { AccountCreatedEvent } from '@dine_ease/common';
 
 // Database
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserModel } from './models/user.entity';
+import { User, UserDocument } from './models/user.entity';
 
 // DTO
-import { AuthDto } from './dto/auth.dto';
+import { UsersDto } from './dto/mongo-id.dto';
+import { UserSlugDto } from './dto/slug.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { UserStorageDto } from './dto/storage.dto';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: UserModel) {}
+  constructor(
+    private readonly s3Service: S3Service,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  ) {}
 
-  // find user
-  async getUser(userId: Types.ObjectId): Promise<UserDocument> {
-    const foundUser: UserDocument = await this.userModel.findById(userId);
+  // find user by token
+  async getUserById(userId: Types.ObjectId): Promise<UserDocument> {
+    const foundUser: UserDocument = await this.userModel
+      .findById(userId)
+      .select('id email role firstName lastName fullName avatar');
     if (!foundUser) throw new NotFoundException('Account not found');
     return foundUser;
   }
 
-  // find user
-  async findAuthUser(authDto: AuthDto): Promise<UserDocument> {
-    const { authId } = authDto;
-    const foundUser: UserDocument = await this.userModel.findOne({ authId });
+  // find user by slug
+  async getUserBySlug(userSlugDto: UserSlugDto): Promise<UserDocument> {
+    const { slug } = userSlugDto;
+    const foundUser: UserDocument = await this.userModel.findOne({ slug });
     if (!foundUser) throw new NotFoundException('Account not found');
     return foundUser;
+  }
+
+  // find user by their ids
+  async getUserByIds(
+    usersDto: UsersDto,
+  ): Promise<Record<string, UserDocument>> {
+    const { users } = usersDto;
+
+    const found: UserDocument[] = await this.userModel
+      .find({ _id: { $in: users } })
+      .select('id email role firstName lastName fullName avatar');
+
+    const foundUsers = found.reduce(
+      (acc: Record<string, UserDocument>, user: UserDocument) => {
+        acc[user.id.toString()] = user;
+        return acc;
+      },
+      {},
+    );
+
+    return foundUsers;
   }
 
   // fetch all users
   async getAllUsers(): Promise<UserDocument[]> {
     const users: UserDocument[] = await this.userModel
       .find()
-      .select('slug fullName avatar');
+      .select('slug firstName lastName fullName avatar');
     return users;
   }
 
   // register unverified account
   async registerUnverified(user: AccountCreatedEvent): Promise<void> {
-    await this.userModel.create(user);
+    const { userId, ...details } = user;
+    const newData = { _id: userId, ...details };
+    await this.userModel.create(newData);
   }
 
   // update avatar of user
-  async updateUserImage(data: UserStorageUploadedEvent): Promise<string> {
-    const { userId, type, image, version } = data;
+  async uploadUserImage(
+    file: Express.Multer.File,
+    userStorageDto: UserStorageDto,
+    user: UserDetails,
+  ): Promise<string> {
+    const { type } = userStorageDto;
 
-    const found = await this.userModel.findByEvent({ userId, version });
+    const found: UserDocument = await this.userModel.findById(user.id);
     if (!found) throw new NotFoundException('User not found');
 
-    found.set({ [type === UserStorage.AVATAR ? 'avatar' : 'cover']: image });
+    const path = `${user.id}/${type}`;
+    const deleteKey = found[type];
+
+    const newImage = await this.s3Service.upload(path, file);
+    found.set({ [type]: newImage });
     await found.save();
 
-    return 'Avatar Updated Successfully';
+    if (deleteKey) {
+      await this.s3Service.deleteOne(`${path}/${deleteKey}`);
+    }
+
+    return 'User Image Updated Successfully';
   }
 
   // update details of user
@@ -67,7 +109,7 @@ export class UserService {
     user: UserDetails,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    const foundUser = await this.userModel.findByIdAndUpdate(
+    const foundUser: UserDocument = await this.userModel.findByIdAndUpdate(
       user.id,
       updateUserDto,
       { new: true },
