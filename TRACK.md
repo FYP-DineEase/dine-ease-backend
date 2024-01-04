@@ -58,13 +58,14 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 
 ## Update 
 
-- nanoid issue in map service ( reference the review service ) [ on spam nanoid repeats ]
-- restaurant ratings ( multiple remaining ) return in key value pair
+- review service : images upload/delete
+- review service : restaurant ratings ( multiple remaining ) return in key value pair
+- map service : nanoid issue in  ( reference the review service ) [ on spam nanoid repeats ]
 
-- badge service
 - payment service
 - notifications
 - dining plans
+- badge service
 
 - add redis for restaurant
 - aggregate user data in user map get by slug

@@ -12,9 +12,11 @@ export interface UserDocument extends HydratedDocument<User> {
   role: AllUserRoles;
   avatar: string;
   cover: string;
+  description: string;
   location: {
     type: { type: string };
     coordinates: [number, number];
+    country: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -56,11 +58,16 @@ export class User {
   @Prop({
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], index: '2dsphere' },
+    country: { type: String },
   })
   location: {
     type: { type: string };
     coordinates: [number, number]; // [0] is longitude, [1] is latitude
+    country: string;
   };
+
+  @Prop()
+  description: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

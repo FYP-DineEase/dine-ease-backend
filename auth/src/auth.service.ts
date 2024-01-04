@@ -105,7 +105,7 @@ export class AuthService {
     const { firstName, lastName, role, email, password } = registerUserDto;
 
     const existingUser: AuthDocument = await this.authModel.findOne({ email });
-    if (existingUser) throw new ConflictException('Email is taken');
+    if (existingUser) throw new ConflictException('Email is already in use');
 
     const newUser: AuthDocument = await this.authModel.create({
       email,

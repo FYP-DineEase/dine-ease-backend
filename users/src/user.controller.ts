@@ -60,9 +60,9 @@ export class UserController {
     return this.userService.getUserBySlug(userSlugDto);
   }
 
-  @Get('all')
-  async getAllUsers(): Promise<UserDocument[]> {
-    return this.userService.getAllUsers();
+  @Get('all/slug')
+  async getAllUserSlugs(): Promise<UserDocument[]> {
+    return this.userService.getAllUserSlugs();
   }
 
   // due to GET limitations

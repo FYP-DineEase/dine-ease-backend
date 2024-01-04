@@ -28,9 +28,7 @@ export class UserService {
 
   // find user by token
   async getUserById(userId: Types.ObjectId): Promise<UserDocument> {
-    const foundUser: UserDocument = await this.userModel
-      .findById(userId)
-      .select('id email role firstName lastName fullName avatar');
+    const foundUser: UserDocument = await this.userModel.findById(userId);
     if (!foundUser) throw new NotFoundException('Account not found');
     return foundUser;
   }
@@ -64,11 +62,9 @@ export class UserService {
     return foundUsers;
   }
 
-  // fetch all users
-  async getAllUsers(): Promise<UserDocument[]> {
-    const users: UserDocument[] = await this.userModel
-      .find()
-      .select('slug firstName lastName fullName avatar');
+  // fetch all user slugs
+  async getAllUserSlugs(): Promise<UserDocument[]> {
+    const users: UserDocument[] = await this.userModel.find().select('slug');
     return users;
   }
 
@@ -101,7 +97,7 @@ export class UserService {
       await this.s3Service.deleteOne(`${path}/${deleteKey}`);
     }
 
-    return 'User Image Updated Successfully';
+    return newImage;
   }
 
   // update details of user
@@ -109,9 +105,11 @@ export class UserService {
     user: UserDetails,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
+    const { firstName, lastName, description, location } = updateUserDto;
+
     const foundUser: UserDocument = await this.userModel.findByIdAndUpdate(
       user.id,
-      updateUserDto,
+      { firstName, lastName, description, location },
       { new: true },
     );
 
@@ -124,9 +122,11 @@ export class UserService {
     user: UserDetails,
     updateLocationDto: UpdateLocationDto,
   ): Promise<string> {
+    const { location } = updateLocationDto;
+
     const foundUser = await this.userModel.findByIdAndUpdate(
       user.id,
-      updateLocationDto,
+      { location },
       { new: true },
     );
 

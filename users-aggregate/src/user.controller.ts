@@ -6,11 +6,11 @@ import { UserService } from './user.service';
 // DTO
 import { LoginDto } from './dto/login.dto';
 
-@Controller('/api/login')
+@Controller('/api/users-aggregate')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('/login')
   async login(@Body() loginDto: LoginDto): Promise<object> {
     return this.userService.login(loginDto);
   }

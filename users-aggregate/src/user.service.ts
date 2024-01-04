@@ -37,8 +37,15 @@ export class UserService {
         `http://localhost:3002/api/user/details/${userId}`,
       );
 
-      const details = userResponse.data;
-      const token = this.generateToken({ id: userId, role: details.role });
+      const {
+        email,
+        fullName: name,
+        role,
+        avatar,
+        location,
+      } = userResponse.data;
+      const details = { id: userId, email, name, role, avatar, location };
+      const token = this.generateToken({ id: userId, role });
       return { details, token };
     } catch (e) {
       throw new HttpException(e.response.data, e.response.data.statusCode);
