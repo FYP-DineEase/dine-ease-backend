@@ -15,6 +15,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   location: {
     type: { type: string };
     coordinates: [number, number];
+    country: string;
   };
   taxId: string;
   phoneNumber: string;
@@ -73,10 +74,12 @@ export class Restaurant {
   @Prop({
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], index: '2dsphere' },
+    country: { type: String },
   })
   location: {
     type: { type: string };
     coordinates: [number, number]; // [0] is longitude, [1] is latitude
+    country: string;
   };
 
   @Prop({ type: [MenuItemSchema], default: [] })

@@ -42,11 +42,6 @@ import { MenuOrderDto } from './dto/menu-order.dto';
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
-  @Get()
-  getRestaurantMenu(@Param() idDto: RestaurantIdDto): Promise<MenuItem[]> {
-    return this.menuService.getRestaurantMenu(idDto);
-  }
-
   @Post()
   createMenuItem(
     @Param() idDto: RestaurantIdDto,

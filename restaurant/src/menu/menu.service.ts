@@ -55,12 +55,6 @@ export class MenuService {
     return { found, menuItemIndex };
   }
 
-  // all restaurant menu items
-  async getRestaurantMenu(idDto: RestaurantIdDto): Promise<MenuItem[]> {
-    const found = await this.restaurantsService.findRestaurantById(idDto);
-    return found.menu;
-  }
-
   // upload item image
   async uploadItemImage(
     idDto: MenuIdDto,

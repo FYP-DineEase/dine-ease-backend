@@ -1,7 +1,12 @@
-import { Length, IsNumberString } from 'class-validator';
-import { RestaurantNameDto } from './name.dto';
+import { Length, IsAlphanumeric, IsNumberString } from 'class-validator';
+import { IsNotBlank } from '../decorators/not-blank.decorator';
 
-export class PrimaryDetailsDto extends RestaurantNameDto {
+export class PrimaryDetailsDto {
+  @IsNotBlank()
+  @IsAlphanumeric()
+  @Length(3, 30, { message: 'name must be between 3 and 30 characters' })
+  name: string;
+
   @IsNumberString({}, { message: 'taxId must be a number' })
   @Length(13, 13, { message: 'taxId must be 13 digits' })
   taxId: string;

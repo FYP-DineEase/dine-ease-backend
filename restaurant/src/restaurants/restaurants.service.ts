@@ -35,10 +35,11 @@ import {
 import { OtpDto } from './dto/otp.dto';
 import { RestaurantIdDto } from './dto/mongo-id.dto';
 import { RestaurantDto } from './dto/restaurant.dto';
-import { RestaurantNameDto } from './dto/name.dto';
 import { RestaurantStatusDto } from './dto/status.dto';
 import { DeleteImagesDto } from './dto/delete-images.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { PrimaryDetailsDto } from './dto/primary-details.dto';
+import { RestaurantSlugDto } from './dto/slug.dto';
 
 @Injectable()
 export class RestaurantsService {
@@ -53,13 +54,6 @@ export class RestaurantsService {
     private readonly restaurantModel: Model<RestaurantDocument>,
   ) {}
 
-  // check restaurant name uniqueness
-  async checkRestaurantExists(nameDto: RestaurantNameDto): Promise<boolean> {
-    const { name } = nameDto;
-    const existingUser = await this.restaurantModel.findOne({ name });
-    return !!existingUser;
-  }
-
   // find restaurant by id
   async findRestaurantById(id: RestaurantIdDto): Promise<RestaurantDocument> {
     const { restaurantId } = id;
@@ -73,8 +67,23 @@ export class RestaurantsService {
     return found;
   }
 
+  // find restaurant by slug
+  async findRestaurantBySlug(
+    restaurantSlugDto: RestaurantSlugDto,
+  ): Promise<RestaurantDocument> {
+    const { slug } = restaurantSlugDto;
+
+    const found: RestaurantDocument = await this.restaurantModel.findOne({
+      slug,
+      isDeleted: false,
+    });
+
+    if (!found) throw new NotFoundException('Restaurant not found');
+    return found;
+  }
+
   // find duplicate data
-  async findRestaurant(data: RestaurantDto, id?: string): Promise<void> {
+  async findRestaurant(data: PrimaryDetailsDto, id?: string): Promise<void> {
     const { name, taxId } = data;
     const restaurantId = new Types.ObjectId(id);
 
@@ -88,6 +97,15 @@ export class RestaurantsService {
   // get all restaurants
   async getAll(): Promise<RestaurantDocument[]> {
     const restaurants: RestaurantDocument[] = await this.restaurantModel.find();
+    return restaurants;
+  }
+
+  // get approved restaurants
+  async getUserRestaurants(user: UserDetails): Promise<RestaurantDocument[]> {
+    const restaurants: RestaurantDocument[] = await this.restaurantModel.find({
+      userId: user.id,
+      isDeleted: false,
+    });
     return restaurants;
   }
 
@@ -183,7 +201,7 @@ export class RestaurantsService {
     idDto: RestaurantIdDto,
     files: Express.Multer.File[],
     user: UserDetails,
-  ): Promise<string> {
+  ): Promise<string[]> {
     const found: RestaurantDocument = await this.findRestaurantById(idDto);
 
     if (found.userId !== user.id) {
@@ -225,7 +243,7 @@ export class RestaurantsService {
       event,
     );
 
-    return 'Restaurant Image(s) Updated Successfully';
+    return found.images;
   }
 
   // create a restaurant listing

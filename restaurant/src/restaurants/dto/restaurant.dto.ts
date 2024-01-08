@@ -25,6 +25,7 @@ export class RestaurantDto extends PrimaryDetailsDto {
 
   @IsCoordinates()
   location: {
+    country: string;
     coordinates: [number, number];
   };
 }

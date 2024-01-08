@@ -7,6 +7,7 @@ import { Record, RecordDocument } from './models/record.entity';
 
 // DTO
 import { CreateRecordDto } from './dto/create.dto';
+import { RestaurantIdDto } from './dto/mongo-id.dto';
 
 @Injectable()
 export class RecordsService {
@@ -18,6 +19,17 @@ export class RecordsService {
   // all records
   async getRecords(): Promise<RecordDocument[]> {
     const records: RecordDocument[] = await this.recordsModel.find();
+    return records;
+  }
+
+  // restaurant records
+  async getRestaurantRecords(
+    restaurantIdDto: RestaurantIdDto,
+  ): Promise<RecordDocument[]> {
+    const { restaurantId } = restaurantIdDto;
+    const records: RecordDocument[] = await this.recordsModel.find({
+      restaurantId,
+    });
     return records;
   }
 

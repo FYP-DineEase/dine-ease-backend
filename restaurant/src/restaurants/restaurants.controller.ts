@@ -37,11 +37,12 @@ import { RestaurantDocument } from './models/restaurant.entity';
 
 // DTO
 import { OtpDto } from './dto/otp.dto';
+import { RestaurantSlugDto } from './dto/slug.dto';
 import { RestaurantIdDto } from './dto/mongo-id.dto';
 import { RestaurantDto } from './dto/restaurant.dto';
-import { RestaurantNameDto } from './dto/name.dto';
 import { RestaurantStatusDto } from './dto/status.dto';
 import { DeleteImagesDto } from './dto/delete-images.dto';
+import { PrimaryDetailsDto } from './dto/primary-details.dto';
 import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('/api/restaurant')
@@ -49,11 +50,8 @@ export class RestaurantsController {
   constructor(private readonly restaurantService: RestaurantsService) {}
 
   @Get('check')
-  async checkRestaurant(
-    @Query() nameDto: RestaurantNameDto,
-  ): Promise<{ isExist: boolean }> {
-    const isExist = await this.restaurantService.checkRestaurantExists(nameDto);
-    return { isExist };
+  async checkRestaurant(@Query() data: PrimaryDetailsDto): Promise<void> {
+    return await this.restaurantService.findRestaurant(data);
   }
 
   @Get('all')
@@ -88,11 +86,19 @@ export class RestaurantsController {
     return this.restaurantService.generateOTP(id, user);
   }
 
-  @Get('/:restaurantId')
-  async getRestaurantById(
-    @Param() idDto: RestaurantIdDto,
+  @UseGuards(AuthGuard)
+  @Get('user')
+  async getUserRestaurants(
+    @GetUser() user: UserDetails,
+  ): Promise<RestaurantDocument[]> {
+    return this.restaurantService.getUserRestaurants(user);
+  }
+
+  @Get('/:slug')
+  async findRestaurantBySlug(
+    @Param() restaurantSlugDto: RestaurantSlugDto,
   ): Promise<RestaurantDocument> {
-    return this.restaurantService.findRestaurantById(idDto);
+    return this.restaurantService.findRestaurantBySlug(restaurantSlugDto);
   }
 
   @Post('/upload/:restaurantId')
@@ -109,7 +115,7 @@ export class RestaurantsController {
     files: Express.Multer.File[],
     @Param() idDto: RestaurantIdDto,
     @GetUser() user: UserDetails,
-  ): Promise<string> {
+  ): Promise<string[]> {
     return this.restaurantService.uploadImages(idDto, files, user);
   }
 
