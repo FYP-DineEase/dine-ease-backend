@@ -82,6 +82,14 @@ export class RestaurantsService {
     return found;
   }
 
+  // fetch all user slugs
+  async getAllRestaurantSlugs(): Promise<RestaurantDocument[]> {
+    const restaurants: RestaurantDocument[] = await this.restaurantModel
+      .find({ status: StatusTypes.APPROVED })
+      .select('slug');
+    return restaurants;
+  }
+
   // find duplicate data
   async findRestaurant(data: PrimaryDetailsDto, id?: string): Promise<void> {
     const { name, taxId } = data;
@@ -250,11 +258,14 @@ export class RestaurantsService {
   async createRestaurant(
     user: UserDetails,
     data: RestaurantDto,
-  ): Promise<string> {
+  ): Promise<{ slug: string }> {
     await this.findRestaurant(data);
     await this.modifyService.findRestaurant(data);
-    this.restaurantModel.create({ userId: user.id, ...data });
-    return 'Restaurant created successfully';
+    const { slug }: RestaurantDocument = await this.restaurantModel.create({
+      userId: user.id,
+      ...data,
+    });
+    return { slug };
   }
 
   // genrate OTP for verification of restaurant

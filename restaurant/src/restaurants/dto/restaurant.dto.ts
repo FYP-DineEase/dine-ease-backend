@@ -1,15 +1,9 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsArray,
-  ArrayMinSize,
-  IsPhoneNumber,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, ArrayMinSize } from 'class-validator';
 import { IsCoordinates } from '../decorators/coordinates.decorator';
 import { PrimaryDetailsDto } from './primary-details.dto';
 
 export class RestaurantDto extends PrimaryDetailsDto {
-  @IsPhoneNumber()
+  @IsString()
   @IsNotEmpty()
   phoneNumber: string;
 

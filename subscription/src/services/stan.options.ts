@@ -1,20 +1,20 @@
 import { CustomStrategy } from '@nestjs/microservices';
 import { Listener } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import { QueueGroups, STAN } from '@dine_ease/common';
+import { QueueGroups } from '@dine_ease/common';
 
 export const StanOptions: CustomStrategy = {
   strategy: new Listener(
     'dine-ease',
-    'abc7',
-    QueueGroups.UsersMapService,
+    'abc8',
+    QueueGroups.SubscriptionService,
     {
       url: 'http://localhost:4222',
     },
     {
-      ackWait: STAN.ACK_WAIT,
+      ackWait: 5 * 1000,
       deliverAllAvailable: true,
       manualAckMode: true,
-      durableName: QueueGroups.UsersMapService,
+      durableName: QueueGroups.SubscriptionService,
     },
   ),
 };

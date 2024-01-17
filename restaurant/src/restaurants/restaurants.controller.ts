@@ -54,6 +54,11 @@ export class RestaurantsController {
     return await this.restaurantService.findRestaurant(data);
   }
 
+  @Get('all/slug')
+  async getAllUserSlugs(): Promise<RestaurantDocument[]> {
+    return this.restaurantService.getAllRestaurantSlugs();
+  }
+
   @Get('all')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(AdminRoles.ADMIN)
@@ -125,7 +130,7 @@ export class RestaurantsController {
   async createRestaurant(
     @GetUser() user: UserDetails,
     @Body() data: RestaurantDto,
-  ): Promise<string> {
+  ): Promise<{ slug: string }> {
     return this.restaurantService.createRestaurant(user, data);
   }
 

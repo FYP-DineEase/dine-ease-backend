@@ -8,7 +8,8 @@
 3004 -> users-aggregate
 3006 -> restaurant      -> abc5
 3007 -> reviews         -> abc6
-3007 -> user-map         -> abc7
+3008 -> user-map        -> abc7
+3009 -> subscription    -> abc8
 
 
 # Initializing New Service
@@ -58,14 +59,18 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 
 ## Update 
 
+- restaurant avatar upload and replace
+- menu item filter then reset index then save on indexes update
+- payment creation remaining in subscription service
 - review service : images upload/delete
 - review service : restaurant ratings ( multiple remaining ) return in key value pair
 - map service : nanoid issue in  ( reference the review service ) [ on spam nanoid repeats ]
 
-- payment service
 - notifications
 - dining plans
 - badge service
+
+- rate limit on check restaurant duplication and other checking endpoints
 
 - add redis for restaurant
 - aggregate user data in user map get by slug

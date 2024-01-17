@@ -15,4 +15,4 @@ import { Restaurant, RestaurantSchema } from './models/restaurant.entity';
   providers: [RestaurantService],
   controllers: [RestaurantController],
 })
-export class RestuarantModule {}
+export class RestaurantModule {}

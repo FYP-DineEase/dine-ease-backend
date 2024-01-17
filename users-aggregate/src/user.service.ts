@@ -40,11 +40,12 @@ export class UserService {
       const {
         email,
         fullName: name,
+        slug,
         role,
         avatar,
         location,
       } = userResponse.data;
-      const details = { id: userId, email, name, role, avatar, location };
+      const details = { id: userId, slug, email, name, role, avatar, location };
       const token = this.generateToken({ id: userId, role });
       return { details, token };
     } catch (e) {

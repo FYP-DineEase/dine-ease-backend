@@ -4,6 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { UserDetails } from '@dine_ease/common';
 
 // Database
 import { Model } from 'mongoose';
@@ -13,7 +14,6 @@ import { ModifyRequest, ModifyRequestDocument } from './models/request.entity';
 // DTO
 import { RequestIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
 import { CreateReqeustDto } from './dto/create.dto';
-import { UserDetails } from '@dine_ease/common';
 import { RestaurantDto } from 'src/restaurants/dto/restaurant.dto';
 
 @Injectable()

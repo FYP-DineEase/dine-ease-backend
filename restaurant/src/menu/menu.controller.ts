@@ -28,9 +28,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 // Services
 import { MenuService } from './menu.service';
 
-// Database
-import { MenuItem } from './models/menu.entity';
-
 // DTO
 import { MenuIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
 import { MenuItemDto } from './dto/menu-item.dto';

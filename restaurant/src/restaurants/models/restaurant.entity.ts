@@ -46,7 +46,7 @@ export class Restaurant {
   @Prop({ required: true, unique: true, index: true })
   name: string;
 
-  @Prop({ unique: true, index: true })
+  @Prop({ index: true })
   slug: string;
 
   @Prop({ required: true, type: [String] })
