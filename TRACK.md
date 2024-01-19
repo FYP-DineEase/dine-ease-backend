@@ -66,6 +66,8 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - review service : restaurant ratings ( multiple remaining ) return in key value pair
 - map service : nanoid issue in  ( reference the review service ) [ on spam nanoid repeats ]
 
+- restaurant images update sync in usermap service
+
 - notifications
 - dining plans
 - badge service

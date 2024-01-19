@@ -254,6 +254,33 @@ export class RestaurantsService {
     return found.images;
   }
 
+  // update avatar of user
+  async uploadCover(
+    idDto: RestaurantIdDto,
+    user: UserDetails,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    const { restaurantId } = idDto;
+    const found: RestaurantDocument = await this.findRestaurantById(idDto);
+
+    if (found.userId !== user.id) {
+      throw new UnauthorizedException('User is not authorized');
+    }
+
+    const path = `${restaurantId}/cover`;
+    const deleteKey = found.cover;
+    const newImage = await this.s3Service.upload(path, file);
+
+    found.set({ cover: newImage });
+    await found.save();
+
+    if (deleteKey) {
+      await this.s3Service.deleteOne(`${path}/${deleteKey}`);
+    }
+
+    return newImage;
+  }
+
   // create a restaurant listing
   async createRestaurant(
     user: UserDetails,

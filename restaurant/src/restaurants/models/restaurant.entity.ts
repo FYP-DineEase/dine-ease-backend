@@ -10,6 +10,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   name: string;
   slug: string;
   cuisine: string[];
+  cover: string;
   images: string[];
   address: string;
   location: {
@@ -67,6 +68,9 @@ export class Restaurant {
     default: StatusTypes.PENDING,
   })
   status: Status;
+
+  @Prop()
+  cover: string;
 
   @Prop({ required: true, type: [String] })
   images: string[];

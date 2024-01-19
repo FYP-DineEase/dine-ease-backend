@@ -12,6 +12,7 @@ import {
   ParseFilePipe,
   UseInterceptors,
   UploadedFiles,
+  UploadedFile,
 } from '@nestjs/common';
 
 import {
@@ -25,7 +26,7 @@ import {
   MaxImageSizeValidator,
 } from '@dine_ease/common';
 
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 // Rate Limit
 import { RateLimiterGuard } from 'src/guards/rate-limiter.guard';
@@ -104,6 +105,23 @@ export class RestaurantsController {
     @Param() restaurantSlugDto: RestaurantSlugDto,
   ): Promise<RestaurantDocument> {
     return this.restaurantService.findRestaurantBySlug(restaurantSlugDto);
+  }
+
+  @Post('/upload/cover/:restaurantId')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+      }),
+      new MaxImageSizeValidator(),
+    )
+    file: Express.Multer.File,
+    @Param() idDto: RestaurantIdDto,
+    @GetUser() user: UserDetails,
+  ): Promise<string> {
+    return this.restaurantService.uploadCover(idDto, user, file);
   }
 
   @Post('/upload/:restaurantId')
