@@ -34,7 +34,7 @@ import { RateLimit } from 'src/decorators/rate-limit.decorator';
 
 // Restaurant
 import { RestaurantsService } from './restaurants.service';
-import { RestaurantDocument } from './models/restaurant.entity';
+import { Restaurant, RestaurantDocument } from './models/restaurant.entity';
 
 // DTO
 import { OtpDto } from './dto/otp.dto';
@@ -170,7 +170,7 @@ export class RestaurantsController {
     @Param() id: RestaurantIdDto,
     @GetUser() user: UserDetails,
     @Body() data: RestaurantDto,
-  ): Promise<string> {
+  ): Promise<RestaurantDocument> {
     return this.restaurantService.updateRestaurant(id, user, data);
   }
 

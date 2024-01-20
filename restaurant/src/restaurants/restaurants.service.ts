@@ -364,7 +364,7 @@ export class RestaurantsService {
     idDto: RestaurantIdDto,
     user: UserDetails,
     data: RestaurantDto,
-  ): Promise<string> {
+  ): Promise<RestaurantDocument> {
     const { name, taxId, address, cuisine, location, phoneNumber } = data;
     const found: RestaurantDocument = await this.findRestaurantById(
       idDto,
@@ -408,7 +408,7 @@ export class RestaurantsService {
       event,
     );
 
-    return 'Restaurant Updated';
+    return found;
   }
 
   // approve update request
