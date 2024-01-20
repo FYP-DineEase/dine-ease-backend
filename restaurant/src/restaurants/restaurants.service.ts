@@ -55,7 +55,10 @@ export class RestaurantsService {
   ) {}
 
   // find restaurant by id
-  async findRestaurantById(id: RestaurantIdDto): Promise<RestaurantDocument> {
+  async findRestaurantById(
+    id: RestaurantIdDto,
+    user?: UserDetails,
+  ): Promise<RestaurantDocument> {
     const { restaurantId } = id;
 
     const found: RestaurantDocument = await this.restaurantModel.findOne({
@@ -63,7 +66,14 @@ export class RestaurantsService {
       isDeleted: false,
     });
 
-    if (!found) throw new NotFoundException('Restaurant not found');
+    if (!found) {
+      throw new NotFoundException('Restaurant not found');
+    }
+
+    if (user && found.userId !== user.id) {
+      throw new UnauthorizedException('User is not authorized');
+    }
+
     return found;
   }
 
@@ -201,7 +211,7 @@ export class RestaurantsService {
     };
     await this.recordsService.createRecord(payload);
 
-    return `Restaurant status updated successfully`;
+    return 'Status Updated';
   }
 
   // upload restaurant images
@@ -210,11 +220,10 @@ export class RestaurantsService {
     files: Express.Multer.File[],
     user: UserDetails,
   ): Promise<string[]> {
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    const found: RestaurantDocument = await this.findRestaurantById(
+      idDto,
+      user,
+    );
 
     if (found.status !== StatusTypes.APPROVED) {
       throw new BadRequestException('Restaurant status should be approved');
@@ -261,11 +270,10 @@ export class RestaurantsService {
     file: Express.Multer.File,
   ): Promise<string> {
     const { restaurantId } = idDto;
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    const found: RestaurantDocument = await this.findRestaurantById(
+      idDto,
+      user,
+    );
 
     const path = `${restaurantId}/cover`;
     const deleteKey = found.cover;
@@ -299,25 +307,28 @@ export class RestaurantsService {
   async generateOTP(
     idDto: RestaurantIdDto,
     user: UserDetails,
-  ): Promise<string> {
+  ): Promise<{ ttl: number }> {
     const { restaurantId } = idDto;
 
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    const found: RestaurantDocument = await this.findRestaurantById(
+      idDto,
+      user,
+    );
 
     if (found.isVerified) {
       throw new BadRequestException('Restaurant is already verified');
     }
 
     // twilioService.sendOTP later
-    await this.redisService.cacheWrapper(restaurantId, 120, async () => {
-      return await this.twilioService.generateOTP();
-    });
+    const { ttl } = await this.redisService.cacheWrapper(
+      restaurantId,
+      120,
+      async () => {
+        return await this.twilioService.generateOTP();
+      },
+    );
 
-    return 'OTP generated succesfully';
+    return { ttl };
   }
 
   // verify OTP of restaurant
@@ -327,14 +338,13 @@ export class RestaurantsService {
     otpDto: OtpDto,
   ): Promise<string> {
     const { otp } = otpDto;
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
+    const found: RestaurantDocument = await this.findRestaurantById(
+      idDto,
+      user,
+    );
 
     if (found.isVerified) {
       throw new BadRequestException('Restaurant is already verified');
-    }
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
     }
 
     const cachedOTP = await this.redisService.getValue(found.id.toString());
@@ -343,10 +353,10 @@ export class RestaurantsService {
       found.set({ isVerified: true });
       await found.save();
       await this.redisService.deleteValue(found.id.toString());
-      return 'OTP verified successfully';
+      return 'OTP Verified';
     }
 
-    throw new BadRequestException('Unable to verify OTP');
+    throw new BadRequestException('Invalid OTP');
   }
 
   // update a restaurant
@@ -356,11 +366,10 @@ export class RestaurantsService {
     data: RestaurantDto,
   ): Promise<string> {
     const { name, taxId, address, cuisine, location, phoneNumber } = data;
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    const found: RestaurantDocument = await this.findRestaurantById(
+      idDto,
+      user,
+    );
 
     if (found.name !== name || found.taxId !== taxId) {
       // check uniqueness
@@ -399,7 +408,7 @@ export class RestaurantsService {
       event,
     );
 
-    return 'Restaurant updated successfully';
+    return 'Restaurant Updated';
   }
 
   // approve update request
@@ -443,7 +452,7 @@ export class RestaurantsService {
 
     await request.deleteOne();
 
-    return 'Restaurant updated successfully';
+    return 'Restaurant Updated';
   }
 
   // delete a restaurant
@@ -470,7 +479,7 @@ export class RestaurantsService {
       } else {
         found.deleteOne();
       }
-      return 'Restaurant deleted successfully';
+      return 'Restaurant Deleted';
     }
 
     throw new UnauthorizedException('User is not authorized');
@@ -484,11 +493,10 @@ export class RestaurantsService {
   ): Promise<string> {
     const { images } = data;
 
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-    if (found.userId !== user.id) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    const found: RestaurantDocument = await this.findRestaurantById(
+      idDto,
+      user,
+    );
 
     const path = `${idDto.restaurantId}/images`;
     await this.s3Service.deleteMany(path, images);
@@ -508,6 +516,6 @@ export class RestaurantsService {
       event,
     );
 
-    return 'Restaurant Image(s) Deleted Successfully';
+    return 'Image(s) Deleted';
   }
 }

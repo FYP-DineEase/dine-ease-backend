@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Post,
   Patch,
   Delete,
@@ -30,8 +29,12 @@ import { MenuService } from './menu.service';
 
 // DTO
 import { MenuIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
-import { MenuItemDto } from './dto/menu-item.dto';
+import { CreateMenuItemDto } from './dto/create-menu-item.dto';
+import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { MenuOrderDto } from './dto/menu-order.dto';
+
+// Database
+import { MenuDocument } from './models/menu.entity';
 
 @Controller('/api/menu/:restaurantId')
 @UseGuards(AuthGuard, RolesGuard)
@@ -40,38 +43,38 @@ export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
   createMenuItem(
-    @Param() idDto: RestaurantIdDto,
-    @GetUser() user: UserDetails,
-    @Body() menuItemDto: MenuItemDto,
-  ): Promise<string> {
-    return this.menuService.createMenuItem(idDto, user, menuItemDto);
-  }
-
-  @Post('/upload/:menuId')
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  uploadItemImage(
     @UploadedFile(
       new ParseFilePipe({
         validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
       }),
       new MaxImageSizeValidator(),
     )
-    file: Express.Multer.File,
-    @Param() idDto: MenuIdDto,
+    image: Express.Multer.File,
+    @Param() idDto: RestaurantIdDto,
     @GetUser() user: UserDetails,
-  ): Promise<string> {
-    return this.menuService.uploadItemImage(idDto, file, user);
+    @Body() menuItemDto: CreateMenuItemDto,
+  ): Promise<MenuDocument> {
+    return this.menuService.createMenuItem(idDto, user, menuItemDto, image);
   }
 
   @Patch('/:menuId')
+  @UseInterceptors(FileInterceptor('image'))
   updateMenuById(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+        fileIsRequired: false,
+      }),
+      new MaxImageSizeValidator({ fileIsRequired: false }),
+    )
+    image: Express.Multer.File | undefined,
     @Param() idDto: MenuIdDto,
     @GetUser() user: UserDetails,
-    @Body() menuItemDto: MenuItemDto,
-  ): Promise<string> {
-    return this.menuService.updateMenuById(idDto, user, menuItemDto);
+    @Body() menuItemDto: UpdateMenuItemDto,
+  ): Promise<MenuDocument> {
+    return this.menuService.updateMenuById(idDto, user, menuItemDto, image);
   }
 
   @Patch()
@@ -79,7 +82,7 @@ export class MenuController {
     @Param() idDto: RestaurantIdDto,
     @GetUser() user: UserDetails,
     @Body() menuOrderDto: MenuOrderDto,
-  ): Promise<string> {
+    ): Promise<MenuDocument[]> {
     return this.menuService.updateMenu(idDto, user, menuOrderDto);
   }
 
@@ -87,7 +90,7 @@ export class MenuController {
   deleteMenuItem(
     @Param() idDto: MenuIdDto,
     @GetUser() user: UserDetails,
-  ): Promise<string> {
+  ): Promise<MenuDocument[]> {
     return this.menuService.deleteMenuItem(idDto, user);
   }
 }

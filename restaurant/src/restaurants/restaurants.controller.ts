@@ -84,11 +84,11 @@ export class RestaurantsController {
   @Get('/generate-otp/:restaurantId')
   @UseGuards(AuthGuard, RolesGuard, RateLimiterGuard)
   @Roles(UserRoles.MANAGER)
-  @RateLimit({ keyPrefix: 'OTP', duration: 60 * 60 * 24, limit: 3 })
+  @RateLimit({ keyPrefix: 'OTP', duration: 60 * 60 * 24, limit: 100 })
   async generateOTP(
     @Param() id: RestaurantIdDto,
     @GetUser() user: UserDetails,
-  ): Promise<string> {
+  ): Promise<{ ttl: number }> {
     return this.restaurantService.generateOTP(id, user);
   }
 

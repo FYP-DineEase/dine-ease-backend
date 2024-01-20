@@ -18,7 +18,8 @@ import { RestaurantDocument } from 'src/restaurants/models/restaurant.entity';
 
 // DTO
 import { MenuIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
-import { MenuItemDto } from './dto/menu-item.dto';
+import { CreateMenuItemDto } from './dto/create-menu-item.dto';
+import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { MenuOrderDto } from './dto/menu-order.dto';
 
 @Injectable()
@@ -38,11 +39,7 @@ export class MenuService {
     const { menuId } = idDto;
 
     const found: RestaurantDocument =
-      await this.restaurantsService.findRestaurantById(idDto);
-
-    if (user.id !== found.userId) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+      await this.restaurantsService.findRestaurantById(idDto, user);
 
     const menuItemIndex = found.menu.findIndex(
       (item) => item.id.toString() === menuId,
@@ -55,67 +52,68 @@ export class MenuService {
     return { found, menuItemIndex };
   }
 
-  // upload item image
-  async uploadItemImage(
-    idDto: MenuIdDto,
-    file: Express.Multer.File,
-    user: UserDetails,
-  ): Promise<string> {
-    const { restaurantId } = idDto;
-    const { found, menuItemIndex } = await this.getMenuItem(idDto, user);
-
-    const menuItem = found.menu[menuItemIndex];
-    const deleteKey = menuItem.image;
-    const path = `${restaurantId}/menu`;
-
-    const newImage = await this.s3Service.upload(path, file);
-    menuItem.set({ image: newImage });
-    await found.save();
-
-    if (deleteKey) {
-      await this.s3Service.deleteOne(`${path}/${deleteKey}`);
-    }
-
-    return 'Menu Image Updated Successfully';
-  }
-
   // create a restaurant menu item
   async createMenuItem(
     idDto: RestaurantIdDto,
     user: UserDetails,
-    menuItemDto: MenuItemDto,
-  ): Promise<string> {
-    const found = await this.restaurantsService.findRestaurantById(idDto);
+    menuItemDto: CreateMenuItemDto,
+    file: Express.Multer.File,
+  ): Promise<MenuDocument> {
+    const { restaurantId } = idDto;
+    const { name, price, category, description, order } = menuItemDto;
 
-    if (user.id !== found.userId) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    const found = await this.restaurantsService.findRestaurantById(idDto, user);
 
     if (found.status !== StatusTypes.APPROVED) {
       throw new BadRequestException('Restaurant status should be approved');
     }
 
-    const updatedItem = { ...menuItemDto, order: found.menu.length };
-    const menuItem = new this.menuModel(updatedItem);
+    const image = await this.s3Service.upload(`${restaurantId}/menu`, file);
+
+    const menuItem: MenuDocument = new this.menuModel({
+      name,
+      price,
+      category,
+      description,
+      order,
+      image,
+    });
     found.menu.push(menuItem);
     await found.save();
 
-    return 'Menu item added successfully';
+    return menuItem;
   }
 
   // update a restaurant menu item
   async updateMenuById(
     idDto: MenuIdDto,
     user: UserDetails,
-    menuItemDto: MenuItemDto,
-  ): Promise<string> {
-    const { found, menuItemIndex } = await this.getMenuItem(idDto, user);
+    menuItemDto: UpdateMenuItemDto,
+    file: Express.Multer.File,
+  ): Promise<MenuDocument> {
+    const { restaurantId } = idDto;
 
-    const newItem = { ...found.menu[menuItemIndex], ...menuItemDto };
-    Object.assign(found.menu[menuItemIndex], newItem);
+    const { name, price, description } = menuItemDto;
+    const updatedData = { name, price, description };
+
+    const { found, menuItemIndex } = await this.getMenuItem(idDto, user);
+    const menuItem = found.menu[menuItemIndex];
+
+    if (file) {
+      const path = `${restaurantId}/menu`;
+      const newImage = await this.s3Service.upload(path, file);
+      await this.s3Service.deleteOne(`${path}/${menuItem.image}`);
+      menuItem.image = newImage;
+    }
+
+    found.menu[menuItemIndex].set({
+      ...menuItem,
+      ...updatedData,
+    });
+
     await found.save();
 
-    return 'Menu item updated successfully';
+    return found.menu[menuItemIndex];
   }
 
   // update a restaurant menu items
@@ -123,66 +121,39 @@ export class MenuService {
     idDto: RestaurantIdDto,
     user: UserDetails,
     menuOrderDto: MenuOrderDto,
-  ): Promise<string> {
-    const { category, orders } = menuOrderDto;
+  ): Promise<MenuDocument[]> {
+    const { orders } = menuOrderDto;
 
-    const found = await this.restaurantsService.findRestaurantById(idDto);
+    const found = await this.restaurantsService.findRestaurantById(idDto, user);
 
-    if (user.id !== found.userId) {
-      throw new UnauthorizedException('User is not authorized');
-    }
+    found.menu.forEach((i) => {
+      const orderItem = orders.find((o) => o.id === i.id);
+      if (orderItem) i.order = orderItem.value;
+    });
 
-    if (orders.length !== found.menu.length) {
-      throw new BadRequestException('Invalid order provided');
-    }
+    await found.save();
 
-    orders.forEach((order) => {
-      const updatedOrder = order.value;
-      const updateItem = found.menu.find(
-        (item) => item.id.toString() === order.id,
-      );
+    return found.menu;
+  }
 
-      if (updatedOrder > found.menu.length - 1) {
-        throw new BadRequestException('Invalid order number provided');
-      }
+  // delete a restaurant menu item
+  async deleteMenuItem(
+    idDto: MenuIdDto,
+    user: UserDetails,
+  ): Promise<MenuDocument[]> {
+    const { found, menuItemIndex } = await this.getMenuItem(idDto, user);
 
-      if (!updateItem || updateItem.category !== category) {
-        throw new NotFoundException(`Menu item with id ${order.id} not found.`);
-      } else {
-        updateItem.order = updatedOrder;
+    const { category, order } = found.menu[menuItemIndex];
+    found.menu.splice(menuItemIndex, 1);
+
+    found.menu.forEach((i) => {
+      if (i.category === category && order < i.order) {
+        i.order -= 1;
       }
     });
 
     await found.save();
 
-    return 'Menu order updated successfully';
-  }
-
-  // delete a restaurant menu item
-  async deleteMenuItem(idDto: MenuIdDto, user: UserDetails): Promise<string> {
-    const { menuId } = idDto;
-    const found = await this.restaurantsService.findRestaurantById(idDto);
-
-    if (user.id !== found.userId) {
-      throw new UnauthorizedException('User is not authorized');
-    }
-
-    const menuItemIndex = found.menu.findIndex(
-      (item) => item.id.toString() === menuId,
-    );
-
-    if (menuItemIndex === -1) {
-      throw new NotFoundException('Menu Item not found');
-    }
-
-    found.menu.splice(menuItemIndex, 1);
-
-    for (let i = menuItemIndex; i < found.menu.length; i++) {
-      found.menu[i].order -= 1;
-    }
-
-    await found.save();
-
-    return 'Menu item updated successfully';
+    return found.menu;
   }
 }

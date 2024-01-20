@@ -29,7 +29,7 @@ export class TwilioService {
       await this.twilioClient.messages.create({
         to: phoneNumber,
         from: this.configService.get<string>('TWILIO_PHONE_NO'),
-        body: `Your OTP is: ${otp}`,
+        body: `Your DineEase OTP is: ${otp}`,
       });
     } catch (error) {
       this.logger.error(error);

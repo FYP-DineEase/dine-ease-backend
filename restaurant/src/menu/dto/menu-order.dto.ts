@@ -3,16 +3,15 @@ import {
   IsNumber,
   IsArray,
   ArrayNotEmpty,
-  IsEnum,
   IsNotEmpty,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Category } from 'src/enums/menu-categories.enum';
+import { Types } from 'mongoose';
 
 class OrderItem {
   @IsMongoId()
-  id: string;
+  id: Types.ObjectId;
 
   @IsNumber()
   @IsNotEmpty()
@@ -20,9 +19,6 @@ class OrderItem {
 }
 
 export class MenuOrderDto {
-  @IsEnum(Category)
-  category: Category;
-
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
