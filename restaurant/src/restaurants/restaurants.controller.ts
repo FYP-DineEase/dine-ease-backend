@@ -34,7 +34,7 @@ import { RateLimit } from 'src/decorators/rate-limit.decorator';
 
 // Restaurant
 import { RestaurantsService } from './restaurants.service';
-import { Restaurant, RestaurantDocument } from './models/restaurant.entity';
+import { RestaurantDocument } from './models/restaurant.entity';
 
 // DTO
 import { OtpDto } from './dto/otp.dto';
