@@ -84,7 +84,7 @@ export class RestaurantsController {
   @Get('/generate-otp/:restaurantId')
   @UseGuards(AuthGuard, RolesGuard, RateLimiterGuard)
   @Roles(UserRoles.MANAGER)
-  @RateLimit({ keyPrefix: 'OTP', duration: 60 * 60 * 24, limit: 100 })
+  @RateLimit({ keyPrefix: 'OTP', duration: 60 * 60 * 24, limit: 3 })
   async generateOTP(
     @Param() id: RestaurantIdDto,
     @GetUser() user: UserDetails,

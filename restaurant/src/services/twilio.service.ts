@@ -26,12 +26,11 @@ export class TwilioService {
   async sendOTP(phoneNumber: string): Promise<string> {
     try {
       const otp = await this.generateOTP();
-      console.log(`+${phoneNumber}`);
-      // await this.twilioClient.messages.create({
-      //   to: `+${phoneNumber}`,
-      //   from: this.configService.get<string>('TWILIO_PHONE_NO'),
-      //   body: `Your DineEase OTP is: ${otp}`,
-      // });
+      await this.twilioClient.messages.create({
+        to: `+${phoneNumber}`,
+        from: this.configService.get<string>('TWILIO_PHONE_NO'),
+        body: `DineEase OTP: ${otp}`,
+      });
       return otp;
     } catch (error) {
       this.logger.error(error);
