@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsArray, ArrayMinSize } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsArray,
+  ArrayMinSize,
+  Length,
+} from 'class-validator';
 import { IsCoordinates } from '../decorators/coordinates.decorator';
 import { PrimaryDetailsDto } from './primary-details.dto';
 
@@ -15,6 +21,7 @@ export class RestaurantDto extends PrimaryDetailsDto {
 
   @IsString()
   @IsNotEmpty()
+  @Length(10, 100)
   address: string;
 
   @IsCoordinates()

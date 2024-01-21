@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsEnum,
   ValidateIf,
+  Length,
 } from 'class-validator';
 import { ApprovalStatus } from '@dine_ease/common';
 import { RecordType } from 'src/enums/record.enum';
@@ -24,5 +25,6 @@ export class CreateRecordDto {
   @ValidateIf((object) => object.status === ApprovalStatus.REJECTED)
   @IsString()
   @IsNotEmpty()
+  @Length(3, 50)
   remarks: string;
 }

@@ -319,12 +319,11 @@ export class RestaurantsService {
       throw new BadRequestException('Restaurant is already verified');
     }
 
-    // twilioService.sendOTP later
     const { ttl } = await this.redisService.cacheWrapper(
       restaurantId,
       120,
       async () => {
-        return await this.twilioService.generateOTP();
+        return await this.twilioService.sendOTP(found.phoneNumber);
       },
     );
 
