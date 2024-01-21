@@ -19,7 +19,7 @@ async function bootstrap() {
   // enable cors
   app.enableCors({
     allowedHeaders: ['*'],
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'http://localhost:8080'],
   });
 
   // server start

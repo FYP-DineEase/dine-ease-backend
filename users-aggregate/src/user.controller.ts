@@ -10,8 +10,13 @@ import { LoginDto } from './dto/login.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('/admin/login')
+  async adminLogin(@Body() loginDto: LoginDto): Promise<object> {
+    return this.userService.adminLogin(loginDto);
+  }
+
   @Post('/login')
   async login(@Body() loginDto: LoginDto): Promise<object> {
-    return this.userService.login(loginDto);
+    return this.userService.userLogin(loginDto);
   }
 }

@@ -1,15 +1,19 @@
 import {
-  Injectable,
   Body,
-  NotFoundException,
+  Injectable,
   HttpException,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserDetails } from '@dine_ease/common';
+import { AdminRoles, UserDetails, UserRoles } from '@dine_ease/common';
 import axios from 'axios';
 
 // DTO
 import { LoginDto } from './dto/login.dto';
+
+// Interface
+import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UserService {
@@ -20,7 +24,9 @@ export class UserService {
     return token;
   }
 
-  async login(@Body() loginDto: LoginDto): Promise<object> {
+  async login(
+    loginDto: LoginDto,
+  ): Promise<{ details: User; tokenPayload: UserDetails }> {
     try {
       const authResponse = await axios.post(
         `http://localhost:3001/api/auth/login`,
@@ -45,11 +51,37 @@ export class UserService {
         avatar,
         location,
       } = userResponse.data;
-      const details = { id: userId, slug, email, name, role, avatar, location };
-      const token = this.generateToken({ id: userId, role });
-      return { details, token };
+
+      const details: User = {
+        id: userId,
+        slug,
+        email,
+        name,
+        role,
+        avatar,
+        location,
+      };
+
+      const tokenPayload: UserDetails = { id: userId, role: details.role };
+
+      return { details, tokenPayload };
     } catch (e) {
       throw new HttpException(e.response.data, e.response.data.statusCode);
     }
+  }
+
+  async userLogin(@Body() loginDto: LoginDto): Promise<object> {
+    const { details, tokenPayload } = await this.login(loginDto);
+    const token = this.generateToken(tokenPayload);
+    return { details, token };
+  }
+
+  async adminLogin(@Body() loginDto: LoginDto): Promise<object> {
+    const { details, tokenPayload } = await this.login(loginDto);
+    if (details.role !== AdminRoles.ADMIN.toString()) {
+      throw new ForbiddenException('Invalid User Role');
+    }
+    const token = this.generateToken(tokenPayload);
+    return { details, token };
   }
 }
