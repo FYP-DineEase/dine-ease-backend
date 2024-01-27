@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Update Your Password</title>
+    <style>
+      body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f6f6f6;
+        -webkit-font-smoothing: antialiased;
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+      }
+      .container {
+        text-align: center;
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        margin-bottom: 20px;
+      }
+      .logo {
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+      }
+      .title {
+        font-size: 24px;
+        margin-top: 10px;
+      }
+      .content {
+        text-align: left;
+        margin-bottom: 30px;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #e3ab57;
+        color: #ffffff;
+        border-radius: 5px;
+        padding: 15px 30px;
+        text-decoration: none;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+        background-color: #f0932b;
+        cursor: pointer;
+      }
+      .btn-container {
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
+      .footer {
+        margin-top: 30px;
+        color: #333333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img
+          class="logo"
+          src="https://images.pexels.com/photos/3941855/pexels-photo-3941855.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          alt="Logo"
+        />
+        <h2 class="title">Title</h2>
+      </div>
+
+      <div class="content">
+        <h4></h4>
+        <p>
+          Hello, We have received a request to update your account password.
+          Please click the button below to proceed with the password update.
+        </p>
+      </div>
+
+      <div class="btn-container">
+        <a href="{{viewLink}}" class="btn">View Dining Plan</a>
+      </div>
+
+      <div class="content">
+        <p>
+          If this request was not created by you, do not proceed. Please note
+          that the request for the update will expire in 7 days.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>We look forward to sharing a meal together!</p>
+      </div>
+    </div>
+  </body>
+</html>

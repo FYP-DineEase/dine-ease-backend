@@ -124,4 +124,21 @@ export class MailService {
 
     return 'Update password request sent';
   }
+
+  // dining plan invitation
+  async sendInvitation(): Promise<string> {
+    // const { name, title, date, description, invitees } = diningPlanDto;
+
+    // await this.mailerService.sendMail({
+    //   to: email,
+    //   subject: title,
+    //   template: './dining-invitation',
+    //   context: {
+    //     name,
+    //     verificationLink: `http://localhost:3000/`,
+    //   },
+    // });
+
+    return 'Dining Invitation Sent';
+  }
 }
