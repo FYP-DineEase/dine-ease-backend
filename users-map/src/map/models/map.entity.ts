@@ -1,7 +1,6 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { MapThemes } from 'src/enums/theme.enum';
-import { nanoid } from 'nanoid';
 
 export interface MapDocument extends HydratedDocument<Map> {
   id: Types.ObjectId;
@@ -27,7 +26,7 @@ export class Map {
   @Prop({ type: Types.ObjectId, required: true, unique: true, index: true })
   userId: Types.ObjectId;
 
-  @Prop({ default: nanoid(10), unique: true, index: true })
+  @Prop({ unique: true, index: true })
   slug: string;
 
   @Prop([{ type: Types.ObjectId, ref: 'Restaurant' }])

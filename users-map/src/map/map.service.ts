@@ -23,6 +23,12 @@ export class MapService {
     private readonly restaurantService: RestaurantService,
   ) {}
 
+  // fetch all user slugs
+  async getAllMapSlugs(): Promise<MapDocument[]> {
+    const found: MapDocument[] = await this.mapModel.find().select('slug');
+    return found;
+  }
+
   // find map by slug
   async findMapBySlug(mapSlugDto: MapSlugDto): Promise<MapDocument> {
     const { slug } = mapSlugDto;
@@ -49,7 +55,10 @@ export class MapService {
     await this.restaurantService.findRestaurantById(restaurantId);
     await this.mapModel.findOneAndUpdate(
       { userId },
-      { $addToSet: { restaurants: restaurantId } },
+      {
+        $addToSet: { restaurants: restaurantId },
+        $setOnInsert: { slug: nanoid(10) },
+      },
       { upsert: true, new: true },
     );
 
@@ -88,14 +97,5 @@ export class MapService {
 
     if (!found) throw new NotFoundException('User map not found');
     return 'Restaurant deleted successfully';
-  }
-
-  // delete a restaurant to map
-  async deleteMap(user: UserDetails): Promise<string> {
-    const userId = user.id;
-    const found: MapDocument = await this.mapModel.findOne({ userId });
-    if (!found) throw new NotFoundException('User map not found');
-    await found.deleteOne();
-    return 'Map deleted successfully';
   }
 }

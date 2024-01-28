@@ -64,9 +64,11 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - review service : restaurant ratings ( multiple remaining ) return in key value pair
 - map service : nanoid issue in  ( reference the review service ) [ on spam nanoid repeats ]
 - user aggregation in dining plans
-- dining plan invitation email
+- dining plan invitation email ( boolean for invited: true/false of users whose email are already sent and new users false)
 - restaurant images update sync in usermap service
 - fix users-map nanoid and other issues ( reference from dining plan )
+- restaurant images and other events updated in other services and test
+- review count aggregated service
 
 - notifications
 - badge service

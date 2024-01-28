@@ -23,8 +23,13 @@ import { RestaurantDto } from './dto/restaurant.dto';
 export class MapController {
   constructor(private readonly mapService: MapService) {}
 
+  @Get('/all/slugs')
+  async getAllMapSlugs(): Promise<MapDocument[]> {
+    return this.mapService.getAllMapSlugs();
+  }
+
   @Get('/:slug')
-  async getRestaurantReviews(@Param() slug: MapSlugDto): Promise<MapDocument> {
+  async findMapBySlug(@Param() slug: MapSlugDto): Promise<MapDocument> {
     return this.mapService.findMapBySlug(slug);
   }
 
@@ -37,19 +42,13 @@ export class MapController {
     return this.mapService.addRestaurant(restaurantDto, user);
   }
 
-  @Patch()
+  @Patch('/theme')
   @UseGuards(AuthGuard)
   async updateTheme(
     @GetUser() user: UserDetails,
     @Body() mapThemeDto: MapThemeDto,
   ): Promise<string> {
     return this.mapService.updateTheme(mapThemeDto, user);
-  }
-
-  @Delete()
-  @UseGuards(AuthGuard)
-  async deleteMapRestaurant(@GetUser() user: UserDetails): Promise<string> {
-    return this.mapService.deleteMap(user);
   }
 
   @Delete('/:restaurantId')
