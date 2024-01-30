@@ -58,28 +58,20 @@ export class MailService {
 
   // register
   async register(user: AccountCreatedEvent): Promise<string> {
-    const { email, firstName, lastName } = user;
-    const fullName = `${firstName} ${lastName}`;
+    const { userId, email, name } = user;
 
     const found: UserDocument = await this.userModel.findOne({ email });
     if (found) throw new ConflictException('User already exist');
-    await this.userModel.create({ email });
+    await this.userModel.create({ _id: userId, email });
 
-    await this.sendConfirmation(
-      email,
-      fullName,
-      'Verify your Email on LocalHost',
-    );
+    await this.sendConfirmation(email, name, 'Verify your Email on LocalHost');
     return 'Email verification sent';
   }
 
   // verify account
   async verifyAccount(data: AccountVerifiedEvent): Promise<void> {
-    const { email } = data;
-
-    const found: UserDocument = await this.userModel.findOne({ email });
-    if (!found) throw new NotFoundException('Account not found');
-
+    const found: UserDocument = await this.userModel.findById(data.userId);
+    if (!found) throw new NotFoundException('User not found');
     found.set({ isVerified: true });
     await found.save();
   }

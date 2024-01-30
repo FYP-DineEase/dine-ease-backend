@@ -12,27 +12,6 @@
 3009 -> subscription    -> abc8
 3010 -> dining-plans    -> abc9
 
-
-# Initializing New Service
-
-nest new .
-npm i @nestjs/common@9.4.3
-npm i @nestjs/core@9.4.3 
-npm i @nestjs/platform-express@9.4.3
-
-npm i @nestjs/mongoose@10.0.1
-
-npm i bcryptjs
-npm i cross-env @nestjs/mongoose mongoose class-validator mongoose-update-if-current nest-winston winston
-npm i @nestjs/config @hapi/joi
-pm i --save-dev @types/hapi__joi
-npm i @nestjs/microservices@9.4.3
-npm i @nestjs-plugins/nestjs-nats-streaming-transport
-
-npm i @dine_ease/common
-npm update @dine_ease/common
-npm i --save-dev @types/node
-
 # Docker
 docker build -t mujtabashafiq/dine-ease:auth .
 docker push mujtabashafiq/dine-ease:auth
@@ -60,18 +39,15 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 
 ## Update 
 - payment creation remaining in subscription service
+- notification events
+
+- dining plan invitation email ( boolean for invited: true/false of users whose email are already sent and new users false)
+
 - review service : images upload/delete
 - review service : restaurant ratings ( multiple remaining ) return in key value pair
-- map service : nanoid issue in  ( reference the review service ) [ on spam nanoid repeats ]
-- user aggregation in dining plans
-- dining plan invitation email ( boolean for invited: true/false of users whose email are already sent and new users false)
-- restaurant images update sync in usermap service
-- fix users-map nanoid and other issues ( reference from dining plan )
-- restaurant images and other events updated in other services and test
-- review count aggregated service
 
-- notifications
-- badge service
+- restaurant images update sync in usermap service
+- restaurant images and other events updated in other services and test
 
 - rate limit on check restaurant duplication and other checking endpoints
 

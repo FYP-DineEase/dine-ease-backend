@@ -11,9 +11,9 @@ import { nanoid } from 'nanoid';
 // NATS
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 import {
+  Subjects,
   AccountCreatedEvent,
   AccountVerifiedEvent,
-  Subjects,
 } from '@dine_ease/common';
 
 // JWT
@@ -68,7 +68,7 @@ export class AuthService {
     await foundUser.save();
 
     const event: AccountVerifiedEvent = {
-      email: foundUser.email,
+      userId: foundUser.id,
     };
 
     this.publisher.emit<void, AccountVerifiedEvent>(
@@ -117,6 +117,7 @@ export class AuthService {
       slug: nanoid(10),
       firstName,
       lastName,
+      name: `${firstName} ${lastName}`,
       email,
       role,
     };

@@ -7,6 +7,7 @@ import {
   DatabaseModule,
   LoggerModule,
 } from '@dine_ease/common';
+import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // Services
 import { S3Service } from './services/aws-s3.service';
@@ -17,6 +18,13 @@ import { User, UserSchema } from './models/user.entity';
 
 @Module({
   imports: [
+    NatsStreamingTransport.register({
+      clientId: 'abc2',
+      clusterId: 'dine-ease',
+      connectOptions: {
+        url: 'http://localhost:4222',
+      },
+    }),
     ConfigModule,
     JwtAuthModule,
     LoggerModule,

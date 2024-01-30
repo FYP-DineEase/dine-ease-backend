@@ -32,14 +32,14 @@ export class MapService {
   // find map by slug
   async findMapBySlug(mapSlugDto: MapSlugDto): Promise<MapDocument> {
     const { slug } = mapSlugDto;
-    const found: MapDocument = await this.mapModel
-      .findOne({ slug })
-      .populate({
+    const found: MapDocument = await this.mapModel.findOne({ slug }).populate([
+      {
         path: 'restaurants',
         model: 'Restaurant',
         match: { isDeleted: { $ne: true } },
-      })
-      .exec();
+      },
+      { path: 'userId' },
+    ]);
     if (!found) throw new NotFoundException('User map not found');
     return found;
   }

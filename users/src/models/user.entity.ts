@@ -7,7 +7,7 @@ export interface UserDocument extends HydratedDocument<User> {
   slug: string;
   firstName: string;
   lastName: string;
-  fullName: string;
+  name: string;
   email: string;
   role: AllUserRoles;
   avatar: string;
@@ -18,6 +18,7 @@ export interface UserDocument extends HydratedDocument<User> {
     coordinates: [number, number];
     country: string;
   };
+  version: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -72,7 +73,22 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+// Version
+UserSchema.set('versionKey', 'version');
+
+// Execute before saving
+UserSchema.pre('save', function (done) {
+  const update = ['email', 'firstName', 'lastName', 'avatar'];
+
+  // update version
+  if (update.some((value) => this.isModified(value))) {
+    this.increment();
+  }
+
+  done();
+});
+
 // Virtual methods
-UserSchema.virtual('fullName').get(function () {
+UserSchema.virtual('name').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });

@@ -1,5 +1,5 @@
 import { IsEnum } from 'class-validator';
-import { UserStorage } from '@dine_ease/common';
+import { UserStorage } from 'src/enums/storage.enum';
 
 export class UserStorageDto {
   @IsEnum(UserStorage)

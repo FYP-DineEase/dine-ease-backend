@@ -33,7 +33,7 @@ import { Subjects, AccountCreatedEvent } from '@dine_ease/common';
 
 // DTO
 import { UserSlugDto } from './dto/slug.dto';
-import { UserIdDto, UsersDto } from './dto/mongo-id.dto';
+import { UserIdDto } from './dto/mongo-id.dto';
 import { UserStorageDto } from './dto/storage.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
@@ -63,14 +63,6 @@ export class UserController {
   @Get('all/slug')
   async getAllUserSlugs(): Promise<UserDocument[]> {
     return this.userService.getAllUserSlugs();
-  }
-
-  // due to GET limitations
-  @Post('by-ids')
-  async getUserByIds(
-    @Body() usersDto: UsersDto,
-  ): Promise<Record<string, UserDocument>> {
-    return this.userService.getUserByIds(usersDto);
   }
 
   @Post('upload')

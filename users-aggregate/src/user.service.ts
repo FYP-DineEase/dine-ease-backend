@@ -6,7 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AdminRoles, UserDetails, UserRoles } from '@dine_ease/common';
+import { AdminRoles, UserDetails } from '@dine_ease/common';
 import axios from 'axios';
 
 // DTO
@@ -43,14 +43,7 @@ export class UserService {
         `http://localhost:3002/api/user/details/${userId}`,
       );
 
-      const {
-        email,
-        fullName: name,
-        slug,
-        role,
-        avatar,
-        location,
-      } = userResponse.data;
+      const { email, name, slug, role, avatar, location } = userResponse.data;
 
       const details: User = {
         id: userId,

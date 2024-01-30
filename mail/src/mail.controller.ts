@@ -44,4 +44,14 @@ export class MailController {
     await this.mailService.verifyAccount(data);
     context.message.ack();
   }
+
+  // dining plan created
+  // @EventPattern(Subjects.AccountCreated)
+  // async registerUnverified(
+  //   @Payload() data: AccountCreatedEvent,
+  //   @Ctx() context: NatsStreamingContext,
+  // ): Promise<void> {
+  //   await this.mailService.register(data);
+  //   context.message.ack();
+  // }
 }
