@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid';
 
 // Services
 import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { InvitedEvent, Subjects } from '@dine_ease/common';
 
 // Nats
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
@@ -25,7 +26,7 @@ import { RestaurantIdDto, VoteIdDto, PlanIdDto } from './dto/mongo-id.dto';
 @Injectable()
 export class PlanService {
   constructor(
-    // private readonly publisher: Publisher,
+    private readonly publisher: Publisher,
     private readonly restaurantService: RestaurantService,
     @InjectModel(Plan.name)
     private readonly planModel: Model<PlanDocument>,
@@ -93,7 +94,19 @@ export class PlanService {
       restaurants,
     });
 
-    // send email notification to users about the plan
+    plan.populate({ path: 'userId' });
+    console.log(plan);
+    // const event: InvitedEvent = {
+    //   name,
+    //   title,
+    //   description,
+    //   date,
+    //   slug: plan.slug,
+    //   invitees,
+    // };
+
+    // this.publisher.emit<void, InvitedEvent>(Subjects.InvitedEvent, event);
+
     return plan;
   }
 
@@ -108,10 +121,20 @@ export class PlanService {
     if (found.userId === user.id) {
       const { title, description, date, invitees, restaurants } = planDto;
 
+      // New invitees
+      const newInvitees = invitees.filter(
+        (invitee) => !found.invitees.includes(invitee),
+      );
+
       await this.restaurantService.validateRestaurantIds(restaurants);
 
       found.set({ title, description, date, invitees, restaurants });
       await found.save();
+
+      // Send email to new invitees
+      if (newInvitees.length > 0) {
+        // send email notification to users about the plan
+      }
 
       return 'Dining Plan updated successfully';
     }

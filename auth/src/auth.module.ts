@@ -7,6 +7,7 @@ import {
   LoggerModule,
   JwtMailService,
 } from '@dine_ease/common';
+import { ConfigModule } from './config/config.module';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 import { AuthService } from './auth.service';
@@ -16,15 +17,16 @@ import { Auth, AuthSchema } from './models/auth.entity';
 @Module({
   imports: [
     NatsStreamingTransport.register({
-      clientId: 'abc1',
-      clusterId: 'dine-ease',
+      clientId: process.env.NATS_CLIENT_ID,
+      clusterId: process.env.NATS_CLUSTER_ID,
       connectOptions: {
-        url: 'http://localhost:4222',
+        url: process.env.NATS_URL,
       },
     }),
+    ConfigModule,
     JwtAuthModule,
     LoggerModule,
-    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-auth'),
+    DatabaseModule,
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
   ],
   providers: [AuthService, JwtMailService],

@@ -1,25 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mail-depl
+  name: auth-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mail
+      app: auth
   template:
     metadata:
       labels:
-        app: mail
+        app: auth
     spec:
       containers:
-        - name: mail
-          image: mujtabashafiq/dine-ease:mail
+        - name: auth
+          image: mujtabashafiq/dine-ease-auth
           env:
+            - name: MONGO_URI
+              # value: "mongodb://auth-mongo-srv:27017/auth"
+              value: auth
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
-                   fieldPath: metadata.name
+                  fieldPath: metadata.name
             - name: NATS_URL
               value: "http://nats-srv:4222"
             - name: NATS_CLUSTER_ID
@@ -27,23 +30,28 @@ spec:
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: jwt-secret
+                  name: dine-ease-secrets
                   key: JWT_KEY
             - name: EMAIL_JWT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: email-jwt-secret
+                  name: dine-ease-secrets
                   key: EMAIL_JWT_KEY
+            - name: MONGO_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_CONNECTION
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mail-srv
+  name: auth-srv
 spec:
   selector:
-    app: mail
+    app: auth
   ports:
-    - name: mail
+    - name: auth
       protocol: TCP
       port: 3000
       targetPort: 3000

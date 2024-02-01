@@ -11,7 +11,11 @@ import {
 } from '@dine_ease/common';
 
 // NATS
-import { AccountCreatedEvent, AccountVerifiedEvent } from '@dine_ease/common';
+import {
+  InvitedEvent,
+  AccountCreatedEvent,
+  AccountVerifiedEvent,
+} from '@dine_ease/common';
 
 // Database
 import { Model } from 'mongoose';
@@ -118,8 +122,8 @@ export class MailService {
   }
 
   // dining plan invitation
-  async sendInvitation(): Promise<string> {
-    // const { name, title, date, description, invitees } = diningPlanDto;
+  async sendInvitation(data: InvitedEvent): Promise<string> {
+    const { name, title, date, description, invitees } = data;
 
     // await this.mailerService.sendMail({
     //   to: email,

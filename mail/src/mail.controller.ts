@@ -7,6 +7,7 @@ import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-tran
 import {
   AccountCreatedEvent,
   AccountVerifiedEvent,
+  InvitedEvent,
   Subjects,
 } from '@dine_ease/common';
 
@@ -46,12 +47,12 @@ export class MailController {
   }
 
   // dining plan created
-  // @EventPattern(Subjects.AccountCreated)
-  // async registerUnverified(
-  //   @Payload() data: AccountCreatedEvent,
-  //   @Ctx() context: NatsStreamingContext,
-  // ): Promise<void> {
-  //   await this.mailService.register(data);
-  //   context.message.ack();
-  // }
+  @EventPattern(Subjects.InvitedEvent)
+  async sendInvitation(
+    @Payload() data: InvitedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.mailService.sendInvitation(data);
+    context.message.ack();
+  }
 }
