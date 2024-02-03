@@ -6,6 +6,11 @@ manifests:
     - infra/k8s/nginx/ingress-srv.yaml
     - infra/k8s/nats/nats-depl.yaml
     - infra/k8s/auth/auth-depl.yaml
+    - infra/k8s/dining-plans/dining-plans-depl.yaml
+    - infra/k8s/login-gateway/login-gateway-depl.yaml
+    - infra/k8s/mail/mail-depl.yaml
+    - infra/k8s/map/map-depl.yaml
+    - infra/k8s/users/users-depl.yaml
 metadata:
   name: dine-ease-backend
 build:
@@ -16,5 +21,53 @@ build:
         dockerfile: Dockerfile
       sync:
         manual:
-          - src: '**/*.ts'
+          - src: "**/*.ts"
             dest: .
+    - image: mujtabashafiq/dine-ease-dining-plans
+      context: dining-plans
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-login-gateway
+      context: login-gateway
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-mail
+      context: mail
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-map
+      context: map
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-users
+      context: users
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    # - image: mujtabashafiq/dine-ease-subscriptions
+    #   context: subscriptions
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: "**/*.ts"
+    #         dest: .

@@ -1,11 +1,7 @@
 // Modules
 import { Module } from '@nestjs/common';
-import {
-  JwtAuthModule,
-  DatabaseModule,
-  LoggerModule,
-  ConfigModule,
-} from '@dine_ease/common';
+import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
+import { ConfigModule } from './config/config.module';
 import { PlanModule } from './plan/plan.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { SubscriptionModule } from './subscription/subscription.module';
@@ -18,7 +14,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     PlanModule,
     RestaurantModule,
     SubscriptionModule,
-    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-subscription'),
+    DatabaseModule,
   ],
 })
 export class AppModule {}

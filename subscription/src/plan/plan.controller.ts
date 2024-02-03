@@ -14,8 +14,6 @@ import {
   RolesGuard,
   AdminRoles,
   UserRoles,
-  UserDetails,
-  GetUser,
 } from '@dine_ease/common';
 
 import { PlanService } from './plan.service';

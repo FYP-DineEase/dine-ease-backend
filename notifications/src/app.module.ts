@@ -10,7 +10,7 @@ import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
     }),
     JwtAuthModule,
     LoggerModule,
-    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-notifications'),
+    DatabaseModule,
   ],
 })
 export class AppModule {}

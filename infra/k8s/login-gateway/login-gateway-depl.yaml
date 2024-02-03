@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: login-gateway-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: login-gateway
+  template:
+    metadata:
+      labels:
+        app: login-gateway
+    spec:
+      containers:
+        - name: login-gateway
+          image: mujtabashafiq/dine-ease-login-gateway
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: JWT_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: login-gateway-srv
+spec:
+  selector:
+    app: login-gateway
+  ports:
+    - name: login-gateway
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

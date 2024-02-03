@@ -16,7 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { User } from './interfaces/user.interface';
 
 @Injectable()
-export class UserService {
+export class LoginService {
   constructor(private readonly jwtService: JwtService) {}
 
   generateToken(user: UserDetails): string {

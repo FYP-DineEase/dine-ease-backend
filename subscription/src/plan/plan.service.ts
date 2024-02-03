@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { UserDetails } from '@dine_ease/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 
 // Database
 import { Model, Types } from 'mongoose';

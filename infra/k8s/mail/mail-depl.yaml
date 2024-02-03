@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mail
+  template:
+    metadata:
+      labels:
+        app: mail
+    spec:
+      containers:
+        - name: mail
+          image: mujtabashafiq/dine-ease-mail
+          env:
+            - name: MONGO_URI
+              # value: "mongodb://mail-mongo-srv:27017/mail"
+              value: mail
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: dine-ease
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: JWT_KEY
+            - name: EMAIL_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: EMAIL_JWT_KEY
+            - name: MONGO_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_CONNECTION
+            - name: MAIL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAIL_USER
+            - name: MAIL_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAIL_PASS
+            - name: MAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAIL_HOST
+            - name: MAIL_SERVICE
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAIL_SERVICE
+            - name: MAIL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAIL_PORT
+            - name: MAIL_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAIL_SECURE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mail-srv
+spec:
+  selector:
+    app: mail
+  ports:
+    - name: mail
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

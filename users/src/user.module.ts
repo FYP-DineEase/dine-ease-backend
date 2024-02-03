@@ -1,12 +1,8 @@
 // Modules
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import {
-  ConfigModule,
-  JwtAuthModule,
-  DatabaseModule,
-  LoggerModule,
-} from '@dine_ease/common';
+import { ConfigModule } from './config/config.module';
+import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // Services
@@ -19,16 +15,16 @@ import { User, UserSchema } from './models/user.entity';
 @Module({
   imports: [
     NatsStreamingTransport.register({
-      clientId: 'abc2',
-      clusterId: 'dine-ease',
+      clientId: process.env.NATS_CLIENT_ID,
+      clusterId: process.env.NATS_CLUSTER_ID,
       connectOptions: {
-        url: 'http://localhost:4222',
+        url: process.env.NATS_URL,
       },
     }),
     ConfigModule,
     JwtAuthModule,
     LoggerModule,
-    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-users'),
+    DatabaseModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   providers: [S3Service, UserService],

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subscriptions-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subscriptions
+  template:
+    metadata:
+      labels:
+        app: subscriptions
+    spec:
+      containers:
+        - name: subscriptions
+          image: mujtabashafiq/dine-ease-subscriptions
+          env:
+            - name: MONGO_URI
+              # value: "mongodb://subscriptions-mongo-srv:27017/subscriptions"
+              value: subscriptions
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: dine-ease
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: JWT_KEY
+            - name: MONGO_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_CONNECTION
+            - name: STRIPE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: STRIPE_SECRET
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: subscriptions-srv
+spec:
+  selector:
+    app: subscriptions
+  ports:
+    - name: subscriptions
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

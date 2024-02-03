@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurants-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurants
+  template:
+    metadata:
+      labels:
+        app: restaurants
+    spec:
+      containers:
+        - name: restaurants
+          image: mujtabashafiq/dine-ease-restaurants
+          env:
+            - name: MONGO_URI
+              # value: "mongodb://restaurants-mongo-srv:27017/restaurants"
+              value: restaurants
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: dine-ease
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: JWT_KEY
+            - name: MONGO_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_CONNECTION
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurants-srv
+spec:
+  selector:
+    app: restaurants
+  ports:
+    - name: restaurants
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

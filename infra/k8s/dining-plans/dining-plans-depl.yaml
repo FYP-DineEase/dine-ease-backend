@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dining-plans-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dining-plans
+  template:
+    metadata:
+      labels:
+        app: dining-plans
+    spec:
+      containers:
+        - name: dining-plans
+          image: mujtabashafiq/dine-ease-dining-plans
+          env:
+            - name: MONGO_URI
+              # value: "mongodb://dining-plans-mongo-srv:27017/dining-plans"
+              value: dining-plans
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: dine-ease
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: JWT_KEY
+            - name: MONGO_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_CONNECTION
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dining-plans-srv
+spec:
+  selector:
+    app: dining-plans
+  ports:
+    - name: dining-plans
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

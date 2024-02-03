@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurants-redis-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurants-redis
+  template:
+    metadata:
+      labels:
+        app: restaurants-redis
+    spec:
+      containers:
+        - name: restaurants-redis
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurants-redis-srv
+spec:
+  selector:
+    app: restaurants-redis
+  ports:
+    - name: db
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurants-mongo-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurants-mongo
+  template:
+    metadata:
+      labels:
+        app: restaurants-mongo
+    spec:
+      containers:
+        - name: restaurants-mongo
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurants-mongo-srv
+spec:
+  selector:
+    app: restaurants-mongo
+  ports:
+    - name: db
+      protocol: TCP
+      port: 27017
+      targetPort: 27017
