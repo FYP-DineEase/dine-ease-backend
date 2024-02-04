@@ -4,17 +4,17 @@ import { QueueGroups, STAN } from '@dine_ease/common';
 
 export const StanOptions: CustomStrategy = {
   strategy: new Listener(
-    'dine-ease',
-    'abc7',
-    QueueGroups.UsersMapService,
+    process.env.NATS_CLUSTER_ID,
+    process.env.NATS_CLIENT_ID,
+    QueueGroups.NotificationService,
     {
-      url: 'http://localhost:4222',
+      url: process.env.NATS_URL,
     },
     {
       ackWait: STAN.ACK_WAIT,
       deliverAllAvailable: true,
       manualAckMode: true,
-      durableName: QueueGroups.UsersMapService,
+      durableName: QueueGroups.NotificationService,
     },
   ),
 };

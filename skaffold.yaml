@@ -2,15 +2,7 @@ apiVersion: skaffold/v4beta6
 kind: Config
 manifests:
   rawYaml:
-    # - ./infra/k8s/**/*.yaml
-    - infra/k8s/nginx/ingress-srv.yaml
-    - infra/k8s/nats/nats-depl.yaml
-    - infra/k8s/auth/auth-depl.yaml
-    - infra/k8s/dining-plans/dining-plans-depl.yaml
-    - infra/k8s/login-gateway/login-gateway-depl.yaml
-    - infra/k8s/mail/mail-depl.yaml
-    - infra/k8s/map/map-depl.yaml
-    - infra/k8s/users/users-depl.yaml
+    - ./infra/k8s/**/*.yaml
 metadata:
   name: dine-ease-backend
 build:
@@ -63,11 +55,27 @@ build:
         manual:
           - src: "**/*.ts"
             dest: .
-    # - image: mujtabashafiq/dine-ease-subscriptions
-    #   context: subscriptions
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
+    - image: mujtabashafiq/dine-ease-subscriptions
+      context: subscriptions
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-reviews
+      context: reviews
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-restaurants
+      context: restaurants
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .

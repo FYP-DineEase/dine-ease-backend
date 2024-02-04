@@ -1,24 +1,22 @@
 // Modules
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
-import { ReviewModule } from './review/review.module';
 import { VoteModule } from './vote/vote.module';
 import { UserModule } from './user/user.module';
+import { ConfigModule } from './config/config.module';
+import { ReviewModule } from './review/review.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [`.env.stage.${process.env.STAGE}`],
-    }),
+    ConfigModule,
     JwtAuthModule,
     LoggerModule,
     ReviewModule,
     UserModule,
     VoteModule,
     RestaurantModule,
-    DatabaseModule.forRoot('mongodb://127.0.0.1:27017/nest-review'),
+    DatabaseModule,
   ],
 })
 export class AppModule {}

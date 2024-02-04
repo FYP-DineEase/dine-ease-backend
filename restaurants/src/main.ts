@@ -12,9 +12,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
-  // const microService = app.connectMicroservice(StanOptions);
-  // microService.listen();
-
   // enable cors
   app.enableCors({
     allowedHeaders: ['*'],
@@ -22,7 +19,7 @@ async function bootstrap() {
   });
 
   // server start
-  const PORT = 3006;
+  const PORT = 3000;
   await app.listen(PORT, () => {
     logger.log(`Listening to PORT: ${PORT}`);
   });

@@ -36,7 +36,7 @@ import { MenuOrderDto } from './dto/menu-order.dto';
 // Database
 import { MenuDocument } from './models/menu.entity';
 
-@Controller('/api/menu/:restaurantId')
+@Controller('/api/restaurant/menu/:restaurantId')
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(UserRoles.MANAGER)
 export class MenuController {
@@ -82,7 +82,7 @@ export class MenuController {
     @Param() idDto: RestaurantIdDto,
     @GetUser() user: UserDetails,
     @Body() menuOrderDto: MenuOrderDto,
-    ): Promise<MenuDocument[]> {
+  ): Promise<MenuDocument[]> {
     return this.menuService.updateMenu(idDto, user, menuOrderDto);
   }
 

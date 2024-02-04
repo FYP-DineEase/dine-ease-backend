@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: restaurants-depl
+  name: reviews-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: restaurants
+      app: reviews
   template:
     metadata:
       labels:
-        app: restaurants
+        app: reviews
     spec:
       containers:
-        - name: restaurants
-          image: mujtabashafiq/dine-ease-restaurants
+        - name: reviews
+          image: mujtabashafiq/dine-ease-reviews
           env:
             - name: MONGO_URI
-              # value: "mongodb://restaurants-mongo-srv:27017/restaurants"
-              value: restaurants
+              # value: "mongodb://reviews-mongo-srv:27017/reviews"
+              value: reviews
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
@@ -27,8 +27,6 @@ spec:
               value: "http://nats-srv:4222"
             - name: NATS_CLUSTER_ID
               value: dine-ease
-            - name: REDIS_HOST
-              value: redis://restaurants-redis-srv
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
@@ -54,31 +52,16 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: AWS_S3_REGION
-            - name: TWILIO_ACCOUNT_SID
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: TWILIO_ACCOUNT_SID
-            - name: TWILIO_AUTH_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: TWILIO_AUTH_TOKEN
-            - name: TWILIO_PHONE_NO
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: TWILIO_PHONE_NO
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: restaurants-srv
+  name: reviews-srv
 spec:
   selector:
-    app: restaurants
+    app: reviews
   ports:
-    - name: restaurants
+    - name: reviews
       protocol: TCP
       port: 3000
       targetPort: 3000

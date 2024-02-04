@@ -66,3 +66,17 @@ spec:
                 name: subscriptions-srv
                 port:
                   number: 3000
+          - path: /api/review/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: reviews-srv
+                port:
+                  number: 3000
+          - path: /api/restaurant/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: restaurants-srv
+                port:
+                  number: 3000

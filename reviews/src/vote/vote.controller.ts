@@ -18,7 +18,7 @@ import { VoteDocument } from './models/vote.entity';
 import { ReviewIdDto, VoteIdDto } from './dto/mongo-id.dto';
 import { VoteDto } from './dto/vote.dto';
 
-@Controller('/api/vote')
+@Controller('/api/review/vote')
 export class VoteController {
   constructor(private readonly voteService: VoteService) {}
 

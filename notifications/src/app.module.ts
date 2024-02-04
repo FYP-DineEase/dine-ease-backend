@@ -1,15 +1,15 @@
 // Modules
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { JwtAuthModule, DatabaseModule, LoggerModule } from '@dine_ease/common';
+import { UserModule } from './user/user.module';
+import { ConfigModule } from './config/config.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [`.env.stage.${process.env.STAGE}`],
-    }),
+    ConfigModule,
     JwtAuthModule,
     LoggerModule,
+    UserModule,
     DatabaseModule,
   ],
 })

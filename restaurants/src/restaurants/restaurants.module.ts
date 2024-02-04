@@ -19,10 +19,10 @@ import { S3Service } from '../services/aws-s3.service';
 @Module({
   imports: [
     NatsStreamingTransport.register({
-      clientId: 'abc5',
-      clusterId: 'dine-ease',
+      clientId: process.env.NATS_CLIENT_ID,
+      clusterId: process.env.NATS_CLUSTER_ID,
       connectOptions: {
-        url: 'http://localhost:4222',
+        url: process.env.NATS_URL,
       },
     }),
     RedisModule,
