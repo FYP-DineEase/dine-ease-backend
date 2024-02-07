@@ -17,13 +17,6 @@ spec:
                 name: auth-srv
                 port:
                   number: 3000
-          - path: /api/dining-plan/?(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: dining-plans-srv
-                port:
-                  number: 3000
           - path: /api/login/?(.*)
             pathType: Prefix
             backend:
@@ -38,13 +31,6 @@ spec:
                 name: mail-srv
                 port:
                   number: 3000
-          - path: /api/map/?(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: map-srv
-                port:
-                  number: 3000
           - path: /api/user/?(.*)
             pathType: Prefix
             backend:
@@ -52,31 +38,24 @@ spec:
                 name: users-srv
                 port:
                   number: 3000
-          - path: /api/plan/?(.*)
+          - path: /api/notifications
             pathType: Prefix
             backend:
               service:
-                name: subscriptions-srv
+                name: notifications-srv
                 port:
                   number: 3000
-          - path: /api/subscription/?(.*)
+          - path: /socket.io/notifications
             pathType: Prefix
             backend:
               service:
-                name: subscriptions-srv
+                name: notifications-srv
                 port:
                   number: 3000
-          - path: /api/review/?(.*)
+          - path: /?(.*)
             pathType: Prefix
             backend:
               service:
-                name: reviews-srv
-                port:
-                  number: 3000
-          - path: /api/restaurant/?(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: restaurants-srv
+                name: client-srv
                 port:
                   number: 3000

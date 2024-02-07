@@ -1,9 +1,21 @@
-# PORTS
-3000 -> client
-30xx -> notifications   -> abc7
+# Notification Events
+
+restaurant listing approved
+restaurant listing rejected
+restaurant deleted
+modification request approved
+modification request rejeceted
+invited to dining plan
+vote created
+
+delete notification on unvote
+delete previous notification on vote update
+delete nofifications of vote on review delete
+delete nofication of dining plan invitation
 
 # Upgrade Nestjs
 https://dev.to/amirfakour/how-to-upgrade-nestjs-9-to-10-a-developers-guide-32kk
+ncu -u -f /^@nestjs/
 
 
 # K8S
@@ -19,16 +31,13 @@ kubectl port-forward nats-depl-5fd545d7c4-r8g4h 8222:8222
 git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ }
 
 ## Update 
-- notification events
+- notification events and save socket user in redis
 - mail event and invitation test
 - review service : images upload/delete
-
-- payment creation remaining in subscription service
+- payment creation remaining in subscription service and expiry
 - AI integration and NLP of review
-- enable trust proxy for all services
 
 - rate limit on check restaurant duplication and other checking endpoints
-- add redis where necessary
 
 - update jwt values to 7d later 
 - fix validations ( DTOs ) { min max etc } and their redundancy and error messages

@@ -76,46 +76,4 @@ export class RedisService {
 
     return data;
   }
-
-  // useless
-
-  async setNestedValue(
-    key: string,
-    childKey: string,
-    value: any,
-  ): Promise<void> {
-    const multi = this.redisClient.multi();
-    multi.get(key);
-    multi.ttl(key);
-
-    const result = await multi.exec();
-    const resultValue = result[0];
-    const ttl = Number(result[1]);
-
-    if (!resultValue) {
-      const resultData = resultValue;
-      resultData[childKey] = value;
-
-      await this.setValue(key, resultData, ttl);
-    }
-  }
-
-  async getNestedValue(primary: string, secondary: string): Promise<any> {
-    const value: string = await this.redisClient.get(primary);
-    if (!value) return null;
-    const result = JSON.parse(value);
-    return result[secondary];
-  }
-
-  async deleteNestedValue(key: string, childKey: string): Promise<void> {
-    const existingData: string = await this.redisClient.get(key);
-    if (!existingData) return;
-
-    const ttl = await this.redisClient.ttl(key);
-    const data = JSON.parse(existingData);
-    if (data.hasOwnProperty(childKey)) {
-      delete data[childKey];
-      await this.setValue(key, JSON.stringify(data), ttl);
-    }
-  }
 }
