@@ -3,15 +3,6 @@ kind: Config
 manifests:
   rawYaml:
     - ./infra/k8s/**/*.yaml
-    # - ./infra/k8s/nats/*.yaml
-    # - ./infra/k8s/nginx/*.yaml
-    # - ./infra/k8s/client/*.yaml
-    # - ./infra/k8s/auth/auth-depl.yaml
-    # - ./infra/k8s/mail/mail-depl.yaml
-    # - ./infra/k8s/users/users-depl.yaml
-    # - ./infra/k8s/login-gateway/*.yaml
-    # - ./infra/k8s/notifications/notifications-depl.yaml
-    # - ./infra/k8s/notifications/notifications-redis-depl.yaml
 metadata:
   name: dine-ease-backend
 build:
