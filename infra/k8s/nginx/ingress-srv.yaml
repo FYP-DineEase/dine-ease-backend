@@ -52,6 +52,48 @@ spec:
                 name: notifications-srv
                 port:
                   number: 3000
+          - path: /api/dining-plan/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: dining-plans-srv
+                port:
+                  number: 3000
+          - path: /api/map/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: map-srv
+                port:
+                  number: 3000
+          - path: /api/plan/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: subscriptions-srv
+                port:
+                  number: 3000
+          - path: /api/subscription/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: subscriptions-srv
+                port:
+                  number: 3000
+          - path: /api/review/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: reviews-srv
+                port:
+                  number: 3000
+          - path: /api/restaurant/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: restaurants-srv
+                port:
+                  number: 3000
           - path: /?(.*)
             pathType: Prefix
             backend:
