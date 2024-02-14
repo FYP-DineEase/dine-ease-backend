@@ -1,6 +1,5 @@
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { EventData } from '@dine_ease/common';
 
 export interface RestaurantDocument extends HydratedDocument<Restaurant> {
@@ -8,6 +7,8 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   name: string;
   slug: string;
   taxId: string;
+  rating: number;
+  count: number;
   cuisine: string[];
   images: string[];
   address: string;
@@ -46,6 +47,12 @@ export class Restaurant {
   @Prop({ required: true, unique: true, index: true })
   taxId: string;
 
+  @Prop({ default: 0 })
+  rating: number;
+
+  @Prop({ default: 0 })
+  count: number;
+
   @Prop({ type: [String] })
   cuisine: string[];
 
@@ -72,10 +79,22 @@ export class Restaurant {
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
 
-RestaurantSchema.set('versionKey', 'version');
-RestaurantSchema.plugin(updateIfCurrentPlugin);
-
 RestaurantSchema.statics.findByEvent = async function (event: EventData) {
   const { id, version } = event;
   return this.findOne({ _id: id, version: version - 1 });
 };
+
+// Version
+RestaurantSchema.set('versionKey', 'version');
+
+// Execute before saving
+RestaurantSchema.pre('save', function (done) {
+  const update = ['count', 'rating'];
+
+  // donot update version
+  if (!update.some((value) => this.isModified(value))) {
+    this.increment();
+  }
+
+  done();
+});

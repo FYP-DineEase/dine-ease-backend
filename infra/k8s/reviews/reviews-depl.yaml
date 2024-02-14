@@ -52,6 +52,11 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: AWS_S3_REGION
+            - name: AWS_S3_REVIEWS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_REVIEWS_BUCKET
 ---
 apiVersion: v1
 kind: Service

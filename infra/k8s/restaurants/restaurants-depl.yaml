@@ -54,6 +54,11 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: AWS_S3_REGION
+            - name: AWS_S3_RESTAURANTS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_RESTAURANTS_BUCKET
             - name: TWILIO_ACCOUNT_SID
               valueFrom:
                 secretKeyRef:

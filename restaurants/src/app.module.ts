@@ -5,6 +5,7 @@ import { ConfigModule } from './config/config.module';
 import { MenuModule } from './menu/menu.module';
 import { ModifyModule } from './modify/modify.module';
 import { RecordsModule } from './records/records.module';
+import { ReviewModule } from './reviews/review.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
     LoggerModule,
     MenuModule,
     ModifyModule,
+    ReviewModule,
     RecordsModule,
     RestaurantsModule,
     DatabaseModule,

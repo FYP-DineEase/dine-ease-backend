@@ -13,6 +13,7 @@ export const configValidation = (config: Record<string, any>) => {
     'TWILIO_ACCOUNT_SID',
     'TWILIO_AUTH_TOKEN',
     'TWILIO_PHONE_NO',
+    'AWS_S3_RESTAURANTS_BUCKET',
   ].filter((key) => !config[key]);
 
   if (missingKeys.length > 0) {

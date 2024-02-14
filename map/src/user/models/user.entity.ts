@@ -1,7 +1,7 @@
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { EventData } from '@dine_ease/common';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
+import { EventData } from '@dine_ease/common';
 
 export interface UserDocument extends HydratedDocument<User> {
   id: Types.ObjectId;

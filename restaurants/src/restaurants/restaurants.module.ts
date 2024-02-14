@@ -7,6 +7,7 @@ import { RecordsModule } from 'src/records/records.module';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // Services
+import { S3Service } from '../services/aws-s3.service';
 import { RedisService } from 'src/redis/redis.service';
 import { TwilioService } from 'src/services/twilio.service';
 
@@ -14,7 +15,6 @@ import { TwilioService } from 'src/services/twilio.service';
 import { RestaurantsController } from './restaurants.controller';
 import { RestaurantsService } from './restaurants.service';
 import { Restaurant, RestaurantSchema } from './models/restaurant.entity';
-import { S3Service } from '../services/aws-s3.service';
 
 @Module({
   imports: [

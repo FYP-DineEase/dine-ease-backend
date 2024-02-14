@@ -64,14 +64,6 @@ export class ReviewController {
     return this.reviewService.getReviewBySlug(reviewSlugDto);
   }
 
-  @Get('rating/:restaurantId')
-  @UseGuards(AuthGuard)
-  async getRestaurantRating(
-    @Param() restaurantIdDto: RestaurantIdDto,
-  ): Promise<{ reviewsCount: number; rating: number }> {
-    return this.reviewService.getRestaurantRating(restaurantIdDto);
-  }
-
   @Get('/:restaurantId')
   async getRestaurantReviews(
     @Param() id: RestaurantIdDto,
@@ -80,41 +72,42 @@ export class ReviewController {
     return this.reviewService.getRestaurantReviews(id, paginationDto);
   }
 
-  @Post('/upload')
+  @Post('/:restaurantId')
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files', 10))
-  async uploadItemImage(
+  async createReview(
     @UploadedFiles(
       new ParseFilePipe({
         validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+        fileIsRequired: false,
       }),
       new MaxImageSizeValidator(),
     )
     files: Express.Multer.File[],
-    @Param() reviewIdDto: ReviewIdDto,
-    @GetUser() user: UserDetails,
-  ): Promise<string> {
-    return this.reviewService.uploadImages(reviewIdDto, files, user);
-  }
-
-  @Post('/:restaurantId')
-  @UseGuards(AuthGuard)
-  async createReview(
     @Param() id: RestaurantIdDto,
     @GetUser() user: UserDetails,
     @Body() data: ReviewDto,
   ): Promise<ReviewDocument> {
-    return this.reviewService.createReview(id, user, data);
+    return this.reviewService.createReview(id, user, data, files);
   }
 
   @Patch('/:reviewId')
   @UseGuards(AuthGuard)
+  @UseInterceptors(FilesInterceptor('files', 10))
   async updateReview(
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+        fileIsRequired: false,
+      }),
+      new MaxImageSizeValidator(),
+    )
+    images: Express.Multer.File[],
     @Param() id: ReviewIdDto,
     @GetUser() user: UserDetails,
-    @Body() data: ReviewDto,
-  ): Promise<string> {
-    return this.reviewService.updateReview(id, user, data);
+    @Body() reviewDto: ReviewDto,
+  ): Promise<ReviewDocument> {
+    return this.reviewService.updateReview(id, user, reviewDto, images);
   }
 
   @Delete('/:reviewId')

@@ -1,5 +1,7 @@
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
+import { EventData } from '@dine_ease/common';
 
 export interface ReviewDocument extends HydratedDocument<Review> {
   id: Types.ObjectId;
@@ -7,11 +9,14 @@ export interface ReviewDocument extends HydratedDocument<Review> {
   restaurantId: Types.ObjectId;
   content: string;
   rating: number;
-  images: string[];
   isDeleted: boolean;
   version: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ReviewModel extends Model<ReviewDocument> {
+  findByEvent(event: EventData): Promise<ReviewDocument | null>;
 }
 
 @Schema({
@@ -31,38 +36,22 @@ export class Review {
   @Prop({ type: Types.ObjectId, required: true })
   restaurantId: Types.ObjectId;
 
-  @Prop({ required: true, unique: true, index: true })
-  slug: string;
-
   @Prop({ required: true })
   content: string;
 
   @Prop({ required: true })
   rating: number;
 
-  @Prop({ required: false, type: [String] })
-  images: string[];
-
   @Prop({ required: true, default: false })
   isDeleted: boolean;
-
-  @Prop([{ type: Types.ObjectId, ref: 'Vote' }])
-  votes: Types.ObjectId[];
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);
 
-// Version
 ReviewSchema.set('versionKey', 'version');
+ReviewSchema.plugin(updateIfCurrentPlugin);
 
-// Execute before saving
-ReviewSchema.pre('save', function (done) {
-  const update = ['rating', 'content', 'isDeleted'];
-
-  // update version
-  if (!this.isNew && update.some((value) => this.isModified(value))) {
-    this.increment();
-  }
-
-  done();
-});
+ReviewSchema.statics.findByEvent = async function (event: EventData) {
+  const { id, version } = event;
+  return this.findOne({ _id: id, version: version - 1 });
+};

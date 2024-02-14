@@ -34,6 +34,18 @@ export class RestaurantService {
     throw new NotFoundException('Restaurant Not Found');
   }
 
+  // find restaurant by id
+  async findRestaurantById(
+    restaurantId: Types.ObjectId,
+  ): Promise<RestaurantDocument> {
+    const found: RestaurantDocument = await this.restaurantModel.findOne({
+      _id: restaurantId,
+      isDeleted: false,
+    });
+    if (!found) throw new NotFoundException('Restaurant not found');
+    return found;
+  }
+
   // find restaurant by version
   async findRestaurantByVersion(event: EventData): Promise<RestaurantDocument> {
     const found = await this.restaurantModel.findByEvent(event);

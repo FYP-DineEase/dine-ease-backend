@@ -13,6 +13,10 @@ delete previous notification on vote update
 delete nofifications of vote on review delete
 delete nofication of dining plan invitation
 
+review rating required in dining-plans/map/restaurants (with content)
+review created/update/delete event listeners
+review count and rating inclusion in restaurant fetch in the above services
+
 # Upgrade Nestjs
 https://dev.to/amirfakour/how-to-upgrade-nestjs-9-to-10-a-developers-guide-32kk
 ncu -u -f /^@nestjs/
@@ -33,15 +37,17 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 ## Update 
 - notification events and save socket user in redis
 - mail event and invitation test
-- review service : images upload/delete
 - payment creation remaining in subscription service and expiry
 - AI integration and NLP of review
+- Dataset copy to mongodb
 
+- s3 issue with docker , not consistent ( check updated review with images )
 - rate limit on check restaurant duplication and other checking endpoints
 
 - update jwt values to 7d later 
 - fix validations ( DTOs ) { min max etc } and their redundancy and error messages
 - uncomment twilio sendOTP
 
+- update the skaffold.yaml ( uncomment )
 - remove the mongo-secret since data will be stored locally , 
     currently on VM close data gets lost, so storing it in a cloud

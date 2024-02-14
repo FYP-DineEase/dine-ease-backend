@@ -24,7 +24,7 @@ export class S3Service {
       region: this.configService.get<string>('AWS_S3_REGION'),
     });
 
-    this.bucketName = 'dine-ease-review';
+    this.bucketName = this.configService.get<string>('AWS_S3_REVIEWS_BUCKET');
   }
 
   // delete files from cloud

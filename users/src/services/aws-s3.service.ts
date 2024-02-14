@@ -13,8 +13,6 @@ export class S3Service {
   private readonly bucketName: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.bucketName = 'dine-ease-user';
-
     // initializing s3 client
     this.s3 = new S3Client({
       credentials: {
@@ -25,6 +23,8 @@ export class S3Service {
       },
       region: this.configService.get<string>('AWS_S3_REGION'),
     });
+
+    this.bucketName = this.configService.get<string>('AWS_S3_USERS_BUCKET');
   }
 
   // delete single file from cloud

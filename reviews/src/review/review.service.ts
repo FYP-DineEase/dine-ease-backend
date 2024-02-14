@@ -4,10 +4,19 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserDetails, AdminRoles } from '@dine_ease/common';
+import { UserDetails, AdminRoles, ReviewDeletedEvent } from '@dine_ease/common';
 import { nanoid } from 'nanoid';
 
+// NATS
+import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+import {
+  Subjects,
+  ReviewCreatedEvent,
+  ReviewUpdatedEvent,
+} from '@dine_ease/common';
+
 // Services
+import { S3Service } from 'src/services/aws-s3.service';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 // Database
@@ -24,9 +33,11 @@ import { ReviewIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
 @Injectable()
 export class ReviewService {
   constructor(
+    private readonly publisher: Publisher,
+    private readonly s3Service: S3Service,
+    private readonly restaurantService: RestaurantService,
     @InjectModel(Review.name)
     private reviewModel: Model<ReviewDocument>,
-    private readonly restaurantService: RestaurantService,
   ) {}
 
   // get approved restaurants count
@@ -40,26 +51,6 @@ export class ReviewService {
   async getAllReviews(): Promise<ReviewDocument[]> {
     const reviews: ReviewDocument[] = await this.reviewModel.find();
     return reviews;
-  }
-
-  // get rating
-  async getRestaurantRating(
-    restaurantIdDto: RestaurantIdDto,
-  ): Promise<{ reviewsCount: number; rating: number }> {
-    const { restaurantId } = restaurantIdDto;
-
-    const result = await this.reviewModel.aggregate([
-      { $match: { restaurantId, isDeleted: false } },
-      {
-        $group: {
-          _id: restaurantId,
-          rating: { $avg: '$rating' },
-          reviewsCount: { $sum: 1 },
-        },
-      },
-    ]);
-
-    return result.length > 0 ? result[0] : { reviewsCount: 0, rating: 0 };
   }
 
   // get user reviews
@@ -131,9 +122,11 @@ export class ReviewService {
     restaurantDto: RestaurantIdDto,
     user: UserDetails,
     reviewDto: ReviewDto,
+    files: Express.Multer.File[],
   ): Promise<ReviewDocument> {
     const { restaurantId } = restaurantDto;
-    const { content, rating } = reviewDto;
+    const { content, rating: numberRating } = reviewDto;
+    const rating = Number(numberRating);
 
     await this.restaurantService.findRestaurantById(restaurantId);
 
@@ -144,87 +137,99 @@ export class ReviewService {
       content,
       rating,
     });
+
+    const path = `${restaurantId}/${review.id}`;
+
+    const uploadPromises = files.map(async (file) => {
+      const data = await this.s3Service.upload(path, file);
+      review.images.push(data);
+    });
+
+    await Promise.all(uploadPromises);
+    await review.save();
+
+    // publish created event
+    const event: ReviewCreatedEvent = {
+      id: review.id,
+      userId: user.id,
+      restaurantId,
+      rating,
+      content,
+    };
+
+    this.publisher.emit<void, ReviewCreatedEvent>(
+      Subjects.ReviewCreated,
+      event,
+    );
+
     return review;
   }
 
   // upload review images
-  async uploadImages(
+  async updateReview(
     reviewIdDto: ReviewIdDto,
-    files: Express.Multer.File[],
     user: UserDetails,
-  ): Promise<string> {
+    reviewDto: ReviewDto,
+    files: Express.Multer.File[],
+  ): Promise<ReviewDocument> {
     const { reviewId } = reviewIdDto;
+    const { content, rating: numberRating, deletedImages } = reviewDto;
+    const rating = Number(numberRating);
+
     const found: ReviewDocument = await this.getReviewById(reviewId);
+    const previousRating = found.rating;
 
     if (found.userId !== user.id) {
       throw new UnauthorizedException('User is not authorized');
     }
 
-    if (found.images.length + files.length > 10) {
+    if (found.images.length - deletedImages?.length + files.length > 10) {
       throw new BadRequestException('Only 10 images are allowed');
     }
 
-    // const results = await Promise.allSettled(
-    //   files.map((file) => this.s3Service.upload(reviewId, file)),
-    // );
+    // bucket path
+    const path = `${found.restaurantId}/${reviewId}`;
 
-    // const successfulUploads = [];
+    // upload images
+    if (files.length > 0) {
+      const uploadPromises = files.map(async (file) => {
+        const data = await this.s3Service.upload(path, file);
+        found.images.push(data);
+      });
 
-    // for (const result of results) {
-    //   if (result.status === 'fulfilled') {
-    //     successfulUploads.push(result.value);
-    //   }
-    // }
-
-    // found.images.push(...successfulUploads);
-    // await found.save();
-
-    return 'Review Images Updated Successfully';
-  }
-
-  // update a review
-  async updateReview(
-    reviewIdDto: ReviewIdDto,
-    user: UserDetails,
-    reviewDto: ReviewDto,
-  ): Promise<string> {
-    const { reviewId } = reviewIdDto;
-    const { content, rating } = reviewDto;
-
-    const review: ReviewDocument = await this.getReviewById(reviewId);
-
-    if (review.userId === user.id) {
-      review.set({ content, rating });
-      await review.save();
-      return 'Review updated successfully';
+      await Promise.all(uploadPromises);
     }
 
-    throw new UnauthorizedException('User is not authorized');
+    // delete images
+    if (deletedImages?.length > 0) {
+      await this.s3Service.deleteMany(path, deletedImages);
+
+      const filteredImages = found.images.filter(
+        (v) => !deletedImages.includes(v),
+      );
+      found.set({ images: filteredImages });
+    }
+
+    found.set({ content, rating });
+    await found.save();
+
+    // publish updated event
+    const event: ReviewUpdatedEvent = {
+      id: found.id,
+      restaurantId: found.restaurantId,
+      rating,
+      previousRating,
+      content,
+      version: found.version,
+    };
+
+    this.publisher.emit<void, ReviewUpdatedEvent>(
+      Subjects.ReviewUpdated,
+      event,
+    );
+
+    return found;
   }
-
-  // delete review images
-  // async deleteImages(
-  //   idDto: RestaurantIdDto,
-  //   data: DeleteImagesDto,
-  //   user: UserDetails,
-  // ): Promise<string> {
-  //   const { images } = data;
-
-  //   const found: RestaurantDocument = await this.findRestaurantById(idDto);
-
-  //   if (found.userId !== user.id) {
-  //     throw new UnauthorizedException('User is not authorized');
-  //   }
-
-  //   const path = `${idDto.restaurantId}/images`;
-  //   await this.s3Service.deleteMany(path, images);
-
-  //   const filteredImages = found.images.filter((v) => !images.includes(v));
-  //   found.set({ images: filteredImages });
-  //   await found.save();
-
-  //   return 'Restaurant Image Deleted Successfully';
-  // }
 
   // delete a review
   async deleteReview(
@@ -238,6 +243,20 @@ export class ReviewService {
     if (review.userId === user.id || user.role === AdminRoles.ADMIN) {
       review.set({ isDeleted: true });
       await review.save();
+
+      // publish deleted event
+      const event: ReviewDeletedEvent = {
+        id: review.id,
+        restaurantId: review.restaurantId,
+        rating: review.rating,
+        version: review.version,
+      };
+
+      this.publisher.emit<void, ReviewDeletedEvent>(
+        Subjects.ReviewDeleted,
+        event,
+      );
+
       return 'Review deleted successfully';
     }
 

@@ -25,7 +25,7 @@ export class RestaurantService {
   ): Promise<RestaurantDocument> {
     const found: RestaurantDocument = await this.restaurantModel.findOne({
       _id: restaurantId,
-      isDeleted: true,
+      isDeleted: false,
     });
     if (!found) throw new NotFoundException('Restaurant not found');
     return found;
@@ -40,7 +40,8 @@ export class RestaurantService {
   // update restaurant
   async updateRestaurant(data: RestaurantUpdatedEvent): Promise<void> {
     const { id, name, slug, taxId } = data;
-    const found: RestaurantDocument = await this.findRestaurantById(id);
+    const found: RestaurantDocument = await this.restaurantModel.findById(id);
+    if (!found) throw new NotFoundException('Restaurant not found');
     found.set({ name, slug, taxId });
     await found.save();
   }
@@ -48,7 +49,8 @@ export class RestaurantService {
   // delete restaurant
   async deleteRestaurant(data: RestaurantDeletedEvent): Promise<void> {
     const { id } = data;
-    const found: RestaurantDocument = await this.findRestaurantById(id);
+    const found: RestaurantDocument = await this.restaurantModel.findById(id);
+    if (!found) throw new NotFoundException('Restaurant not found');
     found.set({ isDeleted: true });
     await found.save();
   }
