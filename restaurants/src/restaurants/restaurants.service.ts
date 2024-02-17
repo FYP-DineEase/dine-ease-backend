@@ -102,10 +102,10 @@ export class RestaurantsService {
 
   // find duplicate data
   async findRestaurant(data: PrimaryDetailsDto, id?: string): Promise<void> {
-    const { name, taxId } = data;
+    const { taxId } = data;
     const restaurantId = new Types.ObjectId(id);
 
-    const query: any = { $or: [{ name }, { taxId }] };
+    const query: any = { taxId };
     if (restaurantId) query._id = { $ne: restaurantId };
 
     const found: RestaurantDocument = await this.restaurantModel.findOne(query);
@@ -181,14 +181,14 @@ export class RestaurantsService {
       found.set({ status });
       await found.save();
 
-      const { id, name, slug, taxId, cuisine, images, address, location } =
+      const { id, name, slug, taxId, categories, images, address, location } =
         found;
       const event: RestaurantApprovedEvent = {
         id,
         name,
         slug,
         taxId,
-        cuisine,
+        categories,
         images,
         address,
         location,
@@ -364,7 +364,7 @@ export class RestaurantsService {
     user: UserDetails,
     data: RestaurantDto,
   ): Promise<RestaurantDocument> {
-    const { name, taxId, address, cuisine, location, phoneNumber } = data;
+    const { name, taxId, address, categories, location, phoneNumber } = data;
     const found: RestaurantDocument = await this.findRestaurantById(
       idDto,
       user,
@@ -391,12 +391,12 @@ export class RestaurantsService {
       found.set({ isVerified: false });
     }
 
-    found.set({ address, cuisine, location, phoneNumber });
+    found.set({ address, categories, location, phoneNumber });
     await found.save();
 
     const event: RestaurantDetailsUpdatedEvent = {
       id: found.id,
-      cuisine: found.cuisine,
+      categories: found.categories,
       address: found.address,
       location: found.location,
       version: found.version,

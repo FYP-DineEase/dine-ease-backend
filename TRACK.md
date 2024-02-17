@@ -39,7 +39,7 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - mail event and invitation test
 - payment creation remaining in subscription service and expiry
 - AI integration and NLP of review
-- Dataset copy to mongodb
+- Dataset copy to mongodb (remove duplicate and null values filter from dataset)
 
 - s3 issue with docker , not consistent ( check updated review with images )
 - rate limit on check restaurant duplication and other checking endpoints
@@ -51,3 +51,19 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - update the skaffold.yaml ( uncomment )
 - remove the mongo-secret since data will be stored locally , 
     currently on VM close data gets lost, so storing it in a cloud
+
+
+## Workers
+
+
+- insert restaurants to database using create restaurant endpoint
+- create new column which will add the mongoId and slug
+- approve restaurants using status update endpoint
+- verify data of restaurant listeners 
+- check in services: [dining-plans, map, restaurants, reviews, subscriptions]
+- strict: true in slugify
+
+- make the taxId only unique not the name , fix in modify and restaurant service
+- make the cuisine to categories in all database and events
+- make the phone number requied in both restaurant (dto and DB)
+- make the validations uncomment and proper in restaurant and primary details dto 

@@ -44,9 +44,9 @@ export class ModifyService {
 
   // find duplicate data
   async findRestaurant(data: RestaurantDto, id?: string): Promise<void> {
-    const { name, taxId } = data;
+    const { taxId } = data;
 
-    const query: any = { $or: [{ name }, { taxId }] };
+    const query: any = { taxId };
     if (id) query.restaurantId = { $ne: id };
 
     const found: ModifyRequestDocument = await this.modifyModel.findOne(query);

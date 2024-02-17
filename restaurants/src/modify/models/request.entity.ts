@@ -26,7 +26,7 @@ export class ModifyRequest {
   @Prop({ type: Types.ObjectId, required: true })
   userId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true, unique: true, index: true })
+  @Prop({ type: Types.ObjectId, required: true })
   restaurantId: Types.ObjectId;
 
   @Prop({ required: true, index: true })

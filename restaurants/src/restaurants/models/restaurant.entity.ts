@@ -9,7 +9,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   userId: Types.ObjectId;
   name: string;
   slug: string;
-  cuisine: string[];
+  categories: string[];
   cover: string;
   images: string[];
   address: string;
@@ -44,14 +44,14 @@ export class Restaurant {
   @Prop({ type: Types.ObjectId, required: true })
   userId: Types.ObjectId;
 
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ index: true })
   slug: string;
 
   @Prop({ required: true, type: [String] })
-  cuisine: string[];
+  categories: string[];
 
   @Prop({ required: true })
   address: string;
@@ -59,7 +59,7 @@ export class Restaurant {
   @Prop({ required: true, unique: true, index: true })
   taxId: string;
 
-  @Prop({ required: true })
+  @Prop()
   phoneNumber: string;
 
   @Prop({
@@ -109,7 +109,7 @@ RestaurantSchema.pre('save', function (done) {
   const update = [
     'name',
     'taxId',
-    'cuisine',
+    'categories',
     'address',
     'images',
     'location',
@@ -126,7 +126,7 @@ RestaurantSchema.pre('save', function (done) {
 
   // generates slug
   if (this.isModified('name')) {
-    this.slug = slugify(this.name, { lower: true });
+    this.slug = slugify(this.name, { lower: true, strict: true });
   }
   done();
 });
