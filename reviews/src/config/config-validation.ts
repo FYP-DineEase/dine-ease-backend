@@ -5,7 +5,6 @@ export const configValidation = (config: Record<string, any>) => {
     'NATS_CLUSTER_ID',
     'JWT_KEY',
     'MONGO_URI',
-    'MONGO_CONNECTION',
     'AWS_S3_ACCESS_KEY_ID',
     'AWS_S3_SECRET_ACCESS_KEY',
     'AWS_S3_REGION',

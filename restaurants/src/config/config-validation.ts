@@ -6,7 +6,6 @@ export const configValidation = (config: Record<string, any>) => {
     'JWT_KEY',
     'REDIS_HOST',
     'MONGO_URI',
-    'MONGO_CONNECTION',
     'AWS_S3_ACCESS_KEY_ID',
     'AWS_S3_SECRET_ACCESS_KEY',
     'AWS_S3_REGION',

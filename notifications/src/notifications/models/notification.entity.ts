@@ -1,18 +1,22 @@
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { NotificationCategory } from '@dine_ease/common';
+import { EventData, NotificationCategory } from '@dine_ease/common';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 export interface NotificationDocument extends HydratedDocument<Notification> {
   senderId: Types.ObjectId;
   receiverId: Types.ObjectId;
   slug: string;
   category: NotificationCategory;
-  content: string;
   message: string;
   isRead: boolean;
   version: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface NotificationModel extends Model<NotificationDocument> {
+  findByEvent(event: EventData): Promise<NotificationDocument | null>;
 }
 
 @Schema({
@@ -35,7 +39,7 @@ export class Notification {
   @Prop({ required: true, enum: NotificationCategory })
   category: NotificationCategory;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true, index: true })
   slug: string;
 
   @Prop({ required: true })
@@ -47,7 +51,10 @@ export class Notification {
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
 
-// Virtual methods
-// NotificationSchema.virtual('content').get(function () {
-//   return `${this.firstName} ${this.lastName}`;
-// });
+NotificationSchema.set('versionKey', 'version');
+NotificationSchema.plugin(updateIfCurrentPlugin);
+
+NotificationSchema.statics.findByEvent = async function (event: EventData) {
+  const { id, version } = event;
+  return this.findOne({ _id: id, version: version - 1 });
+};

@@ -18,7 +18,11 @@ spec:
           env:
             - name: MONGO_URI
               # value: "mongodb://auth-mongo-srv:27017/auth"
-              value: auth
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_AUTH_URI
+            - name: EMAIL_JWT_KEY
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
@@ -37,11 +41,6 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: EMAIL_JWT_KEY
-            - name: MONGO_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: MONGO_CONNECTION
 ---
 apiVersion: v1
 kind: Service

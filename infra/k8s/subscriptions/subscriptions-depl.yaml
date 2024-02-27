@@ -18,7 +18,10 @@ spec:
           env:
             - name: MONGO_URI
               # value: "mongodb://subscriptions-mongo-srv:27017/subscriptions"
-              value: subscriptions
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_SUBSCRIPTIONS_URI
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
@@ -32,11 +35,6 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: JWT_KEY
-            - name: MONGO_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: MONGO_CONNECTION
             - name: STRIPE_SECRET
               valueFrom:
                 secretKeyRef:

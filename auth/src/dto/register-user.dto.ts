@@ -11,15 +11,15 @@ import { UserRoles } from '@dine_ease/common';
 
 export class RegisterUserDto {
   @IsNotEmpty()
-  @IsAlpha()
-  @MinLength(3)
-  @MaxLength(20)
+  // @IsAlpha()
+  // @MinLength(3)
+  // @MaxLength(20)
   firstName: string;
 
   @IsNotEmpty()
-  @IsAlpha()
-  @MinLength(3)
-  @MaxLength(20)
+  // @IsAlpha()
+  // @MinLength(3)
+  // @MaxLength(20)
   lastName: string;
 
   @IsNotEmpty()

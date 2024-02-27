@@ -19,7 +19,12 @@ export class IsCoordinatesConstraint implements ValidatorConstraintInterface {
       return false;
     }
 
-    const { coordinates } = value;
+    const { coordinates, country } = value;
+
+    if (!country) {
+      args.constraints[0] = 'location.country is required';
+      return false;
+    }
 
     if (
       !coordinates ||

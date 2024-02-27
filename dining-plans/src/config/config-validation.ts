@@ -5,7 +5,6 @@ export const configValidation = (config: Record<string, any>) => {
     'NATS_CLUSTER_ID',
     'JWT_KEY',
     'MONGO_URI',
-    'MONGO_CONNECTION',
   ].filter((key) => !config[key]);
 
   if (missingKeys.length > 0) {

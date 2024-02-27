@@ -13,14 +13,14 @@ delete previous notification on vote update
 delete nofifications of vote on review delete
 delete nofication of dining plan invitation
 
-review rating required in dining-plans/map/restaurants (with content)
-review created/update/delete event listeners
-review count and rating inclusion in restaurant fetch in the above services
-
 # Upgrade Nestjs
 https://dev.to/amirfakour/how-to-upgrade-nestjs-9-to-10-a-developers-guide-32kk
 ncu -u -f /^@nestjs/
 
+# Database Clean-up
+db.adminCommand('listDatabases').databases.forEach(function(database) {
+    db.getSiblingDB(database.name).dropDatabase();
+});
 
 # K8S
 kubectl apply -f restaurant-redis-depl.yaml
@@ -39,7 +39,6 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - mail event and invitation test
 - payment creation remaining in subscription service and expiry
 - AI integration and NLP of review
-- Dataset copy to mongodb (remove duplicate and null values filter from dataset)
 
 - s3 issue with docker , not consistent ( check updated review with images )
 - rate limit on check restaurant duplication and other checking endpoints
@@ -53,17 +52,12 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
     currently on VM close data gets lost, so storing it in a cloud
 
 
-## Workers
-
-
-- insert restaurants to database using create restaurant endpoint
-- create new column which will add the mongoId and slug
-- approve restaurants using status update endpoint
-- verify data of restaurant listeners 
-- check in services: [dining-plans, map, restaurants, reviews, subscriptions]
-- strict: true in slugify
-
-- make the taxId only unique not the name , fix in modify and restaurant service
-- make the cuisine to categories in all database and events
-- make the phone number requied in both restaurant (dto and DB)
-- make the validations uncomment and proper in restaurant and primary details dto 
+- taxId only unique not the name , fix in modify and restaurant service
+- cuisine to categories in all database and events
+- phone number requied in both restaurant (dto and DB)
+- validations uncomment and proper in restaurant and primary details dto 
+- uncomment auth service register user dto
+- uncomment verify email in mail service register method
+- remove token creation in auth service register method 
+- remove date from review.dto.ts
+- make the create review controller fix ( multipart previously )

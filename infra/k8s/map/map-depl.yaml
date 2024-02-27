@@ -18,7 +18,10 @@ spec:
           env:
             - name: MONGO_URI
               # value: "mongodb://map-mongo-srv:27017/map"
-              value: map
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_MAPS_URI
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
@@ -32,11 +35,6 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: JWT_KEY
-            - name: MONGO_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: MONGO_CONNECTION
 ---
 apiVersion: v1
 kind: Service

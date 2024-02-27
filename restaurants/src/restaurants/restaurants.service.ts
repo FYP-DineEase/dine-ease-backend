@@ -6,7 +6,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { UserDetails, StatusTypes, AdminRoles } from '@dine_ease/common';
+import {
+  UserDetails,
+  StatusTypes,
+  AdminRoles,
+  NotificationCategory,
+} from '@dine_ease/common';
 import { RecordType } from 'src/enums/record.enum';
 
 // Services
@@ -29,6 +34,7 @@ import {
   RestaurantUpdatedEvent,
   RestaurantDetailsUpdatedEvent,
   RestaurantDeletedEvent,
+  NotificationCreatedEvent,
 } from '@dine_ease/common';
 
 // DTO
@@ -56,13 +62,11 @@ export class RestaurantsService {
 
   // find restaurant by id
   async findRestaurantById(
-    id: RestaurantIdDto,
+    id: Types.ObjectId,
     user?: UserDetails,
   ): Promise<RestaurantDocument> {
-    const { restaurantId } = id;
-
     const found: RestaurantDocument = await this.restaurantModel.findOne({
-      _id: restaurantId,
+      _id: id,
       isDeleted: false,
     });
 
@@ -74,6 +78,17 @@ export class RestaurantsService {
       throw new UnauthorizedException('User is not authorized');
     }
 
+    return found;
+  }
+
+  // find restaurant by id even if its deleted
+  async findDeletedRestaurantById(
+    id: Types.ObjectId,
+  ): Promise<RestaurantDocument> {
+    const found: RestaurantDocument = await this.restaurantModel.findOne({
+      _id: id,
+    });
+    if (!found) throw new NotFoundException('Restaurant not found');
     return found;
   }
 
@@ -101,9 +116,11 @@ export class RestaurantsService {
   }
 
   // find duplicate data
-  async findRestaurant(data: PrimaryDetailsDto, id?: string): Promise<void> {
+  async findRestaurant(
+    data: PrimaryDetailsDto,
+    restaurantId?: Types.ObjectId,
+  ): Promise<void> {
     const { taxId } = data;
-    const restaurantId = new Types.ObjectId(id);
 
     const query: any = { taxId };
     if (restaurantId) query._id = { $ne: restaurantId };
@@ -169,9 +186,12 @@ export class RestaurantsService {
     user: UserDetails,
     restaurantDto: RestaurantStatusDto,
   ): Promise<string> {
+    const { restaurantId } = idDto;
     const { status, remarks } = restaurantDto;
 
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
+    const found: RestaurantDocument = await this.findRestaurantById(
+      restaurantId,
+    );
 
     if (found.status === StatusTypes.APPROVED) {
       throw new BadRequestException('Restaurant is already approved');
@@ -183,7 +203,8 @@ export class RestaurantsService {
 
       const { id, name, slug, taxId, categories, images, address, location } =
         found;
-      const event: RestaurantApprovedEvent = {
+
+      const restaurantApprovedEvent: RestaurantApprovedEvent = {
         id,
         name,
         slug,
@@ -196,15 +217,28 @@ export class RestaurantsService {
 
       this.publisher.emit<void, RestaurantApprovedEvent>(
         Subjects.RestaurantApproved,
-        event,
+        restaurantApprovedEvent,
+      );
+
+      const notificationEvent: NotificationCreatedEvent = {
+        senderId: user.id,
+        receiverId: found.userId,
+        category: NotificationCategory.System,
+        slug: `restaurant/${slug}`,
+        message: `has approved your listing of restaurant ${name}`,
+      };
+
+      this.publisher.emit<void, NotificationCreatedEvent>(
+        Subjects.NotificationCreated,
+        notificationEvent,
       );
     } else {
       await found.deleteOne();
     }
 
     const payload = {
-      adminId: String(user.id),
-      restaurantId: String(found.id),
+      adminId: user.id,
+      restaurantId: found.id,
       status,
       type: RecordType.LISTING,
       remarks,
@@ -220,8 +254,10 @@ export class RestaurantsService {
     files: Express.Multer.File[],
     user: UserDetails,
   ): Promise<string[]> {
+    const { restaurantId } = idDto;
+
     const found: RestaurantDocument = await this.findRestaurantById(
-      idDto,
+      restaurantId,
       user,
     );
 
@@ -270,8 +306,9 @@ export class RestaurantsService {
     file: Express.Multer.File,
   ): Promise<string> {
     const { restaurantId } = idDto;
+
     const found: RestaurantDocument = await this.findRestaurantById(
-      idDto,
+      restaurantId,
       user,
     );
 
@@ -293,14 +330,14 @@ export class RestaurantsService {
   async createRestaurant(
     user: UserDetails,
     data: RestaurantDto,
-  ): Promise<{ slug: string }> {
+  ): Promise<{ id: Types.ObjectId; slug: string }> {
     await this.findRestaurant(data);
     await this.modifyService.findRestaurant(data);
-    const { slug }: RestaurantDocument = await this.restaurantModel.create({
+    const { id, slug }: RestaurantDocument = await this.restaurantModel.create({
       userId: user.id,
       ...data,
     });
-    return { slug };
+    return { id, slug };
   }
 
   // genrate OTP for verification of restaurant
@@ -311,7 +348,7 @@ export class RestaurantsService {
     const { restaurantId } = idDto;
 
     const found: RestaurantDocument = await this.findRestaurantById(
-      idDto,
+      restaurantId,
       user,
     );
 
@@ -320,7 +357,7 @@ export class RestaurantsService {
     }
 
     const { ttl } = await this.redisService.cacheWrapper(
-      restaurantId,
+      restaurantId.toString(),
       120,
       async () => {
         return await this.twilioService.sendOTP(found.phoneNumber);
@@ -337,8 +374,10 @@ export class RestaurantsService {
     otpDto: OtpDto,
   ): Promise<string> {
     const { otp } = otpDto;
+    const { restaurantId } = idDto;
+
     const found: RestaurantDocument = await this.findRestaurantById(
-      idDto,
+      restaurantId,
       user,
     );
 
@@ -364,23 +403,25 @@ export class RestaurantsService {
     user: UserDetails,
     data: RestaurantDto,
   ): Promise<RestaurantDocument> {
+    const { restaurantId } = idDto;
     const { name, taxId, address, categories, location, phoneNumber } = data;
+
     const found: RestaurantDocument = await this.findRestaurantById(
-      idDto,
+      restaurantId,
       user,
     );
 
     if (found.name !== name || found.taxId !== taxId) {
       // check uniqueness
-      await this.modifyService.findRestaurant(data, idDto.restaurantId);
-      await this.findRestaurant(data, idDto.restaurantId);
+      await this.modifyService.findRestaurant(data, restaurantId);
+      await this.findRestaurant(data, restaurantId);
 
       if (found.status === StatusTypes.PENDING) {
         found.set({ name, taxId });
       } else {
         const payload = {
-          userId: String(user.id),
-          restaurantId: String(found.id),
+          userId: user.id,
+          restaurantId: found.id,
           ...data,
         };
         await this.modifyService.createRequest(payload);
@@ -416,12 +457,16 @@ export class RestaurantsService {
     user: UserDetails,
     restaurantDto: RestaurantStatusDto,
   ): Promise<string> {
+    const { restaurantId } = idDto;
     const { status, remarks } = restaurantDto;
 
     const request = await this.modifyService.restaurantRequest(idDto);
 
     if (status === StatusTypes.APPROVED) {
-      const found: RestaurantDocument = await this.findRestaurantById(idDto);
+      const found: RestaurantDocument = await this.findRestaurantById(
+        restaurantId,
+      );
+
       const { taxId, name } = request;
       found.set({ taxId, name });
       await found.save();
@@ -441,8 +486,8 @@ export class RestaurantsService {
     }
 
     const payload = {
-      adminId: String(user.id),
-      restaurantId: String(request.restaurantId),
+      adminId: user.id,
+      restaurantId: request.restaurantId,
       status,
       type: RecordType.MODIFY,
       remarks,
@@ -459,7 +504,11 @@ export class RestaurantsService {
     idDto: RestaurantIdDto,
     user: UserDetails,
   ): Promise<string> {
-    const found: RestaurantDocument = await this.findRestaurantById(idDto);
+    const { restaurantId } = idDto;
+
+    const found: RestaurantDocument = await this.findRestaurantById(
+      restaurantId,
+    );
 
     if (found.userId === user.id || user.role === AdminRoles.ADMIN) {
       if (found.status === StatusTypes.APPROVED) {
@@ -491,9 +540,10 @@ export class RestaurantsService {
     user: UserDetails,
   ): Promise<string> {
     const { images } = data;
+    const { restaurantId } = idDto;
 
     const found: RestaurantDocument = await this.findRestaurantById(
-      idDto,
+      restaurantId,
       user,
     );
 

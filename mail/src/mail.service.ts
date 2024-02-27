@@ -62,7 +62,7 @@ export class MailService {
 
   // register
   async register(user: AccountCreatedEvent): Promise<string> {
-    const { userId, email, name } = user;
+    const { userId, name, email } = user;
 
     const found: UserDocument = await this.userModel.findOne({ email });
     if (found) throw new ConflictException('User already exist');

@@ -18,7 +18,10 @@ spec:
           env:
             - name: MONGO_URI
               # value: "mongodb://restaurants-mongo-srv:27017/restaurants"
-              value: restaurants
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_RESTAURANTS_URI
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
@@ -34,11 +37,6 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: JWT_KEY
-            - name: MONGO_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: MONGO_CONNECTION
             - name: AWS_S3_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import {
   IsMongoId,
   IsString,
@@ -11,10 +12,10 @@ import { RecordType } from 'src/enums/record.enum';
 
 export class CreateRecordDto {
   @IsMongoId()
-  adminId: string;
+  adminId: Types.ObjectId;
 
   @IsMongoId()
-  restaurantId: string;
+  restaurantId: Types.ObjectId;
 
   @IsEnum(RecordType)
   type: RecordType;

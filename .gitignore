@@ -22,6 +22,9 @@ lerna-debug.log*
 # Ignore Kubernetes Secrets YAML file
 **infra/k8s/config/secrets.yaml
 
+# Ignore Kubernetes Mongo YAML file ( add later in k8s )
+**infra/mongo
+
 # IDE - VSCode
 .vscode/*
 !.vscode/settings.json

@@ -5,7 +5,6 @@ export const configValidation = (config: Record<string, any>) => {
     'NATS_CLUSTER_ID',
     'JWT_KEY',
     'MONGO_URI',
-    'MONGO_CONNECTION',
     'STRIPE_SECRET',
   ].filter((key) => !config[key]);
 

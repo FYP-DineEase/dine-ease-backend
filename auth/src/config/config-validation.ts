@@ -6,7 +6,6 @@ export const configValidation = (config: Record<string, any>) => {
     'JWT_KEY',
     'EMAIL_JWT_KEY',
     'MONGO_URI',
-    'MONGO_CONNECTION',
   ].filter((key) => !config[key]);
 
   if (missingKeys.length > 0) {

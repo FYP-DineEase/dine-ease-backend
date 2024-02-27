@@ -25,8 +25,8 @@ import {
   AdminRoles,
   MaxImageSizeValidator,
 } from '@dine_ease/common';
-
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Types } from 'mongoose';
 
 // Rate Limit
 import { RateLimiterGuard } from 'src/guards/rate-limiter.guard';
@@ -148,7 +148,7 @@ export class RestaurantsController {
   async createRestaurant(
     @GetUser() user: UserDetails,
     @Body() data: RestaurantDto,
-  ): Promise<{ slug: string }> {
+  ): Promise<{ id: Types.ObjectId; slug: string }> {
     return this.restaurantService.createRestaurant(user, data);
   }
 

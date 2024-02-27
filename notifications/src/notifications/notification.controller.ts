@@ -1,15 +1,10 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Subjects, AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
 
 // NATS
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
+import { NotificationCreatedEvent } from '@dine_ease/common';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import {
-  Subjects,
-  AccountCreatedEvent,
-  AuthGuard,
-  GetUser,
-  UserDetails,
-} from '@dine_ease/common';
 
 // Database
 import { NotificationDocument } from './models/notification.entity';
@@ -29,5 +24,18 @@ export class NotificationController {
     return this.notificationService.getNotifications(user);
   }
 
-  // read endpoint
+  // @Post()
+  // @UseGuards(AuthGuard)
+  // async readNotifications(@GetUser() user: UserDetails): Promise<null> {
+  //   return this.notificationService.getNotifications(user);
+  // }
+
+  @EventPattern(Subjects.NotificationCreated)
+  async createNotification(
+    @Payload() data: NotificationCreatedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.notificationService.createNotification(data);
+    context.message.ack();
+  }
 }

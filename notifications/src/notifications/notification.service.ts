@@ -10,7 +10,7 @@ import {
 } from './models/notification.entity';
 
 // NATS
-import { AccountCreatedEvent } from '@dine_ease/common';
+import { NotificationCreatedEvent } from '@dine_ease/common';
 
 @Injectable()
 export class NotificationService {
@@ -28,12 +28,10 @@ export class NotificationService {
   }
 
   // create notification
-  async createNotification(data: AccountCreatedEvent): Promise<void> {
-    const { userId, ...details } = data;
-    const newData = { _id: userId, ...details };
-    await this.notificationModel.create(newData);
+  async createNotification(data: NotificationCreatedEvent): Promise<void> {
+    await this.notificationModel.create(data);
   }
 
-  // delete notification
-  async deleteNotification(data: AccountCreatedEvent): Promise<void> {}
+  // // delete notification
+  // async deleteNotification(data: AccountCreatedEvent): Promise<void> {}
 }

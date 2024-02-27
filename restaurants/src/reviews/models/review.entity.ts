@@ -27,7 +27,6 @@ export interface ReviewModel extends Model<ReviewDocument> {
       return ret;
     },
   },
-  timestamps: true,
 })
 export class Review {
   @Prop({ type: Types.ObjectId, required: true })

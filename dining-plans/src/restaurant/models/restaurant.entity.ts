@@ -38,10 +38,10 @@ export interface RestaurantModel extends Model<RestaurantDocument> {
   timestamps: true,
 })
 export class Restaurant {
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ required: true })
   name: string;
 
-  @Prop({ unique: true, index: true })
+  @Prop({ required: true, unique: true, index: true })
   slug: string;
 
   @Prop({ required: true, unique: true, index: true })

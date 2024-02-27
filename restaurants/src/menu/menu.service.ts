@@ -35,14 +35,12 @@ export class MenuService {
     idDto: MenuIdDto,
     user: UserDetails,
   ): Promise<{ found: RestaurantDocument; menuItemIndex: number }> {
-    const { menuId } = idDto;
+    const { menuId, restaurantId } = idDto;
 
     const found: RestaurantDocument =
-      await this.restaurantsService.findRestaurantById(idDto, user);
+      await this.restaurantsService.findRestaurantById(restaurantId, user);
 
-    const menuItemIndex = found.menu.findIndex(
-      (item) => item.id.toString() === menuId,
-    );
+    const menuItemIndex = found.menu.findIndex((item) => item.id === menuId);
 
     if (menuItemIndex === -1) {
       throw new NotFoundException('Menu Item not found');
@@ -61,7 +59,10 @@ export class MenuService {
     const { restaurantId } = idDto;
     const { name, price, category, description, order } = menuItemDto;
 
-    const found = await this.restaurantsService.findRestaurantById(idDto, user);
+    const found = await this.restaurantsService.findRestaurantById(
+      restaurantId,
+      user,
+    );
 
     if (found.status !== StatusTypes.APPROVED) {
       throw new BadRequestException('Restaurant status should be approved');
@@ -121,9 +122,13 @@ export class MenuService {
     user: UserDetails,
     menuOrderDto: MenuOrderDto,
   ): Promise<MenuDocument[]> {
+    const { restaurantId } = idDto;
     const { orders } = menuOrderDto;
 
-    const found = await this.restaurantsService.findRestaurantById(idDto, user);
+    const found = await this.restaurantsService.findRestaurantById(
+      restaurantId,
+      user,
+    );
 
     found.menu.forEach((i) => {
       const orderItem = orders.find((o) => o.id === i.id);

@@ -18,7 +18,10 @@ spec:
           env:
             - name: MONGO_URI
               # value: "mongodb://mail-mongo-srv:27017/mail"
-              value: mail
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MONGO_MAIL_URI
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
@@ -37,11 +40,6 @@ spec:
                 secretKeyRef:
                   name: dine-ease-secrets
                   key: EMAIL_JWT_KEY
-            - name: MONGO_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: dine-ease-secrets
-                  key: MONGO_CONNECTION
             - name: MAIL_USER
               valueFrom:
                 secretKeyRef:

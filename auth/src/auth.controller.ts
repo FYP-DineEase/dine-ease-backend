@@ -27,7 +27,9 @@ export class AuthController {
   }
 
   @Post('register')
-  async registerUnverified(@Body() user: RegisterUserDto): Promise<string> {
+  async registerUnverified(
+    @Body() user: RegisterUserDto,
+  ): Promise<{ id: string; token: string }> {
     return this.authService.registerUnverified(user);
   }
 

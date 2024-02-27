@@ -47,8 +47,14 @@ export class Restaurant {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ index: true })
+  @Prop({ unique: true, index: true })
   slug: string;
+
+  @Prop({ default: 0 })
+  rating: number;
+
+  @Prop({ default: 0 })
+  count: number;
 
   @Prop({ required: true, type: [String] })
   categories: string[];
@@ -78,7 +84,7 @@ export class Restaurant {
   @Prop({
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], index: '2dsphere' },
-    country: { type: String },
+    country: { type: String, required: true },
   })
   location: {
     type: { type: string };
@@ -105,7 +111,7 @@ export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
 RestaurantSchema.set('versionKey', 'version');
 
 // Execute before saving
-RestaurantSchema.pre('save', function (done) {
+RestaurantSchema.pre('save', async function (done) {
   const update = [
     'name',
     'taxId',
@@ -126,7 +132,16 @@ RestaurantSchema.pre('save', function (done) {
 
   // generates slug
   if (this.isModified('name')) {
-    this.slug = slugify(this.name, { lower: true, strict: true });
+    let slug = slugify(this.name, { lower: true, strict: true });
+
+    const regex = new RegExp(slug, 'i');
+    const data = await this.model(Restaurant.name).find({
+      slug: { $regex: regex },
+    });
+
+    if (data.length > 0) slug = `${slug}-${data.length}`;
+    this.slug = slug;
   }
+
   done();
 });

@@ -7,7 +7,7 @@ import {
 import { UserDetails } from '@dine_ease/common';
 
 // Database
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModifyRequest, ModifyRequestDocument } from './models/request.entity';
 
@@ -34,6 +34,7 @@ export class ModifyService {
     idDto: RestaurantIdDto,
   ): Promise<ModifyRequestDocument> {
     const { restaurantId } = idDto;
+
     const record: ModifyRequestDocument = await this.modifyModel.findOne({
       restaurantId,
     });
@@ -43,7 +44,10 @@ export class ModifyService {
   }
 
   // find duplicate data
-  async findRestaurant(data: RestaurantDto, id?: string): Promise<void> {
+  async findRestaurant(
+    data: RestaurantDto,
+    id?: Types.ObjectId,
+  ): Promise<void> {
     const { taxId } = data;
 
     const query: any = { taxId };
