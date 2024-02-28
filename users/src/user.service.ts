@@ -51,7 +51,9 @@ export class UserService {
 
   // fetch all user slugs
   async getAllUserSlugs(): Promise<UserDocument[]> {
-    const users: UserDocument[] = await this.userModel.find().select('slug');
+    const users: UserDocument[] = await this.userModel
+      .find({}, { _id: 0, slug: 1 })
+      .lean();
     return users;
   }
 

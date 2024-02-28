@@ -25,7 +25,9 @@ export class MapService {
 
   // fetch all user slugs
   async getAllMapSlugs(): Promise<MapDocument[]> {
-    const found: MapDocument[] = await this.mapModel.find().select('slug');
+    const found: MapDocument[] = await this.mapModel
+      .find({}, { _id: 0, slug: 1 })
+      .lean();
     return found;
   }
 

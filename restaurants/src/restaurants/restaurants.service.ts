@@ -110,8 +110,8 @@ export class RestaurantsService {
   // fetch all user slugs
   async getAllRestaurantSlugs(): Promise<RestaurantDocument[]> {
     const restaurants: RestaurantDocument[] = await this.restaurantModel
-      .find({ status: StatusTypes.APPROVED })
-      .select('slug');
+      .find({ status: StatusTypes.APPROVED }, { _id: 0, slug: 1 })
+      .lean();
     return restaurants;
   }
 
