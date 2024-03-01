@@ -15,6 +15,37 @@ spec:
       containers:
         - name: client
           image: mujtabashafiq/dine-ease-client
+          env:
+            - name: NEXT_PUBLIC_MAPBOX_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MAPBOX_API_TOKEN
+            - name: NEXT_PUBLIC_MEILI_SEARCH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MEILI_SEARCH_TOKEN
+            - name: NEXT_PUBLIC_AWS_S3_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_REGION
+            - name: NEXT_PUBLIC_AWS_S3_USERS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_USERS_BUCKET
+            - name: NEXT_PUBLIC_AWS_S3_RESTAURANTS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_RESTAURANTS_BUCKET
+            - name: NEXT_PUBLIC_AWS_S3_REVIEWS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_REVIEWS_BUCKET               
 ---
 apiVersion: v1
 kind: Service
