@@ -41,8 +41,9 @@ export class ReviewService {
   ) {}
 
   // get approved restaurants count
-  async getApprovedCount(): Promise<number> {
+  async getApprovedCount(restaurantId: Types.ObjectId): Promise<number> {
     return this.reviewModel.countDocuments({
+      restaurantId,
       isDeleted: false,
     });
   }
@@ -102,7 +103,7 @@ export class ReviewService {
     const { offset, limit } = paginationDto;
 
     if (offset == 0) {
-      count = await this.getApprovedCount();
+      count = await this.getApprovedCount(restaurantId);
     }
 
     const reviews: ReviewDocument[] = await this.reviewModel
