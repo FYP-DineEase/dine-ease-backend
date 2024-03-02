@@ -67,7 +67,7 @@ export class ReviewService {
     return reviews;
   }
 
-  // get review by slug
+  // get review by id
   async getReviewById(reviewId: Types.ObjectId): Promise<ReviewDocument> {
     const review: ReviewDocument = await this.reviewModel.findOne({
       _id: reviewId,
@@ -85,10 +85,17 @@ export class ReviewService {
         slug,
         isDeleted: false,
       })
-      .populate({
-        path: 'votes',
-        model: 'Vote',
-      });
+      .populate([
+        {
+          path: 'userId',
+          model: 'User',
+          select: '-_id',
+        },
+        {
+          path: 'votes',
+          model: 'Vote',
+        },
+      ]);
     if (!review) throw new NotFoundException('Review not found');
     return review;
   }
@@ -110,10 +117,17 @@ export class ReviewService {
       .find({ restaurantId, isDeleted: false })
       .skip(offset)
       .limit(limit)
-      .populate({
-        path: 'votes',
-        model: 'Vote',
-      });
+      .populate([
+        {
+          path: 'userId',
+          model: 'User',
+          select: '-_id',
+        },
+        {
+          path: 'votes',
+          model: 'Vote',
+        },
+      ]);
 
     return { count, reviews };
   }

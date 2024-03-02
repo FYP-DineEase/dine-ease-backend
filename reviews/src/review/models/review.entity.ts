@@ -25,10 +25,10 @@ export interface ReviewDocument extends HydratedDocument<Review> {
   timestamps: true,
 })
 export class Review {
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
   userId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Restaurant' })
   restaurantId: Types.ObjectId;
 
   @Prop({ required: true, unique: true, index: true })

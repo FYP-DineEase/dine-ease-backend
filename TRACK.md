@@ -52,6 +52,7 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
     currently on VM close data gets lost, so storing it in a cloud
 
 
+- un comment verify user check in auth login
 - taxId only unique not the name , fix in modify and restaurant service
 - cuisine to categories in all database and events
 - phone number requied in both restaurant (dto and DB)
