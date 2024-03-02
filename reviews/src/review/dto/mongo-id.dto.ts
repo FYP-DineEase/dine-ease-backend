@@ -10,3 +10,8 @@ export class RestaurantIdDto {
   @IsMongoId()
   restaurantId: Types.ObjectId;
 }
+
+export class UserIdDto {
+  @IsMongoId()
+  userId: Types.ObjectId;
+}

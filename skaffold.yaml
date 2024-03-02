@@ -2,27 +2,27 @@ apiVersion: skaffold/v4beta6
 kind: Config
 manifests:
   rawYaml:
-    # - ./infra/k8s/**/*.yaml
+    - ./infra/k8s/**/*.yaml
     # - ./infra/k8s/client/*.yaml
     # - ./infra/k8s/config/*.yaml
     # - ./infra/k8s/nginx/*.yaml
     # - ./infra/k8s/nats/*.yaml
-    - ./infra/k8s/auth/*.yaml
-    - ./infra/k8s/reviews/*.yaml
+    # - ./infra/k8s/auth/*.yaml
+    # - ./infra/k8s/reviews/*.yaml
 metadata:
   name: dine-ease-backend
 build:
   local: 
     push: false
   artifacts:
-    # - image: mujtabashafiq/dine-ease-client
-    #   context: ../dine-ease-frontend
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: '**/*.js'
-    #         dest: .
+    - image: mujtabashafiq/dine-ease-client
+      context: ../dine-ease-frontend
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
     - image: mujtabashafiq/dine-ease-auth
       context: auth
       docker:
@@ -31,62 +31,62 @@ build:
         manual:
           - src: "**/*.ts"
             dest: .
-    # - image: mujtabashafiq/dine-ease-mail
-    #   context: mail
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
-    # - image: mujtabashafiq/dine-ease-users
-    #   context: users
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
-    # - image: mujtabashafiq/dine-ease-login-gateway
-    #   context: login-gateway
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
-    # - image: mujtabashafiq/dine-ease-notifications
-    #   context: notifications
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
-    # - image: mujtabashafiq/dine-ease-dining-plans
-    #   context: dining-plans
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
-    # - image: mujtabashafiq/dine-ease-map
-    #   context: map
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
-    # - image: mujtabashafiq/dine-ease-subscriptions
-    #   context: subscriptions
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
+    - image: mujtabashafiq/dine-ease-mail
+      context: mail
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-users
+      context: users
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-login-gateway
+      context: login-gateway
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-notifications
+      context: notifications
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-dining-plans
+      context: dining-plans
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-map
+      context: map
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
+    - image: mujtabashafiq/dine-ease-subscriptions
+      context: subscriptions
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
     - image: mujtabashafiq/dine-ease-reviews
       context: reviews
       docker:
@@ -95,11 +95,11 @@ build:
         manual:
           - src: "**/*.ts"
             dest: .
-    # - image: mujtabashafiq/dine-ease-restaurants
-    #   context: restaurants
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
+    - image: mujtabashafiq/dine-ease-restaurants
+      context: restaurants
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .

@@ -36,7 +36,7 @@ import { ReviewDocument } from './models/review.entity';
 import { ReviewDto } from './dto/review.dto';
 import { PaginationDto } from 'src/restaurant/dto/pagination.dto';
 import { ReviewSlugDto } from './dto/review-slug.dto';
-import { ReviewIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
+import { ReviewIdDto, RestaurantIdDto, UserIdDto } from './dto/mongo-id.dto';
 
 @Controller('/api/review')
 export class ReviewController {
@@ -49,12 +49,9 @@ export class ReviewController {
     return this.reviewService.getAllReviews();
   }
 
-  @Get('user')
-  @UseGuards(AuthGuard)
-  async getUserReviews(
-    @GetUser() user: UserDetails,
-  ): Promise<ReviewDocument[]> {
-    return this.reviewService.getUserReviews(user);
+  @Get('user/:userId')
+  async getUserReviews(@Param() id: UserIdDto): Promise<ReviewDocument[]> {
+    return this.reviewService.getUserReviews(id);
   }
 
   @Get('/slug/:slug')

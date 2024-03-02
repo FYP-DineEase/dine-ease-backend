@@ -28,7 +28,7 @@ import { Review, ReviewDocument } from './models/review.entity';
 import { ReviewDto } from './dto/review.dto';
 import { ReviewSlugDto } from './dto/review-slug.dto';
 import { PaginationDto } from 'src/restaurant/dto/pagination.dto';
-import { ReviewIdDto, RestaurantIdDto } from './dto/mongo-id.dto';
+import { ReviewIdDto, RestaurantIdDto, UserIdDto } from './dto/mongo-id.dto';
 
 @Injectable()
 export class ReviewService {
@@ -55,11 +55,10 @@ export class ReviewService {
   }
 
   // get user reviews
-  async getUserReviews(user: UserDetails): Promise<ReviewDocument[]> {
+  async getUserReviews(userIdDto: UserIdDto): Promise<ReviewDocument[]> {
+    const { userId } = userIdDto;
     const reviews: ReviewDocument[] = await this.reviewModel
-      .find({
-        userId: user.id,
-      })
+      .find({ userId })
       .populate({
         path: 'votes',
         model: 'Vote',
