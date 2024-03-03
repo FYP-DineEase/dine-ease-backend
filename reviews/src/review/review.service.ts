@@ -88,7 +88,6 @@ export class ReviewService {
         {
           path: 'userId',
           model: 'User',
-          select: '-_id',
         },
         {
           path: 'votes',
@@ -120,7 +119,6 @@ export class ReviewService {
         {
           path: 'userId',
           model: 'User',
-          select: '-_id',
         },
         {
           path: 'votes',
