@@ -44,7 +44,6 @@ kubectl port-forward meilisearch-depl-846fd9694c-9p9d8 7700:7700
 - payment creation remaining in subscription service and expiry
 - AI integration and NLP of review
 - dining plans complete
-- when map is created emit slug to user service
 
 - s3 issue with docker , not consistent ( check updated review with images )
 - rate limit on check restaurant duplication and other checking endpoints
@@ -52,6 +51,4 @@ kubectl port-forward meilisearch-depl-846fd9694c-9p9d8 7700:7700
 - update jwt values to 7d later 
 - fix validations ( DTOs ) { min max etc } and their redundancy and error messages
 - uncomment twilio sendOTP
-
-- make the create review controller fix ( multipart previously )
-- Fix validations and match with frontend
+- fix validations and match with frontend
