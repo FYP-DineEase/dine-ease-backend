@@ -29,7 +29,11 @@ import { UserDocument } from './models/user.entity';
 // NATS
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
-import { Subjects, AccountCreatedEvent } from '@dine_ease/common';
+import {
+  Subjects,
+  AccountCreatedEvent,
+  MapCreatedEvent,
+} from '@dine_ease/common';
 
 // DTO
 import { UserSlugDto } from './dto/slug.dto';
@@ -112,6 +116,15 @@ export class UserController {
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {
     await this.userService.registerUnverified(data);
+    context.message.ack();
+  }
+
+  @EventPattern(Subjects.MapCreated)
+  async createMap(
+    @Payload() data: MapCreatedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.userService.createMap(data);
     context.message.ack();
   }
 }

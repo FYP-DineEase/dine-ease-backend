@@ -5,6 +5,10 @@ import { nanoid } from 'nanoid';
 // Services
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 
+// NATS
+import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+import { Subjects, MapCreatedEvent } from '@dine_ease/common';
+
 // Database
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -18,9 +22,10 @@ import { RestaurantDto } from './dto/restaurant.dto';
 @Injectable()
 export class MapService {
   constructor(
+    private readonly publisher: Publisher,
+    private readonly restaurantService: RestaurantService,
     @InjectModel(Map.name)
     private readonly mapModel: Model<MapDocument>,
-    private readonly restaurantService: RestaurantService,
   ) {}
 
   // fetch all user slugs
@@ -55,14 +60,19 @@ export class MapService {
     const restaurantId = new Types.ObjectId(restaurantDto.restaurantId);
 
     await this.restaurantService.findRestaurantById(restaurantId);
-    await this.mapModel.findOneAndUpdate(
-      { userId },
-      {
-        $addToSet: { restaurants: restaurantId },
-        $setOnInsert: { slug: nanoid(10) },
-      },
-      { upsert: true, new: true },
-    );
+
+    let found: MapDocument = await this.mapModel.findOne({ userId });
+
+    if (!found) {
+      const slug = nanoid(10);
+      const event: MapCreatedEvent = { userId, slug };
+      this.publisher.emit<void, MapCreatedEvent>(Subjects.MapCreated, event);
+
+      found = await this.mapModel.create({ userId, slug });
+    }
+
+    found.restaurants.push(restaurantId);
+    await found.save();
 
     return 'Restaurant added successfully';
   }

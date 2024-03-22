@@ -13,6 +13,7 @@ export interface UserDocument extends HydratedDocument<User> {
   avatar: string;
   cover: string;
   description: string;
+  mapSlug: string;
   location: {
     type: { type: string };
     coordinates: [number, number];
@@ -68,6 +69,9 @@ export class User {
 
   @Prop()
   description: string;
+
+  @Prop()
+  mapSlug: string;
 
   @Prop({ default: Date.now })
   createdAt: Date;

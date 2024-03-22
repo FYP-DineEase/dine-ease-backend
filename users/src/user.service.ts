@@ -9,6 +9,7 @@ import { S3Service } from './services/aws-s3.service';
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 import {
   Subjects,
+  MapCreatedEvent,
   AccountCreatedEvent,
   AccountUpdatedEvent,
 } from '@dine_ease/common';
@@ -62,6 +63,15 @@ export class UserService {
     const { userId, ...details } = user;
     const newData = { _id: userId, ...details };
     await this.userModel.create(newData);
+  }
+
+  // create map
+  async createMap(map: MapCreatedEvent): Promise<void> {
+    const { userId, slug } = map;
+    const found: UserDocument = await this.userModel.findById(userId);
+    if (!found) throw new NotFoundException('User not found');
+    found.set({ mapSlug: slug });
+    await found.save();
   }
 
   // update avatar of user
