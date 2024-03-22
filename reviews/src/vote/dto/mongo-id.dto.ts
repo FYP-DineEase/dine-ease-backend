@@ -10,3 +10,8 @@ export class ReviewIdDto {
   @IsMongoId()
   reviewId: Types.ObjectId;
 }
+
+export class UserIdDto {
+  @IsMongoId()
+  userId: Types.ObjectId;
+}

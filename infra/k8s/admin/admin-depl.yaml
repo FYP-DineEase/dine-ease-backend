@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      containers:
+        - name: admin
+          image: mujtabashafiq/dine-ease-admin
+          env:
+            - name: NEXT_PUBLIC_AWS_S3_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_REGION
+            - name: NEXT_PUBLIC_AWS_S3_USERS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: AWS_S3_USERS_BUCKET           
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-srv
+spec:
+  selector:
+    app: admin
+  ports:
+    - name: admin
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

@@ -15,7 +15,7 @@ import { Vote, VoteDocument } from './models/vote.entity';
 import { ReviewDocument } from 'src/review/models/review.entity';
 
 // DTO
-import { ReviewIdDto, VoteIdDto } from './dto/mongo-id.dto';
+import { ReviewIdDto, UserIdDto, VoteIdDto } from './dto/mongo-id.dto';
 import { VoteDto } from './dto/vote.dto';
 
 @Injectable()
@@ -30,10 +30,22 @@ export class VoteService {
   // update vote nats event
 
   // get user votes
-  async getUserVotes(user: UserDetails): Promise<VoteDocument[]> {
-    const votes: VoteDocument[] = await this.voteModel.find({
-      userId: user.id,
-    });
+  async getUserVotes(userIdDto: UserIdDto): Promise<VoteDocument[]> {
+    const { userId } = userIdDto;
+    const votes: VoteDocument[] = await this.voteModel
+      .find({
+        userId,
+      })
+      .populate([
+        {
+          path: 'reviewId',
+          model: 'Review',
+          populate: {
+            path: 'userId',
+            model: 'User',
+          },
+        },
+      ]);
     return votes;
   }
 
@@ -42,7 +54,7 @@ export class VoteService {
     reviewIdDto: ReviewIdDto,
     user: UserDetails,
     voteDto: VoteDto,
-  ): Promise<string> {
+  ): Promise<VoteDocument> {
     const { reviewId } = reviewIdDto;
     const { type } = voteDto;
 
@@ -56,7 +68,7 @@ export class VoteService {
     review.votes.push(vote.id);
     await review.save();
 
-    return 'Vote created successfully';
+    return vote;
   }
 
   // update a vote

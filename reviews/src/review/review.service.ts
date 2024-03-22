@@ -58,7 +58,7 @@ export class ReviewService {
   async getUserReviews(userIdDto: UserIdDto): Promise<ReviewDocument[]> {
     const { userId } = userIdDto;
     const reviews: ReviewDocument[] = await this.reviewModel
-      .find({ userId })
+      .find({ userId, isDeleted: false })
       .populate({
         path: 'votes',
         model: 'Vote',
@@ -134,10 +134,10 @@ export class ReviewService {
     restaurantDto: RestaurantIdDto,
     user: UserDetails,
     reviewDto: ReviewDto,
-    // files: Express.Multer.File[],
+    files: Express.Multer.File[],
   ): Promise<ReviewDocument> {
     const { restaurantId } = restaurantDto;
-    const { content, rating: numberRating, createdAt } = reviewDto;
+    const { content, rating: numberRating } = reviewDto;
     const rating = Number(numberRating);
 
     await this.restaurantService.findRestaurantById(restaurantId);
@@ -148,20 +148,19 @@ export class ReviewService {
       restaurantId,
       content,
       rating,
-      createdAt: new Date(createdAt),
     });
 
-    // if (files.length > 0) {
-    //   const path = `${restaurantId}/${review.id}`;
+    if (files.length > 0) {
+      const path = `${restaurantId}/${review.id}`;
 
-    //   const uploadPromises = files.map(async (file) => {
-    //     const data = await this.s3Service.upload(path, file);
-    //     review.images.push(data);
-    //   });
+      const uploadPromises = files.map(async (file) => {
+        const data = await this.s3Service.upload(path, file);
+        review.images.push(data);
+      });
 
-    //   await Promise.all(uploadPromises);
-    //   await review.save();
-    // }
+      await Promise.all(uploadPromises);
+      await review.save();
+    }
 
     // publish created event
     const event: ReviewCreatedEvent = {

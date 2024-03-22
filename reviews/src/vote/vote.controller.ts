@@ -15,17 +15,16 @@ import { VoteService } from './vote.service';
 import { VoteDocument } from './models/vote.entity';
 
 // DTO
-import { ReviewIdDto, VoteIdDto } from './dto/mongo-id.dto';
+import { ReviewIdDto, UserIdDto, VoteIdDto } from './dto/mongo-id.dto';
 import { VoteDto } from './dto/vote.dto';
 
 @Controller('/api/review/vote')
 export class VoteController {
   constructor(private readonly voteService: VoteService) {}
 
-  @Get('/user')
-  @UseGuards(AuthGuard)
-  async getUserVotes(@GetUser() user: UserDetails): Promise<VoteDocument[]> {
-    return this.voteService.getUserVotes(user);
+  @Get('user/:userId')
+  async getUserVotes(@Param() id: UserIdDto): Promise<VoteDocument[]> {
+    return this.voteService.getUserVotes(id);
   }
 
   @Post('/:reviewId')
@@ -34,7 +33,7 @@ export class VoteController {
     @Param() reviewIdDto: ReviewIdDto,
     @Body() voteDto: VoteDto,
     @GetUser() user: UserDetails,
-  ): Promise<string> {
+  ): Promise<VoteDocument> {
     return this.voteService.addVote(reviewIdDto, user, voteDto);
   }
 

@@ -1,5 +1,4 @@
 # Notification Events
-
 restaurant listing approved
 restaurant listing rejected
 restaurant deleted
@@ -34,11 +33,18 @@ kubectl port-forward nats-depl-5fd545d7c4-r8g4h 8222:8222
 
 git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ }
 
+# Meilisearch
+kubectl apply -f meilisearch-depl.yaml
+kubectl logs -f meilisearch-depl-846fd9694c-9p9d8
+kubectl port-forward meilisearch-depl-846fd9694c-9p9d8 7700:7700
+
 ## Update 
 - notification events and save socket user in redis
 - mail event and invitation test
 - payment creation remaining in subscription service and expiry
 - AI integration and NLP of review
+- dining plans complete
+- when map is created emit slug to user service
 
 - s3 issue with docker , not consistent ( check updated review with images )
 - rate limit on check restaurant duplication and other checking endpoints
@@ -47,18 +53,5 @@ git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ 
 - fix validations ( DTOs ) { min max etc } and their redundancy and error messages
 - uncomment twilio sendOTP
 
-- update the skaffold.yaml ( uncomment )
-- remove the mongo-secret since data will be stored locally , 
-    currently on VM close data gets lost, so storing it in a cloud
-
-
-- un comment verify user check in auth login
-- taxId only unique not the name , fix in modify and restaurant service
-- cuisine to categories in all database and events
-- phone number requied in both restaurant (dto and DB)
-- validations uncomment and proper in restaurant and primary details dto 
-- uncomment auth service register user dto
-- uncomment verify email in mail service register method
-- remove token creation in auth service register method 
-- remove date from review.dto.ts
 - make the create review controller fix ( multipart previously )
+- Fix validations and match with frontend

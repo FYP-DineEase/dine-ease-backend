@@ -1,10 +1,10 @@
 import {
   Injectable,
+  ConflictException,
   NotFoundException,
+  ForbiddenException,
   BadRequestException,
   UnauthorizedException,
-  ForbiddenException,
-  ConflictException,
 } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 
@@ -99,16 +99,14 @@ export class AuthService {
 
     if (!passMatches) throw new UnauthorizedException('Invalid Credentials');
 
-    // if (!foundUser.isVerified)
-    //   throw new ForbiddenException('User is not verified');
+    if (!foundUser.isVerified)
+      throw new ForbiddenException('User is not verified');
 
     return foundUser.id;
   }
 
   // register unverified account
-  async registerUnverified(
-    registerUserDto: RegisterUserDto,
-  ): Promise<{ id: string; token: string }> {
+  async registerUnverified(registerUserDto: RegisterUserDto): Promise<string> {
     const { firstName, lastName, role, email, password } = registerUserDto;
 
     const existingUser: AuthDocument = await this.authModel.findOne({ email });
@@ -137,8 +135,7 @@ export class AuthService {
       event,
     );
 
-    return { id: String(newUser.id), token };
-    // return 'Account Created Successfully';
+    return 'Account Created Successfully';
   }
 
   // update password

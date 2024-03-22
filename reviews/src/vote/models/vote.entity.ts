@@ -22,10 +22,10 @@ export interface VoteDocument extends HydratedDocument<Vote> {
   timestamps: true,
 })
 export class Vote {
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
   userId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Review' })
   reviewId: Types.ObjectId;
 
   @Prop({ required: true, enum: VoteTypes })

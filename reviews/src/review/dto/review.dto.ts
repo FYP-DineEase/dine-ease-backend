@@ -26,8 +26,4 @@ export class ReviewDto {
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
   deletedImages: string[];
-
-  @IsString()
-  @IsNotEmpty()
-  createdAt: string;
 }

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 // Database
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserModel } from './models/user.entity';
+import { User, UserModel } from './models/user.entity';
 
 // NATS
 import {

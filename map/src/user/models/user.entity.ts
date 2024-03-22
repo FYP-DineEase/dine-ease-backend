@@ -26,7 +26,6 @@ export interface UserModel extends Model<UserDocument> {
       return ret;
     },
   },
-  timestamps: true,
 })
 export class User {
   @Prop({ required: true, unique: true, index: true })
@@ -40,6 +39,12 @@ export class User {
 
   @Prop()
   avatar: string;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
+
+  @Prop({ default: Date.now })
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

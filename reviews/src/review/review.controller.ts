@@ -71,22 +71,21 @@ export class ReviewController {
 
   @Post('/:restaurantId')
   @UseGuards(AuthGuard)
-  // @UseInterceptors(FilesInterceptor('files', 10))
+  @UseInterceptors(FilesInterceptor('files', 10))
   async createReview(
-    // @UploadedFiles(
-    //   new ParseFilePipe({
-    //     validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
-    //     fileIsRequired: false,
-    //   }),
-    //   new MaxImageSizeValidator(),
-    // )
-    // files: Express.Multer.File[],
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+        fileIsRequired: false,
+      }),
+      new MaxImageSizeValidator(),
+    )
+    files: Express.Multer.File[],
     @Param() id: RestaurantIdDto,
     @GetUser() user: UserDetails,
     @Body() data: ReviewDto,
   ): Promise<ReviewDocument> {
-    // return this.reviewService.createReview(id, user, data, files);
-    return this.reviewService.createReview(id, user, data);
+    return this.reviewService.createReview(id, user, data, files);
   }
 
   @Patch('/:reviewId')

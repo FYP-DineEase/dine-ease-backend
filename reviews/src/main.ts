@@ -17,6 +17,10 @@ async function bootstrap() {
   const microService = app.connectMicroservice(StanOptions);
   microService.listen();
 
+  const parserLimit = '20mb';
+  app.useBodyParser('json', { limit: parserLimit });
+  app.useBodyParser('urlencoded', { limit: parserLimit, extended: true });
+
   app.set('trust proxy', 1);
 
   // server start

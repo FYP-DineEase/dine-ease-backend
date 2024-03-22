@@ -20,7 +20,6 @@ export interface AuthDocument extends HydratedDocument<Auth> {
       return ret;
     },
   },
-  timestamps: true,
 })
 export class Auth {
   @Prop({ required: true, unique: true, index: true })
@@ -31,6 +30,12 @@ export class Auth {
 
   @Prop({ default: false })
   isVerified: boolean;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
+
+  @Prop({ default: Date.now })
+  updatedAt: Date;
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

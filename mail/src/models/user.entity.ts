@@ -5,9 +5,9 @@ export interface UserDocument extends HydratedDocument<User> {
   id: Types.ObjectId;
   email: string;
   isVerified: boolean;
-  version: number;
   createdAt: Date;
   updatedAt: Date;
+  version: number;
 }
 
 @Schema({
@@ -18,7 +18,6 @@ export interface UserDocument extends HydratedDocument<User> {
       return ret;
     },
   },
-  timestamps: true,
 })
 export class User {
   @Prop({ required: true, unique: true, index: true })
@@ -26,6 +25,12 @@ export class User {
 
   @Prop({ default: false })
   isVerified: boolean;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
+
+  @Prop({ default: Date.now })
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

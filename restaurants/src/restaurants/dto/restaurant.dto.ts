@@ -4,15 +4,13 @@ import {
   IsArray,
   ArrayMinSize,
   Length,
-  IsOptional,
 } from 'class-validator';
 import { IsCoordinates } from '../decorators/coordinates.decorator';
 import { PrimaryDetailsDto } from './primary-details.dto';
 
 export class RestaurantDto extends PrimaryDetailsDto {
   @IsString()
-  // @IsNotEmpty()
-  @IsOptional()
+  @IsNotEmpty()
   phoneNumber: string;
 
   @IsArray()
@@ -23,7 +21,7 @@ export class RestaurantDto extends PrimaryDetailsDto {
 
   @IsString()
   @IsNotEmpty()
-  // @Length(10, 100)
+  @Length(10, 100)
   address: string;
 
   @IsCoordinates()

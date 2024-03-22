@@ -32,7 +32,6 @@ export interface UserDocument extends HydratedDocument<User> {
     },
     virtuals: true,
   },
-  timestamps: true,
 })
 export class User {
   @Prop({ required: true, unique: true, index: true })
@@ -69,6 +68,12 @@ export class User {
 
   @Prop()
   description: string;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
+
+  @Prop({ default: Date.now })
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
