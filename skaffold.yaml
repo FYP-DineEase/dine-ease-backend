@@ -17,7 +17,7 @@ manifests:
     # - ./infra/k8s/mail/*.yaml
     # - ./infra/k8s/map/*.yaml
     # - ./infra/k8s/notifications/*.yaml
-    # - ./infra/k8s/reviews/*.yaml
+    - ./infra/k8s/reviews/*.yaml
     # - ./infra/k8s/subscriptions/*.yaml
 metadata:
   name: dine-ease-backend
@@ -105,14 +105,14 @@ build:
     #     manual:
     #       - src: "**/*.ts"
     #         dest: .
-    # - image: mujtabashafiq/dine-ease-reviews
-    #   context: reviews
-    #   docker:
-    #     dockerfile: Dockerfile
-    #   sync:
-    #     manual:
-    #       - src: "**/*.ts"
-    #         dest: .
+    - image: mujtabashafiq/dine-ease-reviews
+      context: reviews
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.ts"
+            dest: .
     # - image: mujtabashafiq/dine-ease-restaurants
     #   context: restaurants
     #   docker:
