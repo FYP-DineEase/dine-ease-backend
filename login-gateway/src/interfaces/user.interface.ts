@@ -7,5 +7,6 @@ export interface User {
   slug: string;
   role: UserRoles;
   avatar?: string;
+  mapSlug?: string;
   location: object;
 }

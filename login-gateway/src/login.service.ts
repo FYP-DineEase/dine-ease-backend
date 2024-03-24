@@ -38,7 +38,7 @@ export class LoginService {
       const userResponse = await axios.get(
         `http://users-srv:3000/api/user/details/${userId}`,
       );
-      const { email, name, slug, role, avatar, location } = userResponse.data;
+      const { email, name, slug, role, avatar, mapSlug, location } = userResponse.data;
 
       const details: User = {
         id: userId,
@@ -47,6 +47,7 @@ export class LoginService {
         name,
         role,
         avatar,
+        mapSlug,
         location,
       };
 
