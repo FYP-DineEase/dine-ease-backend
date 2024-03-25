@@ -8,16 +8,16 @@ manifests:
     - ./infra/k8s/nats/*.yaml
     # - ./infra/k8s/admin/*.yaml
     # - ./infra/k8s/meilisearch/*.yaml
-    # - ./infra/k8s/client/*.yaml
-    - ./infra/k8s/auth/*.yaml
-    - ./infra/k8s/users/*.yaml
-    - ./infra/k8s/login-gateway/*.yaml
+    - ./infra/k8s/client/*.yaml
+    # - ./infra/k8s/auth/*.yaml
+    # - ./infra/k8s/users/*.yaml
+    # - ./infra/k8s/login-gateway/*.yaml
     # - ./infra/k8s/restaurants/*.yaml
     # - ./infra/k8s/dining-plans/*.yaml
     # - ./infra/k8s/mail/*.yaml
     # - ./infra/k8s/map/*.yaml
     # - ./infra/k8s/notifications/*.yaml
-    # - ./infra/k8s/reviews/*.yaml
+    - ./infra/k8s/reviews/*.yaml
     # - ./infra/k8s/subscriptions/*.yaml
 metadata:
   name: dine-ease-backend
@@ -33,38 +33,38 @@ build:
     #     manual:
     #       - src: '**/*.js'
     #         dest: .
-    # - image: mujtabashafiq/dine-ease-client
-    #   context: ../dine-ease-frontend
+    - image: mujtabashafiq/dine-ease-client
+      context: ../dine-ease-frontend
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+    # - image: mujtabashafiq/dine-ease-auth
+    #   context: auth
     #   docker:
     #     dockerfile: Dockerfile
     #   sync:
     #     manual:
-    #       - src: '**/*.js'
+    #       - src: "**/*.ts"
     #         dest: .
-    - image: mujtabashafiq/dine-ease-auth
-      context: auth
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "**/*.ts"
-            dest: .
-    - image: mujtabashafiq/dine-ease-users
-      context: users
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "**/*.ts"
-            dest: .
-    - image: mujtabashafiq/dine-ease-login-gateway
-      context: login-gateway
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "**/*.ts"
-            dest: .
+    # - image: mujtabashafiq/dine-ease-users
+    #   context: users
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: "**/*.ts"
+    #         dest: .
+    # - image: mujtabashafiq/dine-ease-login-gateway
+    #   context: login-gateway
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: "**/*.ts"
+    #         dest: .
     # - image: mujtabashafiq/dine-ease-mail
     #   context: mail
     #   docker:

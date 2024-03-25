@@ -4,18 +4,19 @@ import {
   IsNotEmpty,
   IsString,
   IsOptional,
+  IsAlpha,
 } from 'class-validator';
 import { IsCoordinates } from 'src/decorators/coordinates.decorator';
 
 export class UpdateUserDto {
   @IsNotEmpty()
-  @IsString()
+  @IsAlpha()
   @MinLength(3)
   @MaxLength(20)
   firstName: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsAlpha()
   @MinLength(3)
   @MaxLength(20)
   lastName: string;

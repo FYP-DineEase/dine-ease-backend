@@ -59,6 +59,7 @@ export class ReviewService {
     const { userId } = userIdDto;
     const reviews: ReviewDocument[] = await this.reviewModel
       .find({ userId, isDeleted: false })
+      .sort({ createdAt: -1 })
       .populate({
         path: 'votes',
         model: 'Vote',
@@ -113,6 +114,7 @@ export class ReviewService {
 
     const reviews: ReviewDocument[] = await this.reviewModel
       .find({ restaurantId, isDeleted: false })
+      .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
       .populate([

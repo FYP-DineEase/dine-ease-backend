@@ -1,6 +1,8 @@
 import {
   Min,
   Max,
+  MinLength,
+  MaxLength,
   IsArray,
   IsString,
   IsNumber,
@@ -10,8 +12,10 @@ import {
 import { Type } from 'class-transformer';
 
 export class ReviewDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
+  @MinLength(10)
+  @MaxLength(1000)
   content: string;
 
   @Type(() => Number)
