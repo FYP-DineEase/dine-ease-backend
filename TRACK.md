@@ -1,3 +1,28 @@
+# PORTS
+3000 -> client
+8080 -> admin
+
+3001 -> auth
+3002 -> users
+3003 -> login
+3004 -> mail 
+3005 -> dining-plans
+3006 -> map
+3007 -> restaurants
+3008 -> reviews
+3009 -> notifications
+3010 -> subscriptions
+
+# Start Script
+cmd /c start.bat
+
+# Migrate to Kubernetes
+- remove env files
+- all ports to 3000
+- notification-redis-depl port change to 6379
+- In frontend , const socket = io('/', { path: '/socket.io/notifications' });
+- In frontend , remove localhost prefix
+
 # Notification Events
 restaurant listing approved
 restaurant listing rejected
@@ -28,8 +53,8 @@ kubectl port-forward restaurant-redis-depl-6b7879586b-tbncg 6379:6379
 keys *
 
 kubectl apply -f nats-depl.yaml
-kubectl port-forward nats-depl-5fd545d7c4-r8g4h 4222:4222
-kubectl port-forward nats-depl-5fd545d7c4-r8g4h 8222:8222
+kubectl port-forward nats-depl-59c94999c6-kgvk6 4222:4222
+kubectl port-forward nats-depl-59c94999c6-kgvk6 8222:8222
 
 git tag | foreach-object -process { git tag -d $_ | git push --delete origin $_ }
 

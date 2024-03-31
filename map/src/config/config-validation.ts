@@ -4,6 +4,7 @@ export const configValidation = (config: Record<string, any>) => {
     'NATS_CLIENT_ID',
     'NATS_CLUSTER_ID',
     'JWT_KEY',
+    'MONGO_URI',
   ].filter((key) => !config[key]);
 
   if (missingKeys.length > 0) {
@@ -12,5 +13,5 @@ export const configValidation = (config: Record<string, any>) => {
     );
   }
 
-  return null;
+  return config;
 };

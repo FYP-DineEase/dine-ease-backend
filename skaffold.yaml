@@ -3,22 +3,12 @@ kind: Config
 manifests:
   rawYaml:
     # - ./infra/k8s/**/*.yaml
-    - ./infra/k8s/config/*.yaml
-    - ./infra/k8s/nginx/*.yaml
-    - ./infra/k8s/nats/*.yaml
-    # - ./infra/k8s/admin/*.yaml
+    # - ./infra/k8s/config/*.yaml
+    # - ./infra/k8s/nginx/*.yaml
+    # - ./infra/k8s/nats/*.yaml
+    # - ./infra/k8s/restaurants/restaurants-redis-depl.yaml
+    # - ./infra/k8s/notifications/notifications-redis-depl.yaml
     # - ./infra/k8s/meilisearch/*.yaml
-    - ./infra/k8s/client/*.yaml
-    # - ./infra/k8s/auth/*.yaml
-    # - ./infra/k8s/users/*.yaml
-    # - ./infra/k8s/login-gateway/*.yaml
-    # - ./infra/k8s/restaurants/*.yaml
-    # - ./infra/k8s/dining-plans/*.yaml
-    # - ./infra/k8s/mail/*.yaml
-    # - ./infra/k8s/map/*.yaml
-    # - ./infra/k8s/notifications/*.yaml
-    - ./infra/k8s/reviews/*.yaml
-    # - ./infra/k8s/subscriptions/*.yaml
 metadata:
   name: dine-ease-backend
 build:
@@ -33,14 +23,14 @@ build:
     #     manual:
     #       - src: '**/*.js'
     #         dest: .
-    - image: mujtabashafiq/dine-ease-client
-      context: ../dine-ease-frontend
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: '**/*.js'
-            dest: .
+    # - image: mujtabashafiq/dine-ease-client
+    #   context: ../dine-ease-frontend
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: '**/*.js'
+    #         dest: .
     # - image: mujtabashafiq/dine-ease-auth
     #   context: auth
     #   docker:
@@ -105,14 +95,14 @@ build:
     #     manual:
     #       - src: "**/*.ts"
     #         dest: .
-    - image: mujtabashafiq/dine-ease-reviews
-      context: reviews
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "**/*.ts"
-            dest: .
+    # - image: mujtabashafiq/dine-ease-reviews
+    #   context: reviews
+    #   docker:
+    #     dockerfile: Dockerfile
+    #   sync:
+    #     manual:
+    #       - src: "**/*.ts"
+    #         dest: .
     # - image: mujtabashafiq/dine-ease-restaurants
     #   context: restaurants
     #   docker:

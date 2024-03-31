@@ -1,11 +1,13 @@
 // Modules
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RedisModule } from '../redis/redis.module';
 import { NotificationService } from './notification.service';
-import { NotificationGateway } from './notifications.gateway';
 import { NotificationController } from './notification.controller';
 import { Notification, NotificationSchema } from './models/notification.entity';
+import { NotificationGateway } from './notifications.gateway';
+import { RedisModule } from 'src/redis/redis.module';
+
+// Services
 import { RedisService } from 'src/redis/redis.service';
 
 @Module({
@@ -15,8 +17,8 @@ import { RedisService } from 'src/redis/redis.service';
       { name: Notification.name, schema: NotificationSchema },
     ]),
   ],
+  controllers: [NotificationController],
   exports: [NotificationService],
   providers: [RedisService, NotificationService, NotificationGateway],
-  controllers: [NotificationController],
 })
 export class NotificationModule {}

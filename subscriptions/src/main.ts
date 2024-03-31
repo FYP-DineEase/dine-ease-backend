@@ -20,7 +20,7 @@ async function bootstrap() {
   app.set('trust proxy', 1);
 
   // server start
-  const PORT = 3000;
+  const PORT = 3010;
   await app.listen(PORT, () => {
     logger.log(`Listening to PORT: ${PORT}`);
   });

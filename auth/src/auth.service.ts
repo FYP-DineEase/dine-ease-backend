@@ -17,7 +17,8 @@ import {
 } from '@dine_ease/common';
 
 // JWT
-import { JwtMailService, EmailTokenTypes } from '@dine_ease/common';
+import { EmailTokenTypes } from '@dine_ease/common';
+import { JwtMailService } from '@dine_ease/common';
 
 // Database
 import { Model, Types } from 'mongoose';
@@ -33,15 +34,10 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 // Utils
 import { comparePasswords } from './utils/password.utils';
 
-// remove
-import { JwtService } from '@nestjs/jwt';
-import { UserDetails } from '@dine_ease/common';
-
 @Injectable()
 export class AuthService {
   constructor(
     private readonly publisher: Publisher,
-    private readonly jwtService: JwtService,
     private readonly jwtMailService: JwtMailService,
     @InjectModel(Auth.name) private readonly authModel: Model<AuthDocument>,
   ) {}
@@ -126,9 +122,6 @@ export class AuthService {
       email,
       role,
     };
-
-    const tokenPayload: UserDetails = { id: newUser.id, role };
-    const token: string = this.jwtService.sign(tokenPayload);
 
     this.publisher.emit<void, AccountCreatedEvent>(
       Subjects.AccountCreated,

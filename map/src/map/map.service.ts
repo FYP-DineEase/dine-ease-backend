@@ -74,7 +74,7 @@ export class MapService {
     found.restaurants.push(restaurantId);
     await found.save();
 
-    return 'Restaurant added successfully';
+    return found.slug;
   }
 
   // update map theme

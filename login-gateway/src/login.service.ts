@@ -29,14 +29,14 @@ export class LoginService {
   ): Promise<{ details: User; tokenPayload: UserDetails }> {
     try {
       const authResponse = await axios.post(
-        'http://auth-srv:3000/api/auth/login',
+        'http://localhost:3000/api/auth/login',
         loginDto,
       );
       const { userId } = authResponse.data;
       if (!userId) throw new NotFoundException('User not found');
 
       const userResponse = await axios.get(
-        `http://users-srv:3000/api/user/details/${userId}`,
+        `http://localhost:3000/api/user/details/${userId}`,
       );
       const { email, name, slug, role, avatar, mapSlug, location } =
         userResponse.data;

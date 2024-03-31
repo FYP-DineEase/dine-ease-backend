@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { GlobalExceptionFilter } from '@dine_ease/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { StanOptions } from './services/stan.options';
 import { AppModule } from './app.module';
+import { StanOptions } from './services/stan.options';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -20,7 +20,7 @@ async function bootstrap() {
   app.set('trust proxy', 1);
 
   // server start
-  const PORT = 3000;
+  const PORT = 3009;
   await app.listen(PORT, () => {
     logger.log(`Listening to PORT: ${PORT}`);
   });

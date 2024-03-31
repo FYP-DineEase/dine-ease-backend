@@ -7,5 +7,5 @@ export const configValidation = (config: Record<string, any>) => {
     );
   }
 
-  return null;
+  return config;
 };

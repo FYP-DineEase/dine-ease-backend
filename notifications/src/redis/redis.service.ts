@@ -27,4 +27,19 @@ export class RedisService {
   async deleteValue(key: string): Promise<void> {
     await this.redisClient.del(key);
   }
+
+  // retrieve all values
+  async getAllValues(): Promise<any[]> {
+    const keys = await this.redisClient.keys('*');
+    const values: any[] = [];
+
+    if (keys.length === 0) return values;
+
+    for (const key of keys) {
+      const value = await this.getValue(key);
+      values.push({ key, value });
+    }
+
+    return values;
+  }
 }

@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, UnauthorizedException } from '@nestjs/common';
 import {
   OnGatewayConnection,
   WebSocketGateway,
@@ -38,19 +38,16 @@ export class NotificationGateway
 
   async handleConnection(client: Socket) {
     const token = client.handshake.headers.authorization;
-    console.log('Authorization Token:', token);
-    // const user = await this.jwtService.verifyAsync(token);
-    // console.log('User:', user);
-    // await this.redisService.setValue(user.id)
+    if (!token) throw new UnauthorizedException('Token Required');
+    const user = await this.jwtService.verifyAsync(token);
+    await this.redisService.setValue(user.id, user.id);
     this.logger.info(`Client connected: ${client.id}`);
   }
 
   async handleDisconnect(client: Socket) {
     const token = client.handshake.headers.authorization;
-    console.log('Authorization Token:', token);
-    // const user = await this.jwtService.verifyAsync(token);
-    // console.log('User:', user);
-    // await this.redisService.deleteValue(user.id);
+    const user = await this.jwtService.verifyAsync(token);
+    await this.redisService.deleteValue(user.id);
     this.logger.info(`Client disconnected: ${client.id}`);
   }
 }
