@@ -11,7 +11,7 @@ export class PlanIdDto {
   planId: Types.ObjectId;
 }
 
-export class VoteIdDto extends PlanIdDto {
+export class UserIdDto {
   @IsMongoId()
-  voteId: Types.ObjectId;
+  userId: Types.ObjectId;
 }

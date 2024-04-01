@@ -25,14 +25,6 @@ export class RestaurantService {
     private readonly restaurantModel: RestaurantModel,
   ) {}
 
-  // find restaurant by ids
-  async validateRestaurantIds(ids: Types.ObjectId[]): Promise<boolean> {
-    const found = await this.restaurantModel.find({
-      _id: { $in: ids },
-    });
-    if (found.length === ids.length) return true;
-    throw new NotFoundException('Restaurant Not Found');
-  }
 
   // find restaurant by id
   async findRestaurantById(

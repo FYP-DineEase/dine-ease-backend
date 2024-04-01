@@ -1,6 +1,5 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Vote, VoteSchema } from './vote.entity';
 
 export interface PlanDocument extends HydratedDocument<Plan> {
   id: Types.ObjectId;
@@ -8,8 +7,7 @@ export interface PlanDocument extends HydratedDocument<Plan> {
   slug: string;
   title: string;
   description: string;
-  votes: Vote[];
-  restaurants: Types.ObjectId[];
+  restaurant: Types.ObjectId;
   invitees: string[];
   date: Date;
   version: number;
@@ -46,11 +44,8 @@ export class Plan {
   @Prop({ required: true })
   date: Date;
 
-  @Prop([{ type: Types.ObjectId, required: true, ref: 'Restaurant' }])
-  restaurants: Types.ObjectId[];
-
-  @Prop({ type: [VoteSchema], default: [] })
-  votes: Vote[];
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Restaurant' })
+  restaurant: Types.ObjectId;
 }
 
 export const PlanSchema = SchemaFactory.createForClass(Plan);

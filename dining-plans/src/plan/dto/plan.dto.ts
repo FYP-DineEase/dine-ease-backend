@@ -29,9 +29,6 @@ export class PlanDto {
   @IsDateString()
   date: Date;
 
-  @IsArray()
-  @ArrayUnique()
-  @IsMongoId({ each: true })
-  @ArrayMinSize(1)
-  restaurants: Types.ObjectId[];
+  @IsMongoId()
+  restaurant: Types.ObjectId;
 }

@@ -21,7 +21,7 @@ import { Plan, PlanDocument } from './models/plan.entity';
 // DTO
 import { PlanDto } from './dto/plan.dto';
 import { PlanSlugDto } from './dto/plan-slug.dto';
-import { RestaurantIdDto, VoteIdDto, PlanIdDto } from './dto/mongo-id.dto';
+import { UserIdDto, PlanIdDto } from './dto/mongo-id.dto';
 
 @Injectable()
 export class PlanService {
@@ -41,8 +41,8 @@ export class PlanService {
   }
 
   // find user plans
-  async allUserPlans(user: UserDetails): Promise<PlanDocument[]> {
-    const userId = user.id;
+  async allUserPlans(userIdDto: UserIdDto): Promise<PlanDocument[]> {
+    const { userId } = userIdDto;
     const found: PlanDocument[] = await this.planModel.find({ userId });
     return found;
   }
@@ -53,7 +53,7 @@ export class PlanService {
     const found: PlanDocument = await this.planModel
       .findOne({ slug })
       .populate({
-        path: 'restaurants',
+        path: 'restaurant',
         model: 'Restaurant',
         match: { isDeleted: { $ne: true } },
       })
@@ -62,27 +62,11 @@ export class PlanService {
     return found;
   }
 
-  // add vote to a plan
-  async addVote(
-    planIdDto: PlanIdDto,
-    restaurantIdDto: RestaurantIdDto,
-    user: UserDetails,
-  ): Promise<string> {
-    const userId = user.id;
-    const { restaurantId } = restaurantIdDto;
-
-    const found: PlanDocument = await this.findPlanById(planIdDto);
-    found.votes.push({ userId, restaurantId });
-    await found.save();
-
-    return 'Vote added successfully';
-  }
-
   // create a dining plan
   async createPlan(planDto: PlanDto, user: UserDetails): Promise<PlanDocument> {
-    const { title, description, date, invitees, restaurants } = planDto;
+    const { title, description, date, invitees, restaurant } = planDto;
 
-    await this.restaurantService.validateRestaurantIds(restaurants);
+    await this.restaurantService.findRestaurantById(restaurant);
 
     const plan: PlanDocument = await this.planModel.create({
       userId: user.id,
@@ -91,7 +75,7 @@ export class PlanService {
       description,
       date,
       invitees,
-      restaurants,
+      restaurant,
     });
 
     plan.populate({ path: 'userId' });
@@ -119,16 +103,16 @@ export class PlanService {
     const found: PlanDocument = await this.findPlanById(planIdDto);
 
     if (found.userId === user.id) {
-      const { title, description, date, invitees, restaurants } = planDto;
+      const { title, description, date, invitees, restaurant } = planDto;
 
       // New invitees
       const newInvitees = invitees.filter(
         (invitee) => !found.invitees.includes(invitee),
       );
 
-      await this.restaurantService.validateRestaurantIds(restaurants);
+      await this.restaurantService.findRestaurantById(restaurant);
 
-      found.set({ title, description, date, invitees, restaurants });
+      found.set({ title, description, date, invitees, restaurant });
       await found.save();
 
       // Send email to new invitees
@@ -140,23 +124,6 @@ export class PlanService {
     }
 
     throw new UnauthorizedException('User is not authorized');
-  }
-
-  // delete vote
-  async deleteVote(voteIdDto: VoteIdDto, user: UserDetails): Promise<string> {
-    const userId = user.id;
-    const { planId, voteId } = voteIdDto;
-
-    const found: PlanDocument = await this.planModel.findByIdAndUpdate(
-      planId,
-      {
-        $pull: { votes: { userId, _id: voteId } },
-      },
-      { new: true },
-    );
-
-    if (!found) throw new NotFoundException('Vote not found');
-    return 'Vote deleted successfully';
   }
 
   // delete plan

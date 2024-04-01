@@ -16,17 +16,16 @@ import { PlanDocument } from './models/plan.entity';
 
 // DTO
 import { PlanDto } from './dto/plan.dto';
-import { RestaurantIdDto, VoteIdDto, PlanIdDto } from './dto/mongo-id.dto';
+import { PlanIdDto, UserIdDto } from './dto/mongo-id.dto';
 import { PlanSlugDto } from './dto/plan-slug.dto';
 
 @Controller('/api/dining-plan')
 export class PlanController {
   constructor(private readonly planService: PlanService) {}
 
-  @Get()
-  @UseGuards(AuthGuard)
-  async allUserPlans(@GetUser() user: UserDetails): Promise<PlanDocument[]> {
-    return this.planService.allUserPlans(user);
+  @Get('user/:userId')
+  async allUserPlans(@Param() userIdDto: UserIdDto): Promise<PlanDocument[]> {
+    return this.planService.allUserPlans(userIdDto);
   }
 
   @Get('/:slug')
@@ -43,16 +42,6 @@ export class PlanController {
     return this.planService.createPlan(planDto, user);
   }
 
-  @Post('/vote/:planId')
-  @UseGuards(AuthGuard)
-  async addVote(
-    @Param() planIdDto: PlanIdDto,
-    @Body() restaurantIdDto: RestaurantIdDto,
-    @GetUser() user: UserDetails,
-  ): Promise<string> {
-    return this.planService.addVote(planIdDto, restaurantIdDto, user);
-  }
-
   @Patch('/:planId')
   @UseGuards(AuthGuard)
   async updatePlan(
@@ -61,15 +50,6 @@ export class PlanController {
     @GetUser() user: UserDetails,
   ): Promise<string> {
     return this.planService.updatePlan(planIdDto, planDto, user);
-  }
-
-  @Delete('/:planId/:voteId')
-  @UseGuards(AuthGuard)
-  async deleteVote(
-    @Param() voteIdDto: VoteIdDto,
-    @GetUser() user: UserDetails,
-  ): Promise<string> {
-    return this.planService.deleteVote(voteIdDto, user);
   }
 
   @Delete('/:planId')
