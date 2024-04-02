@@ -19,6 +19,12 @@ async function bootstrap() {
 
   app.set('trust proxy', 1);
 
+  // enable cors
+  app.enableCors({
+    allowedHeaders: ['*'],
+    origin: ['http://localhost:3000', 'http://localhost:8080'],
+  });
+
   // server start
   const PORT = 3002;
   await app.listen(PORT, () => {
