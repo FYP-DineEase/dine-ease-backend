@@ -15,6 +15,12 @@ spec:
       containers:
         - name: meilisearch
           image: getmeili/meilisearch:v1.7
+          env:
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dine-ease-secrets
+                  key: MEILI_SEARCH_TOKEN
           ports:
             - containerPort: 7700
           volumeMounts:
