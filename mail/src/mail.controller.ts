@@ -46,7 +46,7 @@ export class MailController {
     context.message.ack();
   }
 
-  // dining plan created
+  // dining plan
   @EventPattern(Subjects.InvitedEvent)
   async sendInvitation(
     @Payload() data: InvitedEvent,

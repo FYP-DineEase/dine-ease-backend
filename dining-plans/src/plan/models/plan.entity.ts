@@ -26,7 +26,7 @@ export interface PlanDocument extends HydratedDocument<Plan> {
   timestamps: true,
 })
 export class Plan {
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
   userId: Types.ObjectId;
 
   @Prop({ unique: true, index: true })

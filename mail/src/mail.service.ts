@@ -9,6 +9,7 @@ import {
   EmailTokenTypes,
   JwtMailService,
 } from '@dine_ease/common';
+import * as dayjs from 'dayjs';
 
 // NATS
 import {
@@ -123,17 +124,20 @@ export class MailService {
 
   // dining plan invitation
   async sendInvitation(data: InvitedEvent): Promise<string> {
-    const { name, title, date, description, invitees } = data;
+    const { name, title, date, slug, description, invitees } = data;
 
-    // await this.mailerService.sendMail({
-    //   to: email,
-    //   subject: title,
-    //   template: './dining-invitation',
-    //   context: {
-    //     name,
-    //     verificationLink: `http://localhost:3000/`,
-    //   },
-    // });
+    await this.mailerService.sendMail({
+      to: invitees.join(', '),
+      subject: `Dining Invitation from ${name}`,
+      template: './dining-invitation',
+      context: {
+        name,
+        title,
+        date: dayjs(date).locale('en').format('DD MMMM YYYY'),
+        description,
+        inviteLink: `http://localhost:3000/dining-plan/${slug}`,
+      },
+    });
 
     return 'Dining Invitation Sent';
   }

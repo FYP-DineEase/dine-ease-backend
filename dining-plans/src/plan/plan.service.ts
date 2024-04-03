@@ -14,9 +14,10 @@ import { InvitedEvent, Subjects } from '@dine_ease/common';
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // Database
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Plan, PlanDocument } from './models/plan.entity';
+import { UserDocument } from 'src/user/models/user.entity';
 
 // DTO
 import { PlanDto } from './dto/plan.dto';
@@ -52,12 +53,17 @@ export class PlanService {
     const { slug } = mapSlugDto;
     const found: PlanDocument = await this.planModel
       .findOne({ slug })
-      .populate({
-        path: 'restaurant',
-        model: 'Restaurant',
-        match: { isDeleted: { $ne: true } },
-      })
-      .exec();
+      .populate([
+        {
+          path: 'userId',
+          model: 'User',
+        },
+        {
+          path: 'restaurant',
+          model: 'Restaurant',
+          match: { isDeleted: { $ne: true } },
+        },
+      ]);
     if (!found) throw new NotFoundException('Dining Plan not found');
     return found;
   }
@@ -78,18 +84,29 @@ export class PlanService {
       restaurant,
     });
 
-    plan.populate({ path: 'userId' });
-    console.log(plan);
-    // const event: InvitedEvent = {
-    //   name,
-    //   title,
-    //   description,
-    //   date,
-    //   slug: plan.slug,
-    //   invitees,
-    // };
+    await plan.populate({
+      path: 'userId',
+      model: 'User',
+    });
 
-    // this.publisher.emit<void, InvitedEvent>(Subjects.InvitedEvent, event);
+    let name: string;
+
+    if (plan.userId instanceof Types.ObjectId) {
+      console.error('userId is not populated');
+    } else {
+      name = (plan.userId as UserDocument).name;
+    }
+
+    const event: InvitedEvent = {
+      name,
+      title,
+      description,
+      date,
+      slug: plan.slug,
+      invitees,
+    };
+
+    this.publisher.emit<void, InvitedEvent>(Subjects.InvitedEvent, event);
 
     return plan;
   }
@@ -115,9 +132,31 @@ export class PlanService {
       found.set({ title, description, date, invitees, restaurant });
       await found.save();
 
+      await found.populate({
+        path: 'userId',
+        model: 'User',
+      });
+
+      let name: string;
+
+      if (found.userId instanceof Types.ObjectId) {
+        console.error('userId is not populated');
+      } else {
+        name = (found.userId as UserDocument).name;
+      }
+
       // Send email to new invitees
       if (newInvitees.length > 0) {
-        // send email notification to users about the plan
+        const event: InvitedEvent = {
+          name,
+          title,
+          description,
+          date,
+          slug: found.slug,
+          invitees: newInvitees,
+        };
+
+        this.publisher.emit<void, InvitedEvent>(Subjects.InvitedEvent, event);
       }
 
       return 'Dining Plan updated successfully';

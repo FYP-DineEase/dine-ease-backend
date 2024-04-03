@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Update Your Password</title>
+    <title>Dining Plan Invitation</title>
     <style>
       body {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -37,7 +37,7 @@
         margin-top: 10px;
       }
       .content {
-        text-align: left;
+        text-align: center;
         margin-bottom: 30px;
       }
       .btn {
@@ -72,30 +72,28 @@
           src="https://images.pexels.com/photos/3941855/pexels-photo-3941855.jpeg?auto=compress&cs=tinysrgb&w=1600"
           alt="Logo"
         />
-        <h2 class="title">Title</h2>
+        <h2 class="title">{{title}}</h2>
       </div>
 
       <div class="content">
-        <h4></h4>
         <p>
-          Hello, We have received a request to update your account password.
-          Please click the button below to proceed with the password update.
+          You've been invited by {{name}} to join for a delightful dining
+          experience on {{date}}.
         </p>
       </div>
 
       <div class="btn-container">
-        <a href="{{viewLink}}" class="btn">View Dining Plan</a>
+        <a href="{{inviteLink}}" class="btn">View Invitation</a>
       </div>
 
       <div class="content">
-        <p>
-          If this request was not created by you, do not proceed. Please note
-          that the request for the update will expire in 7 days.
-        </p>
+        <p>{{description}}</p>
       </div>
 
+      <hr />
+
       <div class="footer">
-        <p>We look forward to sharing a meal together!</p>
+        <p>We look forward to sharing a meal together !</p>
       </div>
     </div>
   </body>
