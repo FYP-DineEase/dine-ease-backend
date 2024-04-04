@@ -3,7 +3,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserDetails } from '@dine_ease/common';
+import {
+  UserDetails,
+  NotificationType,
+  NotificationCategory,
+} from '@dine_ease/common';
 
 // Services
 import { ReviewService } from 'src/review/review.service';
@@ -14,16 +18,28 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Vote, VoteDocument } from './models/vote.entity';
 import { ReviewDocument } from 'src/review/models/review.entity';
 
+// NATS
+import {
+  Subjects,
+  NotificationCreatedEvent,
+  NotificationDeletedEvent,
+} from '@dine_ease/common';
+import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+
 // DTO
 import { ReviewIdDto, UserIdDto, VoteIdDto } from './dto/mongo-id.dto';
 import { VoteDto } from './dto/vote.dto';
 
+// Enums
+import { VoteStrings } from 'src/enums/votes.enum';
+
 @Injectable()
 export class VoteService {
   constructor(
+    private readonly publisher: Publisher,
+    private readonly reviewService: ReviewService,
     @InjectModel(Vote.name)
     private voteModel: Model<VoteDocument>,
-    private readonly reviewService: ReviewService,
   ) {}
 
   // add vote nats event
@@ -67,6 +83,21 @@ export class VoteService {
 
     review.votes.push(vote.id);
     await review.save();
+
+    const notificationEvent: NotificationCreatedEvent = {
+      uid: vote.id,
+      senderId: user.id,
+      receiverId: review.userId,
+      category: NotificationCategory.User,
+      type: NotificationType.Vote,
+      slug: review.slug,
+      message: VoteStrings[type.toUpperCase()],
+    };
+
+    this.publisher.emit<void, NotificationCreatedEvent>(
+      Subjects.NotificationCreated,
+      notificationEvent,
+    );
 
     return vote;
   }
@@ -116,6 +147,15 @@ export class VoteService {
 
       review.votes.splice(voteIndex, 1);
       await review.save();
+
+      const notificationEvent: NotificationDeletedEvent = {
+        uid: vote.id,
+      };
+
+      this.publisher.emit<void, NotificationDeletedEvent>(
+        Subjects.NotificationDeleted,
+        notificationEvent,
+      );
 
       return 'Vote deleted successfully';
     }

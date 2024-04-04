@@ -10,6 +10,7 @@ import {
   UserDetails,
   StatusTypes,
   AdminRoles,
+  NotificationType,
   NotificationCategory,
 } from '@dine_ease/common';
 import { RecordType } from 'src/enums/record.enum';
@@ -219,22 +220,29 @@ export class RestaurantsService {
         Subjects.RestaurantApproved,
         restaurantApprovedEvent,
       );
-
-      const notificationEvent: NotificationCreatedEvent = {
-        senderId: user.id,
-        receiverId: found.userId,
-        category: NotificationCategory.System,
-        slug: `restaurant/${slug}`,
-        message: `has approved your listing of restaurant ${name}`,
-      };
-
-      this.publisher.emit<void, NotificationCreatedEvent>(
-        Subjects.NotificationCreated,
-        notificationEvent,
-      );
     } else {
       await found.deleteOne();
     }
+
+    const notificationEvent: NotificationCreatedEvent = {
+      uid: found.id,
+      senderId: user.id,
+      receiverId: found.userId,
+      category: NotificationCategory.System,
+      type:
+        status === StatusTypes.APPROVED
+          ? NotificationType.RestaurantApproved
+          : NotificationType.RestaurantRejected,
+      slug: found.slug,
+      message: `has ${status} your restaurant listing of ${found.name}${
+        status === StatusTypes.REJECTED ? ` due to ${remarks}` : ''
+      }`,
+    };
+
+    this.publisher.emit<void, NotificationCreatedEvent>(
+      Subjects.NotificationCreated,
+      notificationEvent,
+    );
 
     const payload = {
       adminId: user.id,
@@ -527,6 +535,23 @@ export class RestaurantsService {
       } else {
         found.deleteOne();
       }
+      if (user.role === AdminRoles.ADMIN) {
+        const notificationEvent: NotificationCreatedEvent = {
+          uid: found.id,
+          senderId: user.id,
+          receiverId: found.userId,
+          category: NotificationCategory.System,
+          type: NotificationType.RestaurantDeleted,
+          slug: found.slug,
+          message: `has deleted your restaurant listing of ${found.name}`,
+        };
+
+        this.publisher.emit<void, NotificationCreatedEvent>(
+          Subjects.NotificationCreated,
+          notificationEvent,
+        );
+      }
+
       return 'Restaurant Deleted';
     }
 

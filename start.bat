@@ -9,11 +9,11 @@
 @REM rem Open terminal 3 and execute commands
 @REM start cmd /k "cd login-gateway && npm run start:dev"
 
-rem Open terminal 4 and execute commands
-start cmd /k "cd mail && npm run start:dev"
+@REM rem Open terminal 4 and execute commands
+@REM start cmd /k "cd mail && npm run start:dev"
 
-rem Open terminal 5 and execute commands
-start cmd /k "cd dining-plans && npm run start:dev"
+@REM rem Open terminal 5 and execute commands
+@REM start cmd /k "cd dining-plans && npm run start:dev"
 
 @REM rem Open terminal 6 and execute commands
 @REM start cmd /k "cd map && npm run start:dev"

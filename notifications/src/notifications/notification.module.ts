@@ -4,11 +4,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { Notification, NotificationSchema } from './models/notification.entity';
-import { NotificationGateway } from './notifications.gateway';
 import { RedisModule } from 'src/redis/redis.module';
 
 // Services
 import { RedisService } from 'src/redis/redis.service';
+import { SocketService } from 'src/services/socket.service';
+import { NotificationGateway } from './notifications.gateway';
 
 @Module({
   imports: [
@@ -19,6 +20,11 @@ import { RedisService } from 'src/redis/redis.service';
   ],
   controllers: [NotificationController],
   exports: [NotificationService],
-  providers: [RedisService, NotificationService, NotificationGateway],
+  providers: [
+    RedisService,
+    SocketService,
+    NotificationService,
+    NotificationGateway,
+  ],
 })
 export class NotificationModule {}

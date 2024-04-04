@@ -1,6 +1,7 @@
 // Modules
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UserModule } from 'src/user/user.module';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { NatsStreamingTransport } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
@@ -17,6 +18,7 @@ import { Plan, PlanSchema } from './models/plan.entity';
         url: process.env.NATS_URL,
       },
     }),
+    UserModule,
     RestaurantModule,
     MongooseModule.forFeature([{ name: Plan.name, schema: PlanSchema }]),
   ],

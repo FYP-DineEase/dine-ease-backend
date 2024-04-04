@@ -10,8 +10,8 @@ import { Socket, Server } from 'socket.io';
 
 // Services
 import { JwtService } from '@nestjs/jwt';
-import { NotificationService } from './notification.service';
 import { RedisService } from 'src/redis/redis.service';
+import { SocketService } from 'src/services/socket.service';
 
 // Logger
 import { Logger } from 'winston';
@@ -26,28 +26,29 @@ export class NotificationGateway
     private readonly logger: Logger,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
-    private readonly notificationService: NotificationService,
+    private readonly socketService: SocketService,
   ) {}
 
   @WebSocketServer()
   server: Server;
 
-  async afterInit() {
+  async afterInit(server: Server) {
+    this.socketService.socket = server;
     this.logger.info('Conected to Socket Server');
   }
 
-  async handleConnection(client: Socket) {
-    const token = client.handshake.headers.authorization;
+  async handleConnection(socket: Socket) {
+    const token = socket.handshake.headers.authorization;
     if (!token) throw new UnauthorizedException('Token Required');
     const user = await this.jwtService.verifyAsync(token);
-    await this.redisService.setValue(user.id, user.id);
-    this.logger.info(`Client connected: ${client.id}`);
+    await this.redisService.setValue(String(user.id), socket.id);
+    this.logger.info(`Client connected: ${socket.id}`);
   }
 
-  async handleDisconnect(client: Socket) {
-    const token = client.handshake.headers.authorization;
+  async handleDisconnect(socket: Socket) {
+    const token = socket.handshake.headers.authorization;
     const user = await this.jwtService.verifyAsync(token);
-    await this.redisService.deleteValue(user.id);
-    this.logger.info(`Client disconnected: ${client.id}`);
+    await this.redisService.deleteValue(String(user.id));
+    this.logger.info(`Client disconnected: ${socket.id}`);
   }
 }

@@ -3,15 +3,25 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserDetails } from '@dine_ease/common';
+import {
+  NotificationCategory,
+  NotificationType,
+  UserDetails,
+} from '@dine_ease/common';
 import { nanoid } from 'nanoid';
 
 // Services
+import { UserService } from 'src/user/user.service';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
-import { InvitedEvent, Subjects } from '@dine_ease/common';
 
 // Nats
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+import {
+  NotificationCreatedEvent,
+  NotificationDeletedEvent,
+  InvitedEvent,
+  Subjects,
+} from '@dine_ease/common';
 
 // Database
 import { Model, Types } from 'mongoose';
@@ -28,6 +38,7 @@ import { UserIdDto, PlanIdDto } from './dto/mongo-id.dto';
 export class PlanService {
   constructor(
     private readonly publisher: Publisher,
+    private readonly userService: UserService,
     private readonly restaurantService: RestaurantService,
     @InjectModel(Plan.name)
     private readonly planModel: Model<PlanDocument>,
@@ -97,6 +108,8 @@ export class PlanService {
       name = (plan.userId as UserDocument).name;
     }
 
+    const inviteesIds = await this.userService.findIds({ emails: invitees });
+
     const event: InvitedEvent = {
       name,
       title,
@@ -107,6 +120,23 @@ export class PlanService {
     };
 
     this.publisher.emit<void, InvitedEvent>(Subjects.InvitedEvent, event);
+
+    if (inviteesIds.length > 0) {
+      const notificationEvent: NotificationCreatedEvent = {
+        uid: plan.id,
+        senderId: user.id,
+        receiverId: inviteesIds,
+        category: NotificationCategory.User,
+        type: NotificationType.Dining,
+        slug: plan.slug,
+        message: `has invited you to dine out`,
+      };
+
+      this.publisher.emit<void, NotificationCreatedEvent>(
+        Subjects.NotificationCreated,
+        notificationEvent,
+      );
+    }
 
     return plan;
   }
@@ -147,6 +177,10 @@ export class PlanService {
 
       // Send email to new invitees
       if (newInvitees.length > 0) {
+        const inviteesIds = await this.userService.findIds({
+          emails: newInvitees,
+        });
+
         const event: InvitedEvent = {
           name,
           title,
@@ -157,6 +191,23 @@ export class PlanService {
         };
 
         this.publisher.emit<void, InvitedEvent>(Subjects.InvitedEvent, event);
+
+        if (inviteesIds.length > 0) {
+          const notificationEvent: NotificationCreatedEvent = {
+            uid: found.id,
+            senderId: user.id,
+            receiverId: inviteesIds,
+            category: NotificationCategory.User,
+            type: NotificationType.Dining,
+            slug: found.slug,
+            message: `has invited you to dine out`,
+          };
+
+          this.publisher.emit<void, NotificationCreatedEvent>(
+            Subjects.NotificationCreated,
+            notificationEvent,
+          );
+        }
       }
 
       return 'Dining Plan updated successfully';
@@ -170,6 +221,15 @@ export class PlanService {
     const found: PlanDocument = await this.findPlanById(planIdDto);
 
     if (found.userId === user.id) {
+      const notificationEvent: NotificationDeletedEvent = {
+        uid: found.id,
+      };
+
+      this.publisher.emit<void, NotificationDeletedEvent>(
+        Subjects.NotificationDeleted,
+        notificationEvent,
+      );
+
       await found.deleteOne();
       return 'Dining Plan deleted successfully';
     }

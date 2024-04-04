@@ -24,18 +24,18 @@ cmd /c start.bat
 - In frontend , remove localhost prefix
 
 # Notification Events
-restaurant listing approved
-restaurant listing rejected
-restaurant deleted
+- dining plans created 
+- dining plans updated
+- dining plans deleted 
+- restaurant listing approved
+- restaurant listing rejected
+- restaurant deleted
+- vote created
+- vote deleted
+
 modification request approved
 modification request rejeceted
-invited to dining plan
-vote created
-
-delete notification on unvote
-delete previous notification on vote update
-delete nofifications of vote on review delete
-delete nofication of dining plan invitation
+and rewrite notification db
 
 # Upgrade Nestjs
 https://dev.to/amirfakour/how-to-upgrade-nestjs-9-to-10-a-developers-guide-32kk
