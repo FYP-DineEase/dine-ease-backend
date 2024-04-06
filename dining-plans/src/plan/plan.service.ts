@@ -154,7 +154,7 @@ export class PlanService {
     planIdDto: PlanIdDto,
     planDto: PlanDto,
     user: UserDetails,
-  ): Promise<string> {
+  ): Promise<PlanDocument> {
     const found: PlanDocument = await this.findPlanById(planIdDto);
 
     if (found.userId === user.id) {
@@ -170,10 +170,17 @@ export class PlanService {
       found.set({ title, description, date, invitees, restaurant });
       await found.save();
 
-      await found.populate({
-        path: 'userId',
-        model: 'User',
-      });
+      await found.populate([
+        {
+          path: 'userId',
+          model: 'User',
+        },
+        {
+          path: 'restaurant',
+          model: 'Restaurant',
+          match: { isDeleted: { $ne: true } },
+        },
+      ]);
 
       let name: string;
 
@@ -218,7 +225,7 @@ export class PlanService {
         }
       }
 
-      return 'Dining Plan updated successfully';
+      return found;
     }
 
     throw new UnauthorizedException('User is not authorized');

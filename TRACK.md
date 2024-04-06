@@ -32,10 +32,8 @@ cmd /c start.bat
 - restaurant deleted
 - vote created
 - vote deleted
-
-modification request approved
-modification request rejeceted
-and rewrite notification db
+- modification request approved
+- modification request rejeceted
 
 # Upgrade Nestjs
 https://dev.to/amirfakour/how-to-upgrade-nestjs-9-to-10-a-developers-guide-32kk

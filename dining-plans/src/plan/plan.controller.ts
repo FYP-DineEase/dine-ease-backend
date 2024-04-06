@@ -48,7 +48,7 @@ export class PlanController {
     @Param() planIdDto: PlanIdDto,
     @Body() planDto: PlanDto,
     @GetUser() user: UserDetails,
-  ): Promise<string> {
+  ): Promise<PlanDocument> {
     return this.planService.updatePlan(planIdDto, planDto, user);
   }
 
