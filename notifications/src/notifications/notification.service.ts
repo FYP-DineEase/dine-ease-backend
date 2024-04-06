@@ -45,7 +45,6 @@ export class NotificationService {
 
   // create notification
   async createNotification(data: NotificationCreatedEvent): Promise<void> {
-    // If receiverId is not an array, convert it to an array to unify handling
     if (!Array.isArray(data.receiverId)) {
       data.receiverId = [data.receiverId];
     }
@@ -74,7 +73,6 @@ export class NotificationService {
 
     data.receiverId.forEach(async (v) => {
       const { receiverId: _, ...details } = data;
-      console.log(details);
       const receiver = await this.redisService.getValue(String(v));
       this.socketService.socket.to(receiver).emit('notification', details);
     });

@@ -470,11 +470,11 @@ export class RestaurantsService {
 
     const request = await this.modifyService.restaurantRequest(idDto);
 
-    if (status === StatusTypes.APPROVED) {
-      const found: RestaurantDocument = await this.findRestaurantById(
-        restaurantId,
-      );
+    const found: RestaurantDocument = await this.findRestaurantById(
+      restaurantId,
+    );
 
+    if (status === StatusTypes.APPROVED) {
       const { taxId, name } = request;
       found.set({ taxId, name });
       await found.save();
@@ -501,6 +501,26 @@ export class RestaurantsService {
       remarks,
     };
     await this.recordsService.createRecord(payload);
+
+    const notificationEvent: NotificationCreatedEvent = {
+      uid: found.id,
+      senderId: user.id,
+      receiverId: found.userId,
+      category: NotificationCategory.System,
+      type:
+        status === StatusTypes.APPROVED
+          ? NotificationType.ModifyRequestApproved
+          : NotificationType.ModifyRequestRejected,
+      slug: found.slug,
+      message: `has ${status} your update request of ${found.name}${
+        status === StatusTypes.REJECTED ? ` due to ${remarks}` : ''
+      }`,
+    };
+
+    this.publisher.emit<void, NotificationCreatedEvent>(
+      Subjects.NotificationCreated,
+      notificationEvent,
+    );
 
     await request.deleteOne();
 
