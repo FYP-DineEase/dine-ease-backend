@@ -55,7 +55,15 @@ export class PlanService {
   // find user plans
   async allUserPlans(userIdDto: UserIdDto): Promise<PlanDocument[]> {
     const { userId } = userIdDto;
-    const found: PlanDocument[] = await this.planModel.find({ userId });
+    const found: PlanDocument[] = await this.planModel
+      .find({ userId })
+      .populate([
+        {
+          path: 'restaurant',
+          model: 'Restaurant',
+          match: { isDeleted: { $ne: true } },
+        },
+      ]);
     return found;
   }
 
