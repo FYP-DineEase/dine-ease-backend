@@ -3,12 +3,12 @@ kind: Config
 manifests:
   rawYaml:
     # - ./infra/k8s/**/*.yaml
-    # - ./infra/k8s/config/*.yaml
-    # - ./infra/k8s/nginx/*.yaml
-    # - ./infra/k8s/nats/*.yaml
-    # - ./infra/k8s/restaurants/restaurants-redis-depl.yaml
-    # - ./infra/k8s/notifications/notifications-redis-depl.yaml
-    # - ./infra/k8s/meilisearch/*.yaml
+    - ./infra/k8s/config/*.yaml
+    - ./infra/k8s/nginx/*.yaml
+    - ./infra/k8s/nats/*.yaml
+    - ./infra/k8s/restaurants/restaurants-redis-depl.yaml
+    - ./infra/k8s/notifications/notifications-redis-depl.yaml
+    - ./infra/k8s/meilisearch/*.yaml
 metadata:
   name: dine-ease-backend
 build:

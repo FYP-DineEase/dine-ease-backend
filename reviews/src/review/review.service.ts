@@ -30,6 +30,9 @@ import { ReviewSlugDto } from './dto/review-slug.dto';
 import { PaginationDto } from 'src/restaurant/dto/pagination.dto';
 import { ReviewIdDto, RestaurantIdDto, UserIdDto } from './dto/mongo-id.dto';
 
+// Helpers
+import runPythonScript from './sentiments/get-sentiment';
+
 @Injectable()
 export class ReviewService {
   constructor(
@@ -137,48 +140,52 @@ export class ReviewService {
     user: UserDetails,
     reviewDto: ReviewDto,
     files: Express.Multer.File[],
-  ): Promise<ReviewDocument> {
+    // ): Promise<ReviewDocument> {
+  ): Promise<any> {
     const { restaurantId } = restaurantDto;
     const { content, rating: numberRating } = reviewDto;
     const rating = Number(numberRating);
 
-    await this.restaurantService.findRestaurantById(restaurantId);
+    // await this.restaurantService.findRestaurantById(restaurantId);
 
-    const review: ReviewDocument = await this.reviewModel.create({
-      userId: user.id,
-      slug: nanoid(10),
-      restaurantId,
-      content,
-      rating,
-    });
+    // const review: ReviewDocument = await this.reviewModel.create({
+    //   userId: user.id,
+    //   slug: nanoid(10),
+    //   restaurantId,
+    //   content,
+    //   rating,
+    // });
 
-    if (files.length > 0) {
-      const path = `${restaurantId}/${review.id}`;
+    // if (files.length > 0) {
+    //   const path = `${restaurantId}/${review.id}`;
 
-      const uploadPromises = files.map(async (file) => {
-        const data = await this.s3Service.upload(path, file);
-        review.images.push(data);
-      });
+    //   const uploadPromises = files.map(async (file) => {
+    //     const data = await this.s3Service.upload(path, file);
+    //     review.images.push(data);
+    //   });
 
-      await Promise.all(uploadPromises);
-      await review.save();
-    }
+    //   await Promise.all(uploadPromises);
+    //   await review.save();
+    // }
 
-    // publish created event
-    const event: ReviewCreatedEvent = {
-      id: review.id,
-      userId: user.id,
-      restaurantId,
-      rating,
-      content,
-    };
+    const result = await runPythonScript(content);
+    console.log(result);
 
-    this.publisher.emit<void, ReviewCreatedEvent>(
-      Subjects.ReviewCreated,
-      event,
-    );
+    // // publish created event
+    // const event: ReviewCreatedEvent = {
+    //   id: review.id,
+    //   userId: user.id,
+    //   restaurantId,
+    //   rating,
+    //   content,
+    // };
 
-    return review;
+    // this.publisher.emit<void, ReviewCreatedEvent>(
+    //   Subjects.ReviewCreated,
+    //   event,
+    // );
+
+    // return review;
   }
 
   // upload review images
@@ -229,20 +236,21 @@ export class ReviewService {
     found.set({ content, rating });
     await found.save();
 
-    // publish updated event
-    const event: ReviewUpdatedEvent = {
-      id: found.id,
-      restaurantId: found.restaurantId,
-      rating,
-      previousRating,
-      content,
-      version: found.version,
-    };
+    // // publish updated event
+    // const event: ReviewUpdatedEvent = {
+    //   id: found.id,
+    //   restaurantId: found.restaurantId,
+    //   rating,
+    //   previousRating,
+    //   sentiment,
+    //   content,
+    //   version: found.version,
+    // };
 
-    this.publisher.emit<void, ReviewUpdatedEvent>(
-      Subjects.ReviewUpdated,
-      event,
-    );
+    // this.publisher.emit<void, ReviewUpdatedEvent>(
+    //   Subjects.ReviewUpdated,
+    //   event,
+    // );
 
     return found;
   }

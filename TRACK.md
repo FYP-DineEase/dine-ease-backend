@@ -44,6 +44,9 @@ db.adminCommand('listDatabases').databases.forEach(function(database) {
     db.getSiblingDB(database.name).dropDatabase();
 });
 
+# PIP
+pip install torch tensorflow
+
 # K8S
 kubectl apply -f restaurant-redis-depl.yaml
 kubectl exec -it restaurant-redis-depl-6b7879586b-tbncg -- redis-cli

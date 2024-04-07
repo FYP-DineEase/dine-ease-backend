@@ -31,13 +31,13 @@
 @REM start cmd /k "cd subscriptions && npm run start:dev"
 
 rem Open terminal 11 and execute commands
-start cmd /k "kubectl port-forward nats-depl-5f6446768c-dc55p 4222:4222"
+start cmd /k "kubectl port-forward nats-depl-5d756b6f9b-sbzbn 4222:4222"
 
 rem Open terminal 12 and execute commands
-start cmd /k "kubectl port-forward restaurants-redis-depl-75c775cb6d-5tlqg 6379:6379"
+start cmd /k "kubectl port-forward restaurants-redis-depl-789c599844-jbxq7 6379:6379"
 
 rem Open terminal 13 and execute commands
-start cmd /k "kubectl port-forward notifications-redis-depl-5d469478bd-cr7mp 6380:6380"
+start cmd /k "kubectl port-forward notifications-redis-depl-677df47d9b-xl86d 6380:6380"
 
 rem Open terminal 14 and execute commands
-start cmd /k "kubectl port-forward meilisearch-depl-69c9c99464-vb8v7 7700:7700"
+start cmd /k "kubectl port-forward meilisearch-depl-7d64c69884-k9wzq 7700:7700"

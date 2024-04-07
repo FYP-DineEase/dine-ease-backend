@@ -18,7 +18,7 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @EventPattern(Subjects.ReviewCreated)
-  async createRestaurant(
+  async createReview(
     @Payload() data: ReviewCreatedEvent,
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {
@@ -27,7 +27,7 @@ export class ReviewController {
   }
 
   @EventPattern(Subjects.ReviewUpdated)
-  async updateRestaurant(
+  async updateReview(
     @Payload() data: ReviewUpdatedEvent,
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {

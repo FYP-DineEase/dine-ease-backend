@@ -80,18 +80,7 @@ export class NotificationService {
 
   // read notifications
   async readNotifications(readDto: ReadDto, user: UserDetails): Promise<void> {
-    const { ids } = readDto;
-
-    // const bulkUpdateOps = ids.map(({ id }) => ({
-    //   updateOne: { filter: { _id: id }, update: { rating, count } },
-    // }));
-
-    // await this.notificationModel.bulkWrite(bulkUpdateOps);
-
-    // const found: NotificationDocument[] = await this.notificationModel.find({
-    //   receiverId: user.id,
-    // });
-    // return found;
+    // const { ids } = readDto;
   }
 
   // delete notification
