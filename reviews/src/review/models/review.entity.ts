@@ -1,5 +1,7 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Sentiments } from '@dine_ease/common';
+import runPythonScript from '../sentiments/get-sentiment';
 
 export interface ReviewDocument extends HydratedDocument<Review> {
   id: Types.ObjectId;
@@ -7,6 +9,7 @@ export interface ReviewDocument extends HydratedDocument<Review> {
   restaurantId: Types.ObjectId;
   content: string;
   rating: number;
+  sentiment: Sentiments;
   images: string[];
   isDeleted: boolean;
   version: number;
@@ -40,6 +43,9 @@ export class Review {
   @Prop({ required: true })
   rating: number;
 
+  @Prop({ enum: Sentiments })
+  sentiment: Sentiments;
+
   @Prop({ required: false, type: [String] })
   images: string[];
 
@@ -56,12 +62,17 @@ export const ReviewSchema = SchemaFactory.createForClass(Review);
 ReviewSchema.set('versionKey', 'version');
 
 // Execute before saving
-ReviewSchema.pre('save', function (done) {
+ReviewSchema.pre('save', async function (done) {
   const update = ['rating', 'content', 'isDeleted'];
 
   // update version
   if (!this.isNew && update.some((value) => this.isModified(value))) {
     this.increment();
+  }
+
+  // for sentiment analysis
+  if (this.isNew || this.isModified('content')) {
+    this.sentiment = await runPythonScript(this.content);
   }
 
   done();

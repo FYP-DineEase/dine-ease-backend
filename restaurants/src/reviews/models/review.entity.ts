@@ -1,7 +1,7 @@
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
-import { EventData } from '@dine_ease/common';
+import { EventData, Sentiments } from '@dine_ease/common';
 
 export interface ReviewDocument extends HydratedDocument<Review> {
   id: Types.ObjectId;
@@ -9,6 +9,7 @@ export interface ReviewDocument extends HydratedDocument<Review> {
   restaurantId: Types.ObjectId;
   content: string;
   rating: number;
+  sentiment: Sentiments;
   isDeleted: boolean;
   version: number;
   createdAt: Date;
@@ -40,6 +41,9 @@ export class Review {
 
   @Prop({ required: true })
   rating: number;
+
+  @Prop({ required: true, enum: Sentiments })
+  sentiment: Sentiments;
 
   @Prop({ required: true, default: false })
   isDeleted: boolean;

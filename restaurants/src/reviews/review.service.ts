@@ -33,7 +33,7 @@ export class ReviewService {
 
   // create review
   async reviewCreated(data: ReviewCreatedEvent): Promise<void> {
-    const { id, restaurantId, rating, userId, content } = data;
+    const { id, restaurantId, rating, userId, content, sentiment } = data;
 
     const restaurant: RestaurantDocument =
       await this.restaurantService.findDeletedRestaurantById(restaurantId);
@@ -44,20 +44,35 @@ export class ReviewService {
     restaurant.set({ rating: updatedRating, count: count + 1 });
     await restaurant.save();
 
-    const newData = { _id: id, restaurantId, rating, userId, content };
+    const newData = {
+      _id: id,
+      restaurantId,
+      rating,
+      userId,
+      content,
+      sentiment,
+    };
     await this.reviewModel.create(newData);
   }
 
   // update review
   async reviewUpdated(data: ReviewUpdatedEvent): Promise<void> {
-    const { id, version, content, restaurantId, previousRating, rating } = data;
+    const {
+      id,
+      version,
+      content,
+      restaurantId,
+      previousRating,
+      rating,
+      sentiment,
+    } = data;
 
     const restaurant: RestaurantDocument =
       await this.restaurantService.findDeletedRestaurantById(restaurantId);
 
     const event: EventData = { id, version };
     const found: ReviewDocument = await this.findReviewByVersion(event);
-    found.set({ content, rating });
+    found.set({ content, rating, sentiment });
     await found.save();
 
     const { rating: stars, count } = restaurant;

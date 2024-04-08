@@ -84,8 +84,7 @@ export class ReviewController {
     @Param() id: RestaurantIdDto,
     @GetUser() user: UserDetails,
     @Body() data: ReviewDto,
-  ): Promise<any> {
-    // ): Promise<ReviewDocument> {
+  ): Promise<ReviewDocument> {
     return this.reviewService.createReview(id, user, data, files);
   }
 

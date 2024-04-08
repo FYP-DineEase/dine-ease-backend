@@ -13,6 +13,11 @@
 3009 -> notifications
 3010 -> subscriptions
 
+# TODO
+- reset all mongo data
+- analysis of review using pynb
+- bulk write in restaurant and review service
+
 # Start Script
 cmd /c start.bat
 
@@ -45,7 +50,8 @@ db.adminCommand('listDatabases').databases.forEach(function(database) {
 });
 
 # PIP
-pip install torch tensorflow
+pip install torch tensorflow nltk numpy
+C:\Users\mujta\AppData\Roaming\nltk_data
 
 # K8S
 kubectl apply -f restaurant-redis-depl.yaml
