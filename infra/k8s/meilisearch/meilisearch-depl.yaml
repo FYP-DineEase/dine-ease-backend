@@ -42,4 +42,5 @@ spec:
     - name: meili
       port: 7700
       targetPort: 7700
+      nodePort: 31330
   type: NodePort

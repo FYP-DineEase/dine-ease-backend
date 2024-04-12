@@ -32,4 +32,5 @@ spec:
       protocol: TCP
       port: 6380
       targetPort: 6380
+      nodePort: 30820
   type: NodePort
