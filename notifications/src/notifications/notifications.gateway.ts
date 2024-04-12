@@ -17,7 +17,9 @@ import { SocketService } from 'src/services/socket.service';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: { origin: ['http://localhost:3000', 'http://localhost:8080'] },
+})
 export class NotificationGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
