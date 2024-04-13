@@ -24,8 +24,8 @@ start cmd /k "cd restaurants && npm run start:dev"
 rem Open terminal 8 and execute commands
 start cmd /k "cd reviews && npm run start:dev"
 
-rem Open terminal 9 and execute commands
-start cmd /k "cd notifications && npm run start:dev"
+@REM rem Open terminal 9 and execute commands
+@REM start cmd /k "cd notifications && npm run start:dev"
 
 rem Open terminal 10 and execute commands
 start cmd /k "cd subscriptions && npm run start:dev"

@@ -4,8 +4,9 @@ import { Subjects, AuthGuard, GetUser, UserDetails } from '@dine_ease/common';
 // NATS
 import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
 import {
-  NotificationDeletedEvent,
   NotificationCreatedEvent,
+  NotificationUpdatedEvent,
+  NotificationDeletedEvent,
 } from '@dine_ease/common';
 import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
@@ -45,6 +46,15 @@ export class NotificationController {
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {
     await this.notificationService.createNotification(data);
+    context.message.ack();
+  }
+
+  @EventPattern(Subjects.NotificationUpdated)
+  async updateNotification(
+    @Payload() data: NotificationUpdatedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.notificationService.updateNotification(data);
     context.message.ack();
   }
 

@@ -22,6 +22,7 @@ import { ReviewDocument } from 'src/review/models/review.entity';
 import {
   Subjects,
   NotificationCreatedEvent,
+  NotificationUpdatedEvent,
   NotificationDeletedEvent,
 } from '@dine_ease/common';
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
@@ -41,9 +42,6 @@ export class VoteService {
     @InjectModel(Vote.name)
     private voteModel: Model<VoteDocument>,
   ) {}
-
-  // add vote nats event
-  // update vote nats event
 
   // get user votes
   async getUserVotes(userIdDto: UserIdDto): Promise<VoteDocument[]> {
@@ -117,6 +115,18 @@ export class VoteService {
     if (vote.userId === user.id) {
       vote.set({ type });
       await vote.save();
+
+      const notificationEvent: NotificationUpdatedEvent = {
+        uid: vote.id,
+        message: VoteStrings[type.toUpperCase()],
+        updatedAt: new Date(Date.now()),
+      };
+
+      this.publisher.emit<void, NotificationUpdatedEvent>(
+        Subjects.NotificationUpdated,
+        notificationEvent,
+      );
+
       return 'Vote updated successfully';
     }
 
