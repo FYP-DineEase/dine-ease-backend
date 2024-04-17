@@ -3,6 +3,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export interface PlanDocument extends HydratedDocument<Plan> {
   id: Types.ObjectId;
+  title: string;
+  description: string;
   charges: number;
   durationInMonths: number;
   isActive: boolean;
@@ -21,6 +23,12 @@ export interface PlanDocument extends HydratedDocument<Plan> {
   timestamps: true,
 })
 export class Plan {
+  @Prop({ required: true })
+  title: string;
+
+  @Prop({ required: true })
+  description: string;
+
   @Prop({ required: true })
   charges: number;
 

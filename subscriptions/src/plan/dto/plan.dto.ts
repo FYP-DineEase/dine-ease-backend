@@ -1,6 +1,14 @@
-import { IsNumber, Min, Max } from 'class-validator';
+import { IsNumber, Min, Max, IsNotEmpty, IsString } from 'class-validator';
 
 export class PlanDto {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
   @IsNumber()
   @Min(10)
   @Max(100)

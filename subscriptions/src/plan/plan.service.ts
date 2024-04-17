@@ -37,8 +37,10 @@ export class PlanService {
 
   // create a payment plan
   async createPlan(planDto: PlanDto): Promise<PlanDocument> {
-    const { charges, durationInMonths } = planDto;
+    const { title, description, charges, durationInMonths } = planDto;
     const plan: PlanDocument = await this.planModel.create({
+      title,
+      description,
       charges,
       durationInMonths,
     });
@@ -46,12 +48,15 @@ export class PlanService {
   }
 
   // update a payment plan
-  async updatePlan(planIdDto: PlanIdDto, planDto: PlanDto): Promise<string> {
-    const { charges, durationInMonths } = planDto;
+  async updatePlan(
+    planIdDto: PlanIdDto,
+    planDto: PlanDto,
+  ): Promise<PlanDocument> {
+    const { title, description, charges, durationInMonths } = planDto;
     const plan: PlanDocument = await this.findPlan(planIdDto.planId);
-    plan.set({ charges, durationInMonths });
+    plan.set({ title, description, charges, durationInMonths });
     await plan.save();
-    return 'Payment plan updated successfully';
+    return plan;
   }
 
   // delete a payment plan
