@@ -29,13 +29,14 @@ cmd /c start.bat
 - In frontend , remove localhost prefix
 
 # Notification Events
-- dining plans created 
+- dining plans created
 - dining plans updated
-- dining plans deleted 
+- dining plans deleted
 - restaurant listing approved
 - restaurant listing rejected
 - restaurant deleted
 - vote created
+- vote updated
 - vote deleted
 - modification request approved
 - modification request rejeceted

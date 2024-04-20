@@ -45,6 +45,7 @@ import { RestaurantStatusDto } from './dto/status.dto';
 import { DeleteImagesDto } from './dto/delete-images.dto';
 import { PrimaryDetailsDto } from './dto/primary-details.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { RecommendationDto } from './dto/recommendation.dto';
 
 @Controller('/api/restaurant')
 export class RestaurantsController {
@@ -53,6 +54,15 @@ export class RestaurantsController {
   @Get('check')
   async checkRestaurant(@Query() data: PrimaryDetailsDto): Promise<void> {
     return await this.restaurantService.findRestaurant(data);
+  }
+
+  @Get('/recommendation')
+  @UseGuards(AuthGuard)
+  async getRecommendation(
+    @GetUser() user: UserDetails,
+    @Body() recommendationDto: RecommendationDto,
+  ): Promise<RestaurantDocument[]> {
+    return this.restaurantService.getRecommendation(user, recommendationDto);
   }
 
   @Get('all/slug')
@@ -92,8 +102,8 @@ export class RestaurantsController {
     return this.restaurantService.generateOTP(id, user);
   }
 
-  @UseGuards(AuthGuard)
   @Get('user')
+  @UseGuards(AuthGuard)
   async getUserRestaurants(
     @GetUser() user: UserDetails,
   ): Promise<RestaurantDocument[]> {

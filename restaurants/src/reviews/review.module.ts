@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RestaurantsModule } from 'src/restaurants/restaurants.module';
 import { ReviewController } from './review.controller';
@@ -7,7 +7,7 @@ import { Review, ReviewSchema } from './models/review.entity';
 
 @Module({
   imports: [
-    RestaurantsModule,
+    forwardRef(() => RestaurantsModule),
     MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
   ],
   controllers: [ReviewController],

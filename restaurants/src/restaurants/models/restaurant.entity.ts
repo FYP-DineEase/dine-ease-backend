@@ -118,6 +118,7 @@ RestaurantSchema.pre('save', async function (done) {
     'categories',
     'address',
     'images',
+    'cover',
     'location',
     'isDeleted',
   ];

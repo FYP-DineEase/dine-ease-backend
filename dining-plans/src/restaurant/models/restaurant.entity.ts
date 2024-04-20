@@ -10,6 +10,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   rating: number;
   count: number;
   categories: string[];
+  cover: string;
   images: string[];
   address: string;
   location: {
@@ -55,6 +56,9 @@ export class Restaurant {
 
   @Prop({ type: [String] })
   categories: string[];
+
+  @Prop()
+  cover: string;
 
   @Prop({ type: [String] })
   images: string[];

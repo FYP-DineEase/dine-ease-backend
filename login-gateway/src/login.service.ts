@@ -62,6 +62,9 @@ export class LoginService {
 
   async userLogin(@Body() loginDto: LoginDto): Promise<object> {
     const { details, tokenPayload } = await this.login(loginDto);
+    if (details.role === AdminRoles.ADMIN.toString()) {
+      throw new ForbiddenException('Invalid User Role');
+    }
     const token = this.generateToken(tokenPayload);
     return { details, token };
   }

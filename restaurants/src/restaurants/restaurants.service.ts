@@ -1,5 +1,7 @@
 import {
+  Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   ConflictException,
   BadRequestException,
@@ -21,6 +23,7 @@ import { S3Service } from 'src/services/aws-s3.service';
 import { ModifyService } from 'src/modify/modify.service';
 import { TwilioService } from 'src/services/twilio.service';
 import { RecordsService } from 'src/records/records.service';
+import { ReviewService } from 'src/reviews/review.service';
 
 // Database
 import { Model, Types } from 'mongoose';
@@ -47,6 +50,7 @@ import { DeleteImagesDto } from './dto/delete-images.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { PrimaryDetailsDto } from './dto/primary-details.dto';
 import { RestaurantSlugDto } from './dto/slug.dto';
+import { RecommendationDto } from './dto/recommendation.dto';
 
 @Injectable()
 export class RestaurantsService {
@@ -57,6 +61,8 @@ export class RestaurantsService {
     private readonly twilioService: TwilioService,
     private readonly modifyService: ModifyService,
     private readonly recordsService: RecordsService,
+    @Inject(forwardRef(() => ReviewService))
+    private readonly reviewService: ReviewService,
     @InjectModel(Restaurant.name)
     private readonly restaurantModel: Model<RestaurantDocument>,
   ) {}
@@ -91,6 +97,40 @@ export class RestaurantsService {
     });
     if (!found) throw new NotFoundException('Restaurant not found');
     return found;
+  }
+
+  // get recommendation
+  async getRecommendation(
+    user: UserDetails,
+    recommendationDto: RecommendationDto,
+  ): Promise<RestaurantDocument[]> {
+    const { coordinates, distanceInMeters } = recommendationDto;
+
+    // get restaurants from geo location within distance
+    const restaurants: RestaurantDocument[] = await this.restaurantModel.find({
+      location: {
+        $geoWithin: {
+          $centerSphere: [coordinates, distanceInMeters / 6378.1],
+        },
+      },
+    });
+
+    // get good reviews of users and return cuisines from review service
+    // add type safety once finalized
+    const userReviews = await this.reviewService.getReviewdRestaurantsId(user);
+
+    // if reviews not found then suggest all restaurant no need for model
+    if (userReviews.length === 0) {
+      return restaurants;
+    }
+
+    // else pass the restaurants and cuisines of reviews to model
+    // get suggestion and return from python file
+
+    const recommendation: RestaurantDocument[] =
+      await this.restaurantModel.find();
+
+    return restaurants;
   }
 
   // find restaurant by slug
@@ -330,6 +370,17 @@ export class RestaurantsService {
     if (deleteKey) {
       await this.s3Service.deleteOne(`${path}/${deleteKey}`);
     }
+
+    const event: RestaurantDetailsUpdatedEvent = {
+      id: found.id,
+      cover: newImage,
+      version: found.version,
+    };
+
+    this.publisher.emit<void, RestaurantDetailsUpdatedEvent>(
+      Subjects.RestaurantDetailsUpdated,
+      event,
+    );
 
     return newImage;
   }

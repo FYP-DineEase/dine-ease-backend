@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserDetails, Sentiments } from '@dine_ease/common';
 
 // NATS
 import {
@@ -19,6 +25,7 @@ import { RestaurantDocument } from 'src/restaurants/models/restaurant.entity';
 @Injectable()
 export class ReviewService {
   constructor(
+    @Inject(forwardRef(() => RestaurantsService))
     private readonly restaurantService: RestaurantsService,
     @InjectModel(Review.name)
     private readonly reviewModel: ReviewModel,
@@ -28,6 +35,17 @@ export class ReviewService {
   async findReviewByVersion(event: EventData): Promise<ReviewDocument> {
     const found = await this.reviewModel.findByEvent(event);
     if (!found) throw new NotFoundException('Review not found');
+    return found;
+  }
+
+  // get user reviewd cuisines
+  async getReviewdRestaurantsId(user: UserDetails): Promise<ReviewDocument[]> {
+    const found = await this.reviewModel
+      .find({
+        userId: user.id,
+        sentiment: Sentiments.POSITIVE,
+      })
+      .select('restaurantId');
     return found;
   }
 
