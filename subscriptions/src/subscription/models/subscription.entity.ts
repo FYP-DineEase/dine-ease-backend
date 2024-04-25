@@ -3,7 +3,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export interface SubscriptionDocument extends HydratedDocument<Subscription> {
   id: Types.ObjectId;
-  userId: Types.ObjectId;
   restaurantId: Types.ObjectId;
   stripeId: Types.ObjectId;
   planId: Types.ObjectId;
@@ -23,9 +22,6 @@ export interface SubscriptionDocument extends HydratedDocument<Subscription> {
 })
 export class Subscription {
   @Prop({ type: Types.ObjectId, required: true })
-  userId: Types.ObjectId;
-
-  @Prop({ type: Types.ObjectId, required: true, unique: true, index: true })
   restaurantId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, required: true })

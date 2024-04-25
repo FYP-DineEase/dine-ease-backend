@@ -1,20 +1,10 @@
-import {
-  Controller,
-  Param,
-  Body,
-  Get,
-  Post,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Param, Get, Post, UseGuards, Body } from '@nestjs/common';
 import {
   AuthGuard,
   Roles,
   RolesGuard,
   AdminRoles,
   UserRoles,
-  UserDetails,
-  GetUser,
 } from '@dine_ease/common';
 
 import { SubscriptionService } from './subscription.service';
@@ -22,6 +12,7 @@ import { SubscriptionDocument } from './models/subscription.entity';
 
 // DTO
 import { RestaurantIdDto } from './dto/mongo-id.dto';
+import { PaymentIntentDto } from './dto/payment-intent.dto';
 import { SubscriptionDto } from './dto/subscription.dto';
 
 @Controller('/api/subscription')
@@ -46,14 +37,14 @@ export class SubscriptionController {
   @Post()
   @Roles(UserRoles.MANAGER)
   createSubscription(
-    @Param() restaurantIdDto: RestaurantIdDto,
     @Body() subscriptionDto: SubscriptionDto,
-    @GetUser() user: UserDetails,
   ): Promise<string> {
-    return this.subscriptionService.createSubscription(
-      restaurantIdDto,
-      subscriptionDto,
-      user,
-    );
+    return this.subscriptionService.createSubscription(subscriptionDto);
+  }
+
+  @Post('/create-intent')
+  @Roles(UserRoles.MANAGER)
+  createIntent(@Body() paymentIntentDto: PaymentIntentDto): Promise<string> {
+    return this.subscriptionService.createIntent(paymentIntentDto);
   }
 }

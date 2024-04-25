@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UserDetails } from '@dine_ease/common';
 
 // Services
 import { PlanService } from 'src/plan/plan.service';
@@ -13,11 +12,16 @@ import {
   Subscription,
   SubscriptionDocument,
 } from './models/subscription.entity';
+import { PlanDocument } from 'src/plan/models/plan.entity';
+import { RestaurantDocument } from 'src/restaurant/models/restaurant.entity';
+
+// Interfaces
+import { PaymentDetails } from './interfaces/payment.interface';
 
 // DTO
 import { RestaurantIdDto } from './dto/mongo-id.dto';
+import { PaymentIntentDto } from './dto/payment-intent.dto';
 import { SubscriptionDto } from './dto/subscription.dto';
-import { Restaurant } from 'src/restaurant/models/restaurant.entity';
 
 @Injectable()
 export class SubscriptionService {
@@ -46,31 +50,70 @@ export class SubscriptionService {
     return subscriptions;
   }
 
-  // restaurant subscription
-  async createSubscription(
-    idDto: RestaurantIdDto,
-    subscriptionDto: SubscriptionDto,
-    user: UserDetails,
-  ): Promise<string> {
-    const { restaurantId } = idDto;
-    const { planId, charges } = subscriptionDto;
+  // create intent
+  async createIntent(paymentIntentDto: PaymentIntentDto): Promise<string> {
+    const { planId, restaurantId } = paymentIntentDto;
 
-    const restaurant: Restaurant =
+    const restaurant: RestaurantDocument =
       await this.restaurantService.findRestaurantById(restaurantId);
 
-    // const paymentIntent = await this.stripeService.createPayment({
-    //   charges,
-    // });
+    // check user id
+    // check featuredDate ( if already featured throw ex )
 
-    // await this.subscriptionModel.create({
-    //   userId: user.id,
-    //   restaurantId,
-    //   stripeId: charge.id,
-    //   planId,
-    // });
+    const plan: PlanDocument = await this.planService.findPlan(planId);
 
-    // emit featured restaurant event here
+    // create customerId
+    if (!restaurant.customerId) {
+      const customerId = await this.stripeService.createCustomer(restaurantId);
+      restaurant.set({ customerId });
+      restaurant.save();
+    }
 
-    return 'Subscription created successfully';
+    // create payment intent
+    const paymentDetails: PaymentDetails = {
+      customerId: restaurant.customerId,
+      currency: plan.currency,
+      charges: plan.charges,
+    };
+
+    const paymentIntent = await this.stripeService.createPaymentIntent(
+      paymentDetails,
+    );
+
+    return paymentIntent.client_secret;
+  }
+
+  // restaurant featured
+  async createSubscription(subscriptionDto: SubscriptionDto): Promise<string> {
+    const { planId, restaurantId, stripeId } = subscriptionDto;
+
+    await this.restaurantService.findRestaurantById(restaurantId);
+    await this.planService.findPlan(planId);
+
+    // register subscription
+    await this.subscriptionModel.create({
+      restaurantId,
+      stripeId,
+      planId,
+    });
+
+    // publish nats event to ( maps, restaurants )
+
+    // const event: AccountCreatedEvent = {
+    //   userId: newUser.id,
+    //   slug: nanoid(10),
+    //   firstName,
+    //   lastName,
+    //   name: `${firstName} ${lastName}`,
+    //   email,
+    //   role,
+    // };
+
+    // this.publisher.emit<void, AccountCreatedEvent>(
+    //   Subjects.AccountCreated,
+    //   event,
+    // );
+
+    return 'Restaurant Featured Successfully';
   }
 }

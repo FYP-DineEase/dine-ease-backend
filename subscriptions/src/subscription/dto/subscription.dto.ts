@@ -1,8 +1,8 @@
-import { IsMongoId } from 'class-validator';
-import { Types } from 'mongoose';
-import { PaymentDto } from './payment.dto';
+import { PaymentIntentDto } from './payment-intent.dto';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class SubscriptionDto extends PaymentDto {
-  @IsMongoId()
-  planId: Types.ObjectId;
+export class SubscriptionDto extends PaymentIntentDto {
+  @IsNotEmpty()
+  @IsString()
+  stripeId: string;
 }

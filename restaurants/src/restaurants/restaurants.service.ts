@@ -107,13 +107,19 @@ export class RestaurantsService {
     const { coordinates, distanceInMeters } = recommendationDto;
 
     // get restaurants from geo location within distance
-    const restaurants: RestaurantDocument[] = await this.restaurantModel.find({
-      location: {
-        $geoWithin: {
-          $centerSphere: [coordinates, distanceInMeters / 6378.1],
+    const restaurants: RestaurantDocument[] = await this.restaurantModel
+      .find({
+        location: {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [coordinates[0], coordinates[1]],
+            },
+            $maxDistance: distanceInMeters,
+          },
         },
-      },
-    });
+      })
+      .select('id');
 
     // get good reviews of users and return cuisines from review service
     // add type safety once finalized

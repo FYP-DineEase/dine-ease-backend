@@ -39,6 +39,7 @@ export class NotificationService {
         receiverId: user.id,
         isDeleted: false,
       })
+      .sort({ updatedAt: -1 })
       .populate({
         path: 'senderId',
         model: 'User',

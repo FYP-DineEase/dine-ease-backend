@@ -3,7 +3,7 @@ import {
   Injectable,
   HttpException,
   NotFoundException,
-  ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AdminRoles, UserDetails } from '@dine_ease/common';
@@ -63,7 +63,7 @@ export class LoginService {
   async userLogin(@Body() loginDto: LoginDto): Promise<object> {
     const { details, tokenPayload } = await this.login(loginDto);
     if (details.role === AdminRoles.ADMIN.toString()) {
-      throw new ForbiddenException('Invalid User Role');
+      throw new UnauthorizedException('Invalid User Role');
     }
     const token = this.generateToken(tokenPayload);
     return { details, token };
@@ -72,7 +72,7 @@ export class LoginService {
   async adminLogin(@Body() loginDto: LoginDto): Promise<object> {
     const { details, tokenPayload } = await this.login(loginDto);
     if (details.role !== AdminRoles.ADMIN.toString()) {
-      throw new ForbiddenException('Invalid User Role');
+      throw new UnauthorizedException('Invalid User Role');
     }
     const token = this.generateToken(tokenPayload);
     return { details, token };

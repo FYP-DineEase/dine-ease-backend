@@ -35,6 +35,9 @@ export class Plan {
   @Prop({ required: true })
   durationInMonths: number;
 
+  @Prop({ required: false, default: 'USD' })
+  currency: string;
+
   @Prop({ default: true })
   isActive: boolean;
 }
