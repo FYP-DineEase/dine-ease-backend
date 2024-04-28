@@ -39,6 +39,7 @@ import {
   RestaurantDetailsUpdatedEvent,
   RestaurantDeletedEvent,
   NotificationCreatedEvent,
+  SubscriptionCreatedEvent,
 } from '@dine_ease/common';
 
 // DTO
@@ -582,6 +583,16 @@ export class RestaurantsService {
     await request.deleteOne();
 
     return 'Restaurant Updated';
+  }
+
+  // feature restaurant
+  async featureRestaurant(data: SubscriptionCreatedEvent): Promise<void> {
+    const { restaurantId, featuredTill } = data;
+    const restaurant: RestaurantDocument = await this.findRestaurantById(
+      restaurantId,
+    );
+    restaurant.set({ featuredTill });
+    await restaurant.save();
   }
 
   // delete a restaurant

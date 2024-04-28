@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import * as dayjs from 'dayjs';
+import { BadRequestException, Injectable } from '@nestjs/common';
+
+// NATS
+import { Subjects, SubscriptionCreatedEvent } from '@dine_ease/common';
+import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // Services
 import { PlanService } from 'src/plan/plan.service';
@@ -26,6 +31,7 @@ import { SubscriptionDto } from './dto/subscription.dto';
 @Injectable()
 export class SubscriptionService {
   constructor(
+    private readonly publisher: Publisher,
     private readonly planService: PlanService,
     private readonly stripeService: StripeService,
     private readonly restaurantService: RestaurantService,
@@ -57,8 +63,10 @@ export class SubscriptionService {
     const restaurant: RestaurantDocument =
       await this.restaurantService.findRestaurantById(restaurantId);
 
-    // check user id
-    // check featuredDate ( if already featured throw ex )
+    // check if restaurant is featured
+    if (dayjs(restaurant?.featuredTill).isAfter(dayjs())) {
+      throw new BadRequestException('Restaurant is already featured');
+    }
 
     const plan: PlanDocument = await this.planService.findPlan(planId);
 
@@ -87,8 +95,9 @@ export class SubscriptionService {
   async createSubscription(subscriptionDto: SubscriptionDto): Promise<string> {
     const { planId, restaurantId, stripeId } = subscriptionDto;
 
-    await this.restaurantService.findRestaurantById(restaurantId);
-    await this.planService.findPlan(planId);
+    const restaurant: RestaurantDocument =
+      await this.restaurantService.findRestaurantById(restaurantId);
+    const plan: PlanDocument = await this.planService.findPlan(planId);
 
     // register subscription
     await this.subscriptionModel.create({
@@ -97,22 +106,19 @@ export class SubscriptionService {
       planId,
     });
 
+    const featuredTill = dayjs().add(plan.durationInMonths, 'month').toDate();
+
+    // update featuredTill
+    restaurant.set({ featuredTill });
+    await restaurant.save();
+
     // publish nats event to ( maps, restaurants )
+    const event: SubscriptionCreatedEvent = { restaurantId, featuredTill };
 
-    // const event: AccountCreatedEvent = {
-    //   userId: newUser.id,
-    //   slug: nanoid(10),
-    //   firstName,
-    //   lastName,
-    //   name: `${firstName} ${lastName}`,
-    //   email,
-    //   role,
-    // };
-
-    // this.publisher.emit<void, AccountCreatedEvent>(
-    //   Subjects.AccountCreated,
-    //   event,
-    // );
+    this.publisher.emit<void, SubscriptionCreatedEvent>(
+      Subjects.SubscriptionCreated,
+      event,
+    );
 
     return 'Restaurant Featured Successfully';
   }

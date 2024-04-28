@@ -28,6 +28,11 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Types } from 'mongoose';
 
+// NATS
+import { EventPattern, Payload, Ctx } from '@nestjs/microservices';
+import { NatsStreamingContext } from '@nestjs-plugins/nestjs-nats-streaming-transport';
+import { Subjects, SubscriptionCreatedEvent } from '@dine_ease/common';
+
 // Rate Limit
 import { RateLimiterGuard } from 'src/guards/rate-limiter.guard';
 import { RateLimit } from 'src/decorators/rate-limit.decorator';
@@ -225,5 +230,14 @@ export class RestaurantsController {
     @GetUser() user: UserDetails,
   ): Promise<string> {
     return this.restaurantService.deleteImages(id, data, user);
+  }
+
+  @EventPattern(Subjects.SubscriptionCreated)
+  async createReview(
+    @Payload() data: SubscriptionCreatedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.restaurantService.featureRestaurant(data);
+    context.message.ack();
   }
 }

@@ -27,8 +27,8 @@ start cmd /k "cd reviews && npm run start:dev"
 rem Open terminal 9 and execute commands
 start cmd /k "cd notifications && npm run start:dev"
 
-@REM rem Open terminal 10 and execute commands
-@REM start cmd /k "cd subscriptions && npm run start:dev"
+rem Open terminal 10 and execute commands
+start cmd /k "cd subscriptions && npm run start:dev"
 
 @REM rem Open terminal 11 and execute commands
 @REM start cmd /k "kubectl port-forward service/nats-srv 4222:4222"

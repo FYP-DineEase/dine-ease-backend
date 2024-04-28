@@ -8,6 +8,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   taxId: string;
   customerId: string;
   isDeleted: boolean;
+  featuredTill: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,8 +33,11 @@ export class Restaurant {
   @Prop({ required: true, unique: true, index: true })
   taxId: string;
 
-  @Prop({ required: false })
+  @Prop()
   customerId: string;
+
+  @Prop()
+  featuredTill: Date;
 
   @Prop({ required: true, default: false })
   isDeleted: boolean;

@@ -16,6 +16,7 @@ import {
   RestaurantDeletedEvent,
   RestaurantUpdatedEvent,
   RestaurantDetailsUpdatedEvent,
+  SubscriptionCreatedEvent,
 } from '@dine_ease/common';
 
 @Injectable()
@@ -69,6 +70,16 @@ export class RestaurantService {
     const found: RestaurantDocument = await this.findRestaurantByVersion(event);
     found.set(details);
     await found.save();
+  }
+
+  // feature restaurant
+  async featureRestaurant(data: SubscriptionCreatedEvent): Promise<void> {
+    const { restaurantId, featuredTill } = data;
+    const restaurant: RestaurantDocument = await this.findRestaurantById(
+      restaurantId,
+    );
+    restaurant.set({ featuredTill });
+    await restaurant.save();
   }
 
   // delete restaurant

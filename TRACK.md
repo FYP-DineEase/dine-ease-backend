@@ -72,15 +72,6 @@ kubectl logs -f meilisearch-depl-846fd9694c-9p9d8
 kubectl port-forward meilisearch-depl-846fd9694c-9p9d8 7700:7700
 
 ## Update 
-- notification events and save socket user in redis
-- mail event and invitation test
-- payment creation remaining in subscription service and expiry
-- AI integration and NLP of review
-- dining plans complete
-
-- s3 issue with docker , not consistent ( check updated review with images )
-- rate limit on check restaurant duplication and other checking endpoints
-
 - update jwt values to 7d later 
 - fix validations ( DTOs ) { min max etc } and their redundancy and error messages
 - uncomment twilio sendOTP

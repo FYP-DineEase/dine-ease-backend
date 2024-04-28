@@ -8,6 +8,7 @@ import {
   RestaurantApprovedEvent,
   RestaurantDeletedEvent,
   RestaurantUpdatedEvent,
+  SubscriptionCreatedEvent,
 } from '@dine_ease/common';
 
 // Service
@@ -50,6 +51,15 @@ export class RestaurantController {
     @Ctx() context: NatsStreamingContext,
   ): Promise<void> {
     await this.restaurantService.deleteRestaurant(data);
+    context.message.ack();
+  }
+
+  @EventPattern(Subjects.SubscriptionCreated)
+  async createReview(
+    @Payload() data: SubscriptionCreatedEvent,
+    @Ctx() context: NatsStreamingContext,
+  ): Promise<void> {
+    await this.restaurantService.featureRestaurant(data);
     context.message.ack();
   }
 }

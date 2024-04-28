@@ -22,7 +22,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
   phoneNumber: string;
   status: Status;
   menu: MenuDocument[];
-  isFeatured: boolean;
+  featuredTill: Date;
   isVerified: boolean;
   isDeleted: boolean;
   version: number;
@@ -95,8 +95,8 @@ export class Restaurant {
   @Prop({ type: [MenuItemSchema], default: [] })
   menu: MenuDocument[];
 
-  @Prop({ required: true, default: false })
-  isFeatured: boolean;
+  @Prop()
+  featuredTill: Date;
 
   @Prop({ required: true, default: false })
   isVerified: boolean;

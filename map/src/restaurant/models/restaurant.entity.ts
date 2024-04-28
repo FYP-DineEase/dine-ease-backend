@@ -18,6 +18,7 @@ export interface RestaurantDocument extends HydratedDocument<Restaurant> {
     coordinates: [number, number];
     country: string;
   };
+  featuredTill: Date;
   isDeleted: boolean;
   version: number;
   createdAt: Date;
@@ -77,6 +78,9 @@ export class Restaurant {
     country: string;
   };
 
+  @Prop()
+  featuredTill: Date;
+
   @Prop({ required: true, default: false })
   isDeleted: boolean;
 }
@@ -93,7 +97,7 @@ RestaurantSchema.set('versionKey', 'version');
 
 // Execute before saving
 RestaurantSchema.pre('save', function (done) {
-  const update = ['count', 'rating'];
+  const update = ['count', 'rating', 'featuredTill'];
 
   // donot update version
   if (!update.some((value) => this.isModified(value))) {

@@ -9,12 +9,12 @@ import {
 import { nanoid } from 'nanoid';
 
 // NATS
-import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 import {
   Subjects,
   AccountCreatedEvent,
   AccountVerifiedEvent,
 } from '@dine_ease/common';
+import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 
 // JWT
 import { EmailTokenTypes } from '@dine_ease/common';
