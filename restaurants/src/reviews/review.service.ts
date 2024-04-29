@@ -18,6 +18,7 @@ import {
 import { RestaurantsService } from 'src/restaurants/restaurants.service';
 
 // Database
+import { Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review, ReviewDocument, ReviewModel } from './models/review.entity';
 import { RestaurantDocument } from 'src/restaurants/models/restaurant.entity';
@@ -38,15 +39,21 @@ export class ReviewService {
     return found;
   }
 
-  // get user reviewd cuisines
-  async getReviewdRestaurantsId(user: UserDetails): Promise<ReviewDocument[]> {
-    const found = await this.reviewModel
+  // get user reviewed restaurants
+  async getPositiveReviews(user: UserDetails): Promise<Types.ObjectId[]> {
+    const reviews: ReviewDocument[] = await this.reviewModel
       .find({
         userId: user.id,
         sentiment: Sentiments.POSITIVE,
       })
-      .select('restaurantId');
-    return found;
+      .lean();
+
+    // Extract restaurantIds
+    const restaurantIds: Types.ObjectId[] = reviews.map(
+      (review) => review.restaurantId,
+    );
+
+    return restaurantIds;
   }
 
   // create review

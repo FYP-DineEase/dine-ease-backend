@@ -30,6 +30,9 @@ import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Restaurant, RestaurantDocument } from './models/restaurant.entity';
 
+// Python Script
+import runPythonScript from './recommendations/get-recommendations';
+
 // NATS
 import { Publisher } from '@nestjs-plugins/nestjs-nats-streaming-transport';
 import {
@@ -105,39 +108,26 @@ export class RestaurantsService {
     user: UserDetails,
     recommendationDto: RecommendationDto,
   ): Promise<RestaurantDocument[]> {
-    const { coordinates, distanceInMeters } = recommendationDto;
+    const { coordinates } = recommendationDto;
 
-    // get restaurants from geo location within distance
-    const restaurants: RestaurantDocument[] = await this.restaurantModel
-      .find({
-        location: {
-          $near: {
-            $geometry: {
-              type: 'Point',
-              coordinates: [coordinates[0], coordinates[1]],
-            },
-            $maxDistance: distanceInMeters,
-          },
-        },
-      })
-      .select('id');
-
-    // get good reviews of users and return cuisines from review service
-    // add type safety once finalized
-    const userReviews = await this.reviewService.getReviewdRestaurantsId(user);
+    // get positive reviews of users and return cuisines from review service
+    const reviewedRestaurantIds: Types.ObjectId[] =
+      await this.reviewService.getPositiveReviews(user);
 
     // if reviews not found then suggest all restaurant no need for model
-    if (userReviews.length === 0) {
-      return restaurants;
-    }
+    if (reviewedRestaurantIds.length === 0) return;
 
-    // else pass the restaurants and cuisines of reviews to model
-    // get suggestion and return from python file
+    const restaurants: RestaurantDocument[] = await this.restaurantModel
+      .find()
+      .lean();
 
-    const recommendation: RestaurantDocument[] =
-      await this.restaurantModel.find();
+    const recommendations: any = await runPythonScript(
+      restaurants,
+      reviewedRestaurantIds,
+      coordinates,
+    );
 
-    return restaurants;
+    return recommendations;
   }
 
   // find restaurant by slug

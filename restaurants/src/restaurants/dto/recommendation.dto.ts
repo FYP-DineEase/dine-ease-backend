@@ -11,6 +11,7 @@ import {
 import { Transform } from 'class-transformer';
 
 export class RecommendationDto {
+  @IsOptional()
   @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(1000)
