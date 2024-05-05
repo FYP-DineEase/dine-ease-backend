@@ -211,17 +211,7 @@ export class RestaurantsController {
     return this.restaurantService.restaurantRequest(id, user, data);
   }
 
-  @Delete('/:restaurantId')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(AdminRoles.ADMIN, UserRoles.MANAGER)
-  async deleteRestaurant(
-    @Param() id: RestaurantIdDto,
-    @GetUser() user: UserDetails,
-  ): Promise<string> {
-    return this.restaurantService.deleteRestaurant(id, user);
-  }
-
-  @Delete('/images/:restaurantId')
+  @Patch('/images/:restaurantId')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.MANAGER)
   async deleteImages(
@@ -230,6 +220,16 @@ export class RestaurantsController {
     @GetUser() user: UserDetails,
   ): Promise<string> {
     return this.restaurantService.deleteImages(id, data, user);
+  }
+
+  @Delete('/:restaurantId')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(AdminRoles.ADMIN, UserRoles.MANAGER)
+  async deleteRestaurant(
+    @Param() id: RestaurantIdDto,
+    @GetUser() user: UserDetails,
+  ): Promise<string> {
+    return this.restaurantService.deleteRestaurant(id, user);
   }
 
   @EventPattern(Subjects.SubscriptionCreated)

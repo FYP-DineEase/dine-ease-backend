@@ -51,7 +51,9 @@ db.adminCommand('listDatabases').databases.forEach(function(database) {
 });
 
 # PIP
-pip install torch tensorflow nltk numpy
+pip install pyarrow
+pip install torch tensorflow nltk numpy 
+pip install scikit-learn
 C:\Users\mujta\AppData\Roaming\nltk_data
 
 # K8S
