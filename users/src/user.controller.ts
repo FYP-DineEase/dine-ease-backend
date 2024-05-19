@@ -14,8 +14,11 @@ import {
 } from '@nestjs/common';
 
 import {
-  AuthGuard,
   GetUser,
+  Roles,
+  RolesGuard,
+  AdminRoles,
+  AuthGuard,
   UserDetails,
   MaxImageSizeValidator,
 } from '@dine_ease/common';
@@ -50,6 +53,13 @@ export class UserController {
   @UseGuards(AuthGuard)
   async userDetails(@GetUser() user: UserDetails): Promise<UserDocument> {
     return this.userService.getUserById(user.id);
+  }
+
+  @Get('count')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(AdminRoles.ADMIN)
+  async getCount(): Promise<{ managerCount: number; userCount: number }> {
+    return this.userService.getCount();
   }
 
   @Get('details/:userId')

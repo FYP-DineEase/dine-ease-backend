@@ -60,19 +60,30 @@ export class ReviewService {
     const reviews: ReviewDocument[] = await this.reviewModel
       .find({ userId, isDeleted: false })
       .sort({ createdAt: -1 })
-      .populate({
-        path: 'votes',
-        model: 'Vote',
-      });
+      .populate([
+        {
+          path: 'votes',
+          model: 'Vote',
+        },
+        {
+          path: 'restaurantId',
+          model: 'Restaurant',
+        },
+      ]);
     return reviews;
   }
 
   // get review by id
   async getReviewById(reviewId: Types.ObjectId): Promise<ReviewDocument> {
-    const review: ReviewDocument = await this.reviewModel.findOne({
-      _id: reviewId,
-      isDeleted: false,
-    });
+    const review: ReviewDocument = await this.reviewModel
+      .findOne({
+        _id: reviewId,
+        isDeleted: false,
+      })
+      .populate({
+        path: 'restaurantId',
+        model: 'Restaurant',
+      });
     if (!review) throw new NotFoundException('Review not found');
     return review;
   }
@@ -86,6 +97,10 @@ export class ReviewService {
         isDeleted: false,
       })
       .populate([
+        {
+          path: 'restaurantId',
+          model: 'Restaurant',
+        },
         {
           path: 'userId',
           model: 'User',

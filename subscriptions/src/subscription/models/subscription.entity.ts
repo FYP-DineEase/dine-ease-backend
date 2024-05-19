@@ -27,7 +27,7 @@ export class Subscription {
   @Prop({ type: Types.ObjectId, required: true })
   stripeId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Plan' })
   planId: Types.ObjectId;
 }
 

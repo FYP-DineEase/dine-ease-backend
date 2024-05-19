@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserDetails } from '@dine_ease/common';
+import { UserDetails, UserRoles } from '@dine_ease/common';
 import { Model, Types } from 'mongoose';
 
 // Services
@@ -56,6 +56,19 @@ export class UserService {
       .find({}, { _id: 0, slug: 1 })
       .lean();
     return users;
+  }
+
+  // get document counts
+  async getCount(): Promise<{ managerCount: number; userCount: number }> {
+    const managerCount: number = await this.userModel.countDocuments({
+      role: UserRoles.MANAGER,
+    });
+
+    const userCount: number = await this.userModel.countDocuments({
+      role: UserRoles.USER,
+    });
+
+    return { managerCount, userCount };
   }
 
   // register unverified account

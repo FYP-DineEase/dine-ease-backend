@@ -41,8 +41,19 @@ export class SubscriptionService {
 
   // all subscriptions
   async getSubscriptions(): Promise<SubscriptionDocument[]> {
-    const subscriptions: SubscriptionDocument[] =
-      await this.subscriptionModel.find();
+    const subscriptions: SubscriptionDocument[] = await this.subscriptionModel
+      .find()
+      .populate([
+        {
+          path: 'planId',
+          model: 'Plan',
+        },
+        {
+          path: 'restaurantId',
+          model: 'Restaurant',
+          select: 'name',
+        },
+      ]);
     return subscriptions;
   }
 
@@ -51,8 +62,9 @@ export class SubscriptionService {
     idDto: RestaurantIdDto,
   ): Promise<SubscriptionDocument[]> {
     const { restaurantId } = idDto;
-    const subscriptions: SubscriptionDocument[] =
-      await this.subscriptionModel.find({ restaurantId });
+    const subscriptions: SubscriptionDocument[] = await this.subscriptionModel
+      .find({ restaurantId })
+      .populate('planId');
     return subscriptions;
   }
 
