@@ -30,6 +30,7 @@ import { Plan, PlanDocument } from './models/plan.entity';
 import { UserDocument } from 'src/user/models/user.entity';
 
 // DTO
+import { UserDto } from './dto/user.dto';
 import { PlanDto } from './dto/plan.dto';
 import { PlanSlugDto } from './dto/plan-slug.dto';
 import { UserIdDto, PlanIdDto } from './dto/mongo-id.dto';
@@ -61,7 +62,20 @@ export class PlanService {
         {
           path: 'restaurant',
           model: 'Restaurant',
-          match: { isDeleted: { $ne: true } },
+        },
+      ]);
+    return found;
+  }
+
+  // find plans in which user is invited
+  async invitedUserPlans(userDto: UserDto): Promise<PlanDocument[]> {
+    const { email } = userDto;
+    const found: PlanDocument[] = await this.planModel
+      .find({ invitees: { $in: [email] } })
+      .populate([
+        {
+          path: 'restaurant',
+          model: 'Restaurant',
         },
       ]);
     return found;

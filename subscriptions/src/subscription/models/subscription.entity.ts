@@ -21,7 +21,7 @@ export interface SubscriptionDocument extends HydratedDocument<Subscription> {
   timestamps: true,
 })
 export class Subscription {
-  @Prop({ type: Types.ObjectId, required: true })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Restaurant' })
   restaurantId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, required: true })

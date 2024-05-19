@@ -15,6 +15,7 @@ import { PlanService } from './plan.service';
 import { PlanDocument } from './models/plan.entity';
 
 // DTO
+import { UserDto } from './dto/user.dto';
 import { PlanDto } from './dto/plan.dto';
 import { PlanIdDto, UserIdDto } from './dto/mongo-id.dto';
 import { PlanSlugDto } from './dto/plan-slug.dto';
@@ -22,6 +23,11 @@ import { PlanSlugDto } from './dto/plan-slug.dto';
 @Controller('/api/dining-plan')
 export class PlanController {
   constructor(private readonly planService: PlanService) {}
+
+  @Get('invited')
+  async invitedUserPlans(@Body() userDto: UserDto): Promise<PlanDocument[]> {
+    return this.planService.invitedUserPlans(userDto);
+  }
 
   @Get('user/:userId')
   async allUserPlans(@Param() userIdDto: UserIdDto): Promise<PlanDocument[]> {
