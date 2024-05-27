@@ -215,7 +215,7 @@ export class ReviewService {
     }
 
     // bucket path
-    const path = `${found.restaurantId.id}/${reviewId}`;
+    const path = `${found.restaurantId}/${reviewId}`;
 
     // upload images
     if (files.length > 0) {
