@@ -75,15 +75,10 @@ export class ReviewService {
 
   // get review by id
   async getReviewById(reviewId: Types.ObjectId): Promise<ReviewDocument> {
-    const review: ReviewDocument = await this.reviewModel
-      .findOne({
-        _id: reviewId,
-        isDeleted: false,
-      })
-      .populate({
-        path: 'restaurantId',
-        model: 'Restaurant',
-      });
+    const review: ReviewDocument = await this.reviewModel.findOne({
+      _id: reviewId,
+      isDeleted: false,
+    });
     if (!review) throw new NotFoundException('Review not found');
     return review;
   }
@@ -220,7 +215,7 @@ export class ReviewService {
     }
 
     // bucket path
-    const path = `${found.restaurantId}/${reviewId}`;
+    const path = `${found.restaurantId.id}/${reviewId}`;
 
     // upload images
     if (files.length > 0) {

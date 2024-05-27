@@ -61,15 +61,6 @@ export class RestaurantsController {
     return await this.restaurantService.findRestaurant(data);
   }
 
-  @Get('/recommendation')
-  @UseGuards(AuthGuard)
-  async getRecommendation(
-    @GetUser() user: UserDetails,
-    @Body() recommendationDto: RecommendationDto,
-  ): Promise<RestaurantDocument[]> {
-    return this.restaurantService.getRecommendation(user, recommendationDto);
-  }
-
   @Get('all/slug')
   async getAllUserSlugs(): Promise<RestaurantDocument[]> {
     return this.restaurantService.getAllRestaurantSlugs();
@@ -120,6 +111,15 @@ export class RestaurantsController {
     @Param() restaurantSlugDto: RestaurantSlugDto,
   ): Promise<RestaurantDocument> {
     return this.restaurantService.findRestaurantBySlug(restaurantSlugDto);
+  }
+
+  @Post('/recommendation')
+  @UseGuards(AuthGuard)
+  async getRecommendation(
+    @GetUser() user: UserDetails,
+    @Body() recommendationDto: RecommendationDto,
+  ): Promise<RestaurantDocument[]> {
+    return this.restaurantService.getRecommendation(user, recommendationDto);
   }
 
   @Post('/upload/cover/:restaurantId')

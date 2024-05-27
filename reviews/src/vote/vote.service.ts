@@ -54,10 +54,16 @@ export class VoteService {
         {
           path: 'reviewId',
           model: 'Review',
-          populate: {
-            path: 'userId',
-            model: 'User',
-          },
+          populate: [
+            {
+              path: 'restaurantId',
+              model: 'Restaurant',
+            },
+            {
+              path: 'userId',
+              model: 'User',
+            },
+          ],
         },
       ]);
     return votes;
