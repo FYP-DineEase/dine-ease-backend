@@ -24,8 +24,8 @@ import { PlanSlugDto } from './dto/plan-slug.dto';
 export class PlanController {
   constructor(private readonly planService: PlanService) {}
 
-  @Get('invited')
-  async invitedUserPlans(@Body() userDto: UserDto): Promise<PlanDocument[]> {
+  @Get('invited/:email')
+  async invitedUserPlans(@Param() userDto: UserDto): Promise<PlanDocument[]> {
     return this.planService.invitedUserPlans(userDto);
   }
 
